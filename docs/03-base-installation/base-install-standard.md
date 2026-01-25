@@ -1,12 +1,12 @@
-# 📄 Standard Base Installation
+# Standard Base Installation
 
 > For users with **Basic** or **Advanced** partitioning (no LVM, no encryption).
 
 ![Base Installation](../../images/base-install.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Prerequisites](#-prerequisites)
+- [Prerequisites](#prerequisites)
 - [Step 1: Verify Mounts](#step-1-verify-mounts)
 - [Step 2: Install Base System](#step-2-install-base-system)
 - [Step 3: Generate fstab](#step-3-generate-fstab)
@@ -17,11 +17,11 @@
 - [Step 8: Regenerate initramfs](#step-8-regenerate-initramfs)
 - [Step 9: GPU Drivers](#step-9-gpu-drivers)
 - [Step 10: Enable Services](#step-10-enable-services)
-- [Next: Bootloader](#-next-bootloader)
+- [Next: Bootloader](#next-bootloader)
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 Before proceeding, ensure:
 
@@ -67,7 +67,7 @@ sda      8:0    0   500G  0 disk
 └─sda4   8:4    0     8G  0 part [SWAP]
 ```
 
-> ⚠️ If mounts don't look right, go back to [Partitioning](../02-partitioning/)
+> If mounts don't look right, go back to [Partitioning](../02-partitioning/)
 
 ---
 
@@ -441,7 +441,7 @@ systemctl enable sshd
 
 ---
 
-## ✅ Quick Reference Summary
+## Quick Reference Summary
 
 ```bash
 # Install base system
@@ -487,7 +487,7 @@ systemctl enable sshd
 
 ---
 
-## ➡️ Next: Bootloader
+## Next: Bootloader
 
 Continue to bootloader installation:
 

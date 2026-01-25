@@ -1,21 +1,21 @@
-# 🖥️ GPU and Hardware Drivers
+# GPU and Hardware Drivers
 
 > Installing graphics drivers for Intel, AMD, and NVIDIA GPUs.
 
 ![GPU Drivers](../../images/gpu-drivers.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Identify Your GPU](#-identify-your-gpu)
-- [Intel Graphics](#-intel-graphics)
-- [AMD Graphics](#-amd-graphics)
-- [NVIDIA Graphics](#-nvidia-graphics)
-- [Hybrid Graphics](#-hybrid-graphics)
-- [Verify Installation](#-verify-installation)
+- [Identify Your GPU](#identify-your-gpu)
+- [Intel Graphics](#intel-graphics)
+- [AMD Graphics](#amd-graphics)
+- [NVIDIA Graphics](#nvidia-graphics)
+- [Hybrid Graphics](#hybrid-graphics)
+- [Verify Installation](#verify-installation)
 
 ---
 
-## 🔍 Identify Your GPU
+## Identify Your GPU
 
 ### Check GPU Hardware
 
@@ -45,7 +45,7 @@ lspci -v -s $(lspci | grep -i vga | cut -d' ' -f1)
 
 ---
 
-## 🔧 CPU Microcode (Important)
+## CPU Microcode (Important)
 
 Microcode updates provide CPU bug fixes and security patches.
 
@@ -77,7 +77,7 @@ Found initrd image: /boot/initramfs-linux.img
 Found intel-ucode image: /boot/intel-ucode.img  ← Verify this line
 ```
 
-> ✅ Look for "Found intel-ucode" or "Found amd-ucode" in the output.
+> Look for "Found intel-ucode" or "Found amd-ucode" in the output.
 
 ### For systemd-boot Users
 
@@ -100,7 +100,7 @@ dmesg | grep microcode
 
 ---
 
-## 💙 Intel Graphics
+## Intel Graphics
 
 Intel integrated graphics use open-source drivers included in the kernel.
 
@@ -137,7 +137,7 @@ sudo pacman -S mesa intel-media-driver vulkan-intel intel-gpu-tools
 
 ---
 
-## ❤️ AMD Graphics
+## AMD Graphics
 
 AMD uses open-source AMDGPU drivers (included in kernel).
 
@@ -180,7 +180,7 @@ sudo pacman -S opencl-mesa
 
 ---
 
-## 💚 NVIDIA Graphics
+## NVIDIA Graphics
 
 NVIDIA requires proprietary drivers for best performance.
 
@@ -281,7 +281,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ---
 
-## 🔀 Hybrid Graphics (Laptop)
+## Hybrid Graphics (Laptop)
 
 Many laptops have both Intel/AMD integrated and NVIDIA discrete graphics.
 
@@ -316,7 +316,7 @@ sudo gpasswd -a username bumblebee
 
 ---
 
-## ✅ Verify Installation
+## Verify Installation
 
 ### Check Loaded Driver
 
@@ -366,7 +366,7 @@ Should show a window with spinning gears at high FPS.
 
 ---
 
-## 📊 Driver Summary Table
+## Driver Summary Table
 
 | GPU | Driver Package | Vulkan Package | Video Accel |
 |-----|----------------|----------------|-------------|
@@ -377,7 +377,7 @@ Should show a window with spinning gears at high FPS.
 
 ---
 
-## 📋 Quick Commands
+## Quick Commands
 
 ### Intel
 ```bash
@@ -403,7 +403,7 @@ glxinfo | grep "OpenGL"
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 → [Audio & Bluetooth Setup](audio-bluetooth.md)
 

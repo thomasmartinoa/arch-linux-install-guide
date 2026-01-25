@@ -1,23 +1,23 @@
-# 🚀 LVM Bootloader Installation
+# LVM Bootloader Installation
 
 > GRUB setup for **LVM** partitioning (without encryption).
 
 ![GRUB Bootloader](../../images/grub-bootloader.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Prerequisites](#-prerequisites)
+- [Prerequisites](#prerequisites)
 - [Step 1: Verify Boot/EFI Partition](#step-1-verify-bootefi-partition)
 - [Step 2: Install GRUB](#step-2-install-grub)
 - [Step 3: Configure GRUB](#step-3-configure-grub)
 - [Step 4: Generate Configuration](#step-4-generate-configuration)
 - [Step 5: Dual Boot (Optional)](#step-5-dual-boot-optional)
 - [Step 6: Final Steps](#step-6-final-steps)
-- [Troubleshooting](#-troubleshooting)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 Ensure you have completed:
 
@@ -37,7 +37,7 @@ grep "HOOKS" /etc/mkinitcpio.conf
 
 ---
 
-## 💡 What is a Bootloader?
+## What is a Bootloader?
 
 A bootloader is the first program that runs when you turn on your computer.
 
@@ -61,7 +61,7 @@ ls /boot
 
 If you see `vmlinuz-linux` and other boot files, the boot partition is already mounted.
 
-> 📝 **Note:** In LVM setup, the EFI partition is mounted directly at `/boot`, so it serves as BOTH the boot directory AND the EFI System Partition.
+> **Note:** In LVM setup, the EFI partition is mounted directly at `/boot`, so it serves as BOTH the boot directory AND the EFI System Partition.
 
 ### Mount Boot Partition (if needed)
 
@@ -69,7 +69,7 @@ If you see `vmlinuz-linux` and other boot files, the boot partition is already m
 mount /dev/sda1 /boot
 ```
 
-> 📝 Replace `/dev/sda1` with your EFI partition
+> Replace `/dev/sda1` with your EFI partition
 
 ---
 
@@ -230,7 +230,7 @@ reboot
 
 ---
 
-## ✅ Quick Reference Summary
+## Quick Reference Summary
 
 ```bash
 # Mount boot partition (if needed)
@@ -253,7 +253,7 @@ reboot
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### GRUB Not Found in UEFI
 
@@ -307,7 +307,7 @@ vgchange -ay
 
 ---
 
-## 🔍 LVM Boot Verification
+## LVM Boot Verification
 
 After successful boot, verify LVM is working:
 
@@ -335,7 +335,7 @@ sda                    500G disk
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 After rebooting successfully:
 

@@ -1,8 +1,8 @@
-# 🚪 Display Managers
+# Display Managers
 
-> Graphical login screens for your desktop environment.
+> Graphical login screens for your desktop.
 
-## 📊 Comparison
+## Comparison
 
 | DM | Best For | RAM | Features |
 |----|----------|-----|----------|

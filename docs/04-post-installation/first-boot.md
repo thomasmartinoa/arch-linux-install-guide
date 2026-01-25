@@ -1,21 +1,21 @@
-# 🎉 First Boot Configuration
+# First Boot Configuration
 
 > Initial setup after successfully booting into your new Arch Linux system.
 
 ![First Boot](../../images/first-boot.gif)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Login](#-login)
-- [Configure Sudo](#-configure-sudo)
-- [Network Setup](#-network-setup)
-- [Update System](#-update-system)
-- [Time Synchronization](#-time-synchronization)
-- [Basic Verification](#-basic-verification)
+- [Login](#login)
+- [Configure Sudo](#configure-sudo)
+- [Network Setup](#network-setup)
+- [Update System](#update-system)
+- [Time Synchronization](#time-synchronization)
+- [Basic Verification](#basic-verification)
 
 ---
 
-## 🔐 Login
+## Login
 
 ### Encrypted System
 
@@ -40,7 +40,7 @@ Login with your user account (not root).
 
 ---
 
-## 👑 Configure Sudo
+## Configure Sudo
 
 Sudo allows your user to run commands as root.
 
@@ -54,7 +54,7 @@ su -
 EDITOR=nvim visudo
 ```
 
-> ⚠️ **NEVER** edit `/etc/sudoers` directly! Always use `visudo`.
+> **NEVER** edit `/etc/sudoers` directly! Always use `visudo`.
 
 ### Enable Wheel Group
 
@@ -108,7 +108,7 @@ visudo
 
 ---
 
-## 🌐 Network Setup
+## Network Setup
 
 ### NetworkManager (Recommended)
 
@@ -177,7 +177,7 @@ ping -c 3 archlinux.org
 
 ---
 
-## 📦 Update System
+## Update System
 
 ### Sync Package Database
 
@@ -195,7 +195,7 @@ sudo pacman -Syu
 
 ---
 
-## 🌐 Optimize Mirrors (Recommended)
+## Optimize Mirrors (Recommended)
 
 Reflector automatically selects the fastest mirrors for faster downloads.
 
@@ -263,7 +263,7 @@ Recommended configuration:
 
 ---
 
-## 📦 Install Essential Packages
+## Install Essential Packages
 
 ### Sync and Update All Packages
 
@@ -302,7 +302,7 @@ git vim nano wget curl
 
 ---
 
-## 🕐 Time Synchronization
+## Time Synchronization
 
 ### Configure Timezone
 
@@ -357,7 +357,7 @@ sudo timedatectl set-local-rtc 1
 
 ---
 
-## ✅ Basic Verification
+## Basic Verification
 
 ### Check System Information
 
@@ -394,7 +394,7 @@ systemctl status systemd-timesyncd
 
 ---
 
-## 📋 Quick Reference
+## Quick Reference
 
 ```bash
 # Configure sudo
@@ -427,7 +427,7 @@ ping -c 3 archlinux.org
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Your base system is configured! Continue with:
 

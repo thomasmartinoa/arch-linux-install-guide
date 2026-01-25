@@ -1,21 +1,21 @@
-# 📊 Advanced Partitioning Guide
+# Advanced Partitioning Guide
 
 > Separate partitions for root, home, and swap - recommended for regular desktop use.
 
 ![Advanced Partitioning](../../images/advanced-partition.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Partition Layout](#-partition-layout)
-- [Step-by-Step Partitioning](#-step-by-step-partitioning)
-- [Format Partitions](#-format-partitions)
-- [Mount Partitions](#-mount-partitions)
-- [Verification](#-verification)
+- [Overview](#overview)
+- [Partition Layout](#partition-layout)
+- [Step-by-Step Partitioning](#step-by-step-partitioning)
+- [Format Partitions](#format-partitions)
+- [Mount Partitions](#mount-partitions)
+- [Verification](#verification)
 
 ---
 
-## 📊 Overview
+## Overview
 
 This setup separates your personal files (`/home`) from the system:
 
@@ -40,7 +40,7 @@ This setup separates your personal files (`/home`) from the system:
 
 ---
 
-## 📐 Partition Layout
+## Partition Layout
 
 For a **500GB disk**:
 
@@ -62,9 +62,9 @@ For a **500GB disk**:
 
 ---
 
-## 🛠️ Step-by-Step Partitioning
+## Step-by-Step Partitioning
 
-### Using cfdisk (Recommended) ⭐
+### Using cfdisk (Recommended)
 
 ```bash
 cfdisk /dev/sda
@@ -140,7 +140,7 @@ Command: w
 
 ---
 
-## 💾 Format Partitions
+## Format Partitions
 
 ### Format All Partitions
 
@@ -206,7 +206,7 @@ mkswap /dev/sda4
 
 ---
 
-## 📁 Mount Partitions
+## Mount Partitions
 
 ### Mount Order (Important!)
 
@@ -249,7 +249,7 @@ swapon /dev/sda4
 
 ---
 
-## ✅ Verification
+## Verification
 
 ### Check All Mounts
 
@@ -275,7 +275,7 @@ swapon --show
 
 ---
 
-## 📋 Complete Command Summary
+## Complete Command Summary
 
 ```bash
 # Partition (interactive)
@@ -300,7 +300,7 @@ lsblk
 
 ---
 
-## 🔄 Alternative: Using Labels
+## Alternative: Using Labels
 
 You can assign labels to partitions for easier identification:
 
@@ -330,7 +330,7 @@ sda4   swap   SWAP    8G [SWAP]
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Your disk is now partitioned and ready!
 

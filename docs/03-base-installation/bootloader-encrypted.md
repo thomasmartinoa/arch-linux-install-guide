@@ -1,23 +1,23 @@
-# 🔐 Encrypted LVM Bootloader Installation
+# Encrypted LVM Bootloader Installation
 
 > GRUB setup for **LUKS Encryption with LVM**.
 
 ![GRUB Bootloader](../../images/grub-bootloader.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Prerequisites](#-prerequisites)
+- [Prerequisites](#prerequisites)
 - [Step 1: Create EFI Directory](#step-1-create-efi-directory)
 - [Step 2: Install GRUB](#step-2-install-grub)
 - [Step 3: Configure GRUB for Encryption](#step-3-configure-grub-for-encryption)
 - [Step 4: Generate Configuration](#step-4-generate-configuration)
 - [Step 5: Final Steps](#step-5-final-steps)
-- [What Happens at Boot](#-what-happens-at-boot)
-- [Troubleshooting](#-troubleshooting)
+- [What Happens at Boot](#what-happens-at-boot)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 Ensure you have completed:
 
@@ -35,11 +35,11 @@ grep "HOOKS" /etc/mkinitcpio.conf
 # Should show: ... block encrypt lvm2 filesystems ...
 ```
 
-> ⚠️ If you don't see `encrypt lvm2` in HOOKS, go back to [Step 9 of Encrypted Base Installation](base-install-encrypted.md#step-9-configure-mkinitcpio-critical)
+> If you don't see `encrypt lvm2` in HOOKS, go back to [Step 9 of Encrypted Base Installation](base-install-encrypted.md#step-9-configure-mkinitcpio-critical)
 
 ---
 
-## 💡 Encrypted Boot Process
+## Encrypted Boot Process
 
 ```
 Power On → UEFI → GRUB → Kernel loads initramfs
@@ -80,7 +80,7 @@ mkdir -p /boot/EFI
 mount /dev/nvme0n1p1 /boot/EFI
 ```
 
-> 📝 Replace `/dev/nvme0n1p1` with your EFI partition
+> Replace `/dev/nvme0n1p1` with your EFI partition
 
 ---
 
@@ -305,7 +305,7 @@ You'll reach the login prompt. Use your user credentials (not LUKS password).
 
 ---
 
-## ✅ Quick Reference Summary
+## Quick Reference Summary
 
 ```bash
 # Create EFI directory (if needed)
@@ -335,7 +335,7 @@ reboot
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### "No key available with this passphrase"
 
@@ -409,7 +409,7 @@ grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
 
 ---
 
-## 🔐 Security Notes
+## Security Notes
 
 ### Password Entry
 
@@ -431,7 +431,7 @@ Someone with physical access could potentially tamper with these. For higher sec
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 After rebooting successfully:
 

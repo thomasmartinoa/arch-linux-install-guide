@@ -1,10 +1,10 @@
-# 🖥️ Driver Problems
+# Driver Problems
 
-> Solutions for GPU issues, display problems, and hardware driver troubleshooting.
+Solutions for GPU issues, display problems, and hardware driver troubleshooting.
 
 ![Driver Problems](../../images/driver-problems.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [No Display Output](#no-display-output)
 - [Wrong Resolution](#wrong-resolution)
@@ -398,7 +398,7 @@ sudo nvim /etc/pam.d/sudo
 
 ---
 
-## 🔍 Driver Diagnostic Commands
+## Driver Diagnostic Commands
 
 ```bash
 # GPU information
@@ -427,7 +427,7 @@ xrandr --verbose
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 - [Audio Issues](audio-issues.md) - If you have sound problems
 - [System Recovery](system-recovery.md) - For major issues

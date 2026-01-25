@@ -1,8 +1,8 @@
-# 🐧 Arch Linux Installation Guide
+# Arch Linux Installation Guide
 
 [![Arch Linux](https://img.shields.io/badge/Arch%20Linux-1793D1?style=for-the-badge&logo=arch-linux&logoColor=white)](https://archlinux.org/)
 
-> A comprehensive, beginner-friendly guide to installing Arch Linux with detailed explanations of every command.
+> My Arch Linux installation guide with actual explanations for each command.
 
 ![Arch Linux Banner](images/arch-banner.png)
 
@@ -21,25 +21,25 @@
 
 ## 🎯 Introduction
 
-This guide documents my personal Arch Linux installation process, designed to help both beginners and experienced users. Unlike other guides that just list commands, **this guide explains what each command does** so you can learn while installing.
+This is how I install Arch Linux. Unlike most guides that just dump commands at you, I actually explain what each one does. Should work for beginners and people who already know their way around Linux.
 
 ---
 
-## 📚 Prerequisites
+## Prerequisites
 
-Before starting, ensure you have:
+You'll need:
 
-- [ ] A computer with UEFI support (most modern PCs)
-- [ ] A USB drive (8GB or larger)
-- [ ] Internet connection (Ethernet recommended, WiFi supported)
-- [ ] Backup of important data
-- [ ] Basic command line knowledge
+- [ ] A computer with UEFI (most modern PCs)
+- [ ] USB drive (8GB or bigger)
+- [ ] Internet connection (wired is easier, WiFi works too)
+- [ ] Backup your data first
+- [ ] Some basic terminal knowledge
 
 ---
 
-## 🚀 Quick Navigation
+## Quick Navigation
 
-### 🔰 For Beginners (Standard Path)
+### For Beginners (Standard Path)
 
 1. [BIOS Settings](docs/01-pre-installation/bios-settings.md)
 2. [Create Bootable USB](docs/01-pre-installation/create-bootable-usb.md)
@@ -50,7 +50,7 @@ Before starting, ensure you have:
 7. [First Boot](docs/04-post-installation/first-boot.md)
 8. [Choose a Desktop Environment](docs/05-desktop-environments/de-overview.md)
 
-### 📦 For LVM Users (Flexible Partitioning)
+### For LVM Users (Flexible Partitioning)
 
 1. [BIOS Settings](docs/01-pre-installation/bios-settings.md)
 2. [Create Bootable USB](docs/01-pre-installation/create-bootable-usb.md)
@@ -60,7 +60,7 @@ Before starting, ensure you have:
 6. [LVM Bootloader](docs/03-base-installation/bootloader-lvm.md)
 7. [First Boot](docs/04-post-installation/first-boot.md)
 
-### 🔒 For Security-Focused Users (Encrypted)
+### For Security-Focused Users (Encrypted)
 
 1. [BIOS Settings](docs/01-pre-installation/bios-settings.md)
 2. [Create Bootable USB](docs/01-pre-installation/create-bootable-usb.md)
@@ -71,7 +71,7 @@ Before starting, ensure you have:
 7. [First Boot](docs/04-post-installation/first-boot.md)
 8. [Security Hardening](docs/07-optimization/security.md)
 
-### 🗂️ For Modern Filesystem Users (Btrfs)
+### For Modern Filesystem Users (Btrfs)
 
 1. [BIOS Settings](docs/01-pre-installation/bios-settings.md)
 2. [Create Bootable USB](docs/01-pre-installation/create-bootable-usb.md)
@@ -84,7 +84,7 @@ Before starting, ensure you have:
 
 ---
 
-## 🗄️ Partitioning Options
+## Partitioning Options
 
 Choose your partitioning method based on your needs:
 
@@ -98,7 +98,7 @@ Choose your partitioning method based on your needs:
 
 ---
 
-## 🥾 Bootloader Options
+## Bootloader Options
 
 | Bootloader | Difficulty | Features | Best For |
 |------------|------------|----------|----------|
@@ -106,7 +106,7 @@ Choose your partitioning method based on your needs:
 | [GRUB (Encrypted)](docs/03-base-installation/bootloader-encrypted.md) | ⭐⭐⭐ Advanced | LUKS support | Encrypted setups |
 | [systemd-boot](docs/03-base-installation/bootloader-systemd.md) | ⭐⭐ Medium | Minimal, fast | UEFI-only, non-encrypted |
 
-> 💡 **Note:** systemd-boot doesn't support LUKS encryption well. Use GRUB for encrypted systems.
+> 💡 **Note:** systemd-boot doesn't handle LUKS encryption well. Stick with GRUB if you're encrypting.
 
 ---
 
@@ -138,29 +138,29 @@ Choose your partitioning method based on your needs:
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-Having issues? Check these guides:
+Run into problems? Here's where to look:
 
 | Issue | Common Causes | Guide |
 |-------|---------------|-------|
-| 🥾 Boot Problems | GRUB errors, kernel panic | [Boot Troubleshooting](docs/08-troubleshooting/boot-problems.md) |
-| 🌐 Network Issues | WiFi not working, no internet | [Network Troubleshooting](docs/08-troubleshooting/network-issues.md) |
-| 🖥️ Driver Problems | GPU issues, hardware not detected | [Driver Troubleshooting](docs/08-troubleshooting/driver-problems.md) |
+|  Boot Problems | GRUB errors, kernel panic | [Boot Troubleshooting](docs/08-troubleshooting/boot-problems.md) |
+|  Network Issues | WiFi not working, no internet | [Network Troubleshooting](docs/08-troubleshooting/network-issues.md) |
+|  Driver Problems | GPU issues, hardware not detected | [Driver Troubleshooting](docs/08-troubleshooting/driver-problems.md) |
 | 🔊 Audio Issues | No sound, Bluetooth audio | [Audio Troubleshooting](docs/08-troubleshooting/audio-issues.md) |
-| 💥 System Recovery | Broken packages, chroot rescue | [System Recovery](docs/08-troubleshooting/system-recovery.md) |
+|  System Recovery | Broken packages, chroot rescue | [System Recovery](docs/08-troubleshooting/system-recovery.md) |
 
-> 📖 See the full [Troubleshooting Index](docs/08-troubleshooting/README.md) for more help.
+>  See the full [Troubleshooting Index](docs/08-troubleshooting/README.md) for more help.
 
 ---
 
-## 📖 Additional Resources
+##  Additional Resources
 
 - [Arch Wiki](https://wiki.archlinux.org/) - The ultimate Arch Linux resource
 - [Arch Linux Forums](https://bbs.archlinux.org/) - Community support
 - [r/archlinux](https://www.reddit.com/r/archlinux/) - Reddit community
 
-### 🚀 Advanced Guides
+###  Advanced Guides
 
 - [**CachyOS Kernel on Arch**](https://github.com/thomasmartinoa/cachyos-kernel_on_arch) - Install the performance-optimized CachyOS kernel (better gaming & responsiveness)
 
@@ -168,13 +168,13 @@ Having issues? Check these guides:
 
 ## 🤝 Contributing
 
-Found an error or want to improve this guide? Contributions are welcome!
+Found a mistake or want to add something?
 
-1. Fork this repository
-2. Create a new branch (`git checkout -b fix/typo`)
-3. Commit your changes (`git commit -am 'Fix typo in partitioning guide'`)
-4. Push to the branch (`git push origin fix/typo`)
-5. Open a Pull Request
+1. Fork this repo
+2. Make your changes
+3. Open a pull request
+
+Pretty standard stuff.
 
 ---
 

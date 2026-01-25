@@ -1,24 +1,24 @@
-# 📊 Understanding Disk Partitioning
+# Understanding Disk Partitioning
 
-> A comprehensive guide to understanding disk partitioning concepts before you start.
+> A guide to understanding disk partitioning before you start.
 
 ![Partition Overview](../../images/partition-overview.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Device Naming](#-device-naming)
-- [What is Partitioning?](#-what-is-partitioning)
-- [Partition Tables: GPT vs MBR](#-partition-tables-gpt-vs-mbr)
-- [Partition Types](#-partition-types)
-- [Partition Schemes](#-partition-schemes)
-- [Choosing Your Setup](#-choosing-your-setup)
-- [Tools Overview](#-tools-overview)
+- [Device Naming](#device-naming)
+- [What is Partitioning?](#what-is-partitioning)
+- [Partition Tables: GPT vs MBR](#partition-tables-gpt-vs-mbr)
+- [Partition Types](#partition-types)
+- [Partition Schemes](#partition-schemes)
+- [Choosing Your Setup](#choosing-your-setup)
+- [Tools Overview](#tools-overview)
 
 ---
 
-## 💻 Device Naming
+## Device Naming
 
-> ⚠️ **Important:** Device names vary by disk type. Know your disk before partitioning!
+> **Important:** Device names vary by disk type. Know your disk before partitioning!
 
 ### Device Naming Conventions
 
@@ -44,15 +44,15 @@ nvme0n1     259:0    0   1.0T  0 disk          ← NVMe disk
 sdb           8:16   1   8.0G  0 disk          ← USB drive
 ```
 
-> 📝 **Note:** This guide uses `/dev/sda` as an example. **Replace with YOUR device!**
+> **Note:** This guide uses `/dev/sda` as an example. **Replace with YOUR device!**
 > - If you have NVMe: use `/dev/nvme0n1` and partitions `/dev/nvme0n1p1`, `/dev/nvme0n1p2`, etc.
 > - If you have SATA: use `/dev/sda` and partitions `/dev/sda1`, `/dev/sda2`, etc.
 
 ---
 
-## 💡 What is Partitioning?
+## What is Partitioning?
 
-**Partitioning** is the process of dividing a physical disk into separate logical sections. Each partition acts as an independent unit that can have its own filesystem.
+**Partitioning** divides a physical disk into separate logical sections. Each partition acts as an independent unit with its own filesystem.
 
 ### Analogy
 Think of a disk as a building:
@@ -72,11 +72,11 @@ Think of a disk as a building:
 
 ---
 
-## 📁 Partition Tables: GPT vs MBR
+## Partition Tables: GPT vs MBR
 
 A **partition table** is a data structure on the disk that defines partition locations.
 
-### GPT (GUID Partition Table) ⭐ Recommended
+### GPT (GUID Partition Table) - Recommended
 
 | Feature | Specification |
 |---------|---------------|
@@ -117,11 +117,11 @@ MBR:
     └── ...
 ```
 
-> 🎯 **Recommendation:** Use **GPT** for all modern installations. This guide focuses on GPT.
+> **Recommendation:** Use **GPT** for all modern installations. This guide focuses on GPT.
 
 ---
 
-## 🗂️ Partition Types
+## Partition Types
 
 ### EFI System Partition (ESP)
 
@@ -217,7 +217,7 @@ mkfs.fat -F32 /dev/sdX1
 
 ---
 
-## 📐 Partition Schemes
+## Partition Schemes
 
 ### Scheme 1: Minimal (Beginners) ⭐
 
@@ -396,7 +396,7 @@ mkfs.fat -F32 /dev/sdX1
 
 ---
 
-## 🎯 Choosing Your Setup
+## Choosing Your Setup
 
 ### Decision Flowchart
 
@@ -427,7 +427,7 @@ Do you need disk encryption?
 
 ---
 
-## 🔧 Tools Overview
+## Tools Overview
 
 ### cfdisk (Recommended for Beginners) ⭐
 
@@ -498,7 +498,7 @@ parted /dev/sdX
 
 ---
 
-## 📖 Filesystem Types
+## Filesystem Types
 
 | Filesystem | Best For | Features |
 |------------|----------|----------|
@@ -523,7 +523,7 @@ parted /dev/sdX
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Choose your partitioning guide:
 

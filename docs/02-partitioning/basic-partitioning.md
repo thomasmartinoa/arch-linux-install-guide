@@ -1,22 +1,22 @@
-# 🔰 Basic Partitioning Guide
+# Basic Partitioning Guide
 
-> Simple partition setup for beginners - perfect for your first Arch Linux installation.
+> Simple partition setup for beginners - perfect for your first Arch installation.
 
 ![Basic Partitioning](../../images/basic-partition.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Identify Your Disk](#-identify-your-disk)
-- [Partition Layout](#-partition-layout)
-- [Step-by-Step Partitioning](#-step-by-step-partitioning)
-- [Format Partitions](#-format-partitions)
-- [Mount Partitions](#-mount-partitions)
-- [Verification](#-verification)
+- [Overview](#overview)
+- [Identify Your Disk](#identify-your-disk)
+- [Partition Layout](#partition-layout)
+- [Step-by-Step Partitioning](#step-by-step-partitioning)
+- [Format Partitions](#format-partitions)
+- [Mount Partitions](#mount-partitions)
+- [Verification](#verification)
 
 ---
 
-## 📊 Overview
+## Overview
 
 This guide creates a simple partition layout:
 
@@ -38,9 +38,9 @@ This guide creates a simple partition layout:
 
 ---
 
-## 🔍 Identify Your Disk
+## Identify Your Disk
 
-> 💡 **Device Naming Convention:**
+> **Device Naming Convention:**
 > - **SATA/USB drives:** `/dev/sda`, `/dev/sdb`, etc. Partitions: `/dev/sda1`, `/dev/sda2`
 > - **NVMe drives:** `/dev/nvme0n1`, `/dev/nvme1n1`, etc. Partitions: `/dev/nvme0n1p1`, `/dev/nvme0n1p2`
 > - **SD cards/eMMC:** `/dev/mmcblk0`. Partitions: `/dev/mmcblk0p1`, `/dev/mmcblk0p2`
@@ -70,7 +70,7 @@ sdb           8:16   1   8.0G  0 disk              ← USB (installation media)
 | `nvme0n1`, `nvme1n1` | NVMe drives | Modern fast SSD |
 | `mmcblk0` | eMMC/SD card | Embedded storage |
 
-> ⚠️ **Important:** Identify your **target disk** carefully. In this example, we'll use `/dev/sda`. Replace it with your actual disk!
+> **Important:** Identify your **target disk** carefully. In this example, we'll use `/dev/sda`. Replace it with your actual disk!
 
 ### Check Disk Details
 
@@ -85,7 +85,7 @@ fdisk -l /dev/sda
 
 ---
 
-## 📐 Partition Layout
+## Partition Layout
 
 For a **500GB disk**, here's the layout:
 
@@ -97,9 +97,9 @@ For a **500GB disk**, here's the layout:
 
 ---
 
-## 🛠️ Step-by-Step Partitioning
+## Step-by-Step Partitioning
 
-### Method 1: Using cfdisk (Recommended) ⭐
+### Method 1: Using cfdisk (Recommended)
 
 `cfdisk` has a user-friendly text interface.
 
@@ -264,7 +264,7 @@ The partition table has been altered.
 
 ---
 
-## 💾 Format Partitions
+## Format Partitions
 
 After creating partitions, they need filesystems.
 
@@ -321,7 +321,7 @@ mkswap /dev/sda3
 
 ---
 
-## 📁 Mount Partitions
+## Mount Partitions
 
 Mounting makes partitions accessible at specific directories.
 
@@ -376,7 +376,7 @@ swapon /dev/sda3
 
 ---
 
-## ✅ Verification
+## Verification
 
 ### Check Mounts
 
@@ -407,7 +407,7 @@ NAME      TYPE      SIZE USED PRIO
 
 ---
 
-## 📋 Summary Commands
+## Summary Commands
 
 Here's the complete sequence for basic partitioning:
 
@@ -432,7 +432,7 @@ lsblk
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### "Device or resource busy"
 
@@ -457,7 +457,7 @@ partprobe /dev/sda
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Your disk is now partitioned and ready!
 

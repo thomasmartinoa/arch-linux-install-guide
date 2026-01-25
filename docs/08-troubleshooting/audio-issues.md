@@ -1,10 +1,10 @@
-# 🔊 Audio Issues
+# Audio Issues
 
-> Solutions for no sound, wrong output devices, and audio configuration problems.
+Solutions for no sound, wrong output devices, and audio configuration problems.
 
 ![Audio Issues](../../images/audio-issues.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [No Sound at All](#no-sound-at-all)
 - [Wrong Output Device](#wrong-output-device)
@@ -333,7 +333,7 @@ flatpak override --user --socket=pipewire
 
 ---
 
-## 🔍 Audio Diagnostic Commands
+## Audio Diagnostic Commands
 
 ```bash
 # Sound cards
@@ -364,7 +364,7 @@ speaker-test -c 2 -t wav
 
 ---
 
-## 🛠️ Common Fixes
+## Common Fixes
 
 ### Reset PipeWire Config
 
@@ -400,7 +400,7 @@ sudo alsactl store
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 - [System Recovery](system-recovery.md) - For major system issues
 

@@ -1,23 +1,23 @@
-# 🚀 systemd-boot Installation
+# systemd-boot Installation
 
 > A simple, fast bootloader alternative to GRUB for UEFI systems.
 
 ![systemd-boot](../../images/systemd-boot.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Why systemd-boot?](#-why-systemd-boot)
-- [Prerequisites](#-prerequisites)
-- [Installation](#-installation)
-- [Configuration](#-configuration)
-- [Adding Boot Entries](#-adding-boot-entries)
-- [Dual Boot Setup](#-dual-boot-setup)
-- [Updating systemd-boot](#-updating-systemd-boot)
-- [Troubleshooting](#-troubleshooting)
+- [Why systemd-boot?](#why-systemd-boot)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Adding Boot Entries](#adding-boot-entries)
+- [Dual Boot Setup](#dual-boot-setup)
+- [Updating systemd-boot](#updating-systemd-boot)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## 💡 Why systemd-boot?
+## Why systemd-boot?
 
 systemd-boot (formerly gummiboot) is a simple UEFI boot manager.
 
@@ -25,28 +25,28 @@ systemd-boot (formerly gummiboot) is a simple UEFI boot manager.
 
 | Feature | systemd-boot | GRUB |
 |---------|--------------|------|
-| **Simplicity** | ✅ Very simple | ❌ Complex |
-| **Speed** | ✅ Fast | ⚡ Slower |
+| **Simplicity** | Very simple | Complex |
+| **Speed** | Fast | Slower |
 | **Config** | Plain text | Script-based |
-| **UEFI Only** | ✅ Yes | Supports BIOS too |
-| **Theming** | ❌ Limited | ✅ Extensive |
-| **LUKS Support** | ❌ No direct | ✅ Built-in |
-| **Dual Boot** | ✅ Auto-detect | ✅ Auto-detect |
+| **UEFI Only** | Yes | Supports BIOS too |
+| **Theming** | Limited | Extensive |
+| **LUKS Support** | No direct | Built-in |
+| **Dual Boot** | Auto-detect | Auto-detect |
 
 ### When to Use systemd-boot
 
-- ✅ UEFI system (not legacy BIOS)
-- ✅ Simple, single-OS setup
-- ✅ Want faster boot times
-- ✅ Prefer plain text configuration
-- ❌ Need LUKS encryption (use GRUB instead)
-- ❌ Need legacy BIOS support
+- UEFI system (not legacy BIOS)
+- Simple, single-OS setup
+- Want faster boot times
+- Prefer plain text configuration
+- Don't use LUKS encryption (use GRUB for that)
+- Don't need legacy BIOS support
 
-> ⚠️ **Note:** For encrypted root, GRUB is recommended as it can prompt for the LUKS password. systemd-boot requires an unencrypted /boot.
+> **Note:** For encrypted root, GRUB is recommended as it can prompt for the LUKS password. systemd-boot requires an unencrypted /boot.
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 Ensure you have:
 
@@ -63,7 +63,7 @@ If this directory exists, you're in UEFI mode.
 
 ---
 
-## 📦 Installation
+## Installation
 
 ### Step 1: Install systemd-boot
 
@@ -93,7 +93,7 @@ bootctl status
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### Loader Configuration
 
@@ -122,7 +122,7 @@ editor   no
 
 ---
 
-## 📝 Adding Boot Entries
+## Adding Boot Entries
 
 ### Step 3: Create Arch Linux Entry
 
@@ -213,7 +213,7 @@ options root=PARTUUID=xxxx-xxxx rw
 
 ---
 
-## 💻 LVM Configuration
+## LVM Configuration
 
 For LVM installations (without encryption):
 
@@ -231,7 +231,7 @@ options root=/dev/mapper/volgroup0-lv_root rw
 
 ---
 
-## 🪟 Dual Boot Setup
+## Dual Boot Setup
 
 ### Windows Dual Boot
 
@@ -269,7 +269,7 @@ options root=PARTUUID=xxxx-xxxx rw
 
 ---
 
-## 🔄 Updating systemd-boot
+## Updating systemd-boot
 
 ### Automatic Updates with Pacman Hook
 
@@ -304,7 +304,7 @@ Unlike GRUB, you don't need to run any command after kernel updates. The kernel 
 
 ---
 
-## 🔧 Additional Options
+## Additional Options
 
 ### Kernel Parameters
 
@@ -339,7 +339,7 @@ options root=PARTUUID=xxxx rw rootflags=subvol=@
 
 ---
 
-## ✅ Verification
+## Verification
 
 ### Check Boot Entries
 
@@ -375,7 +375,7 @@ reboot
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### systemd-boot Not Showing
 
@@ -419,7 +419,7 @@ bootctl --esp-path=/mnt install
 
 ---
 
-## 📋 Quick Reference
+## Quick Reference
 
 ```bash
 # Install
@@ -444,7 +444,7 @@ bootctl install --force
 
 ---
 
-## 🔀 Migration from GRUB
+## Migration from GRUB
 
 If you're switching from GRUB:
 
@@ -468,7 +468,7 @@ reboot
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 After bootloader setup:
 

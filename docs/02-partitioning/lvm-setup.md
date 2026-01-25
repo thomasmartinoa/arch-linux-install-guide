@@ -1,23 +1,23 @@
-# 🗄️ LVM Setup Guide
+# LVM Setup Guide
 
 > Flexible partition management using Logical Volume Manager.
 
 ![LVM Setup](../../images/lvm-setup.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [What is LVM?](#-what-is-lvm)
-- [LVM Concepts](#-lvm-concepts)
-- [Partition Layout](#-partition-layout)
-- [Step-by-Step Setup](#-step-by-step-setup)
-- [Mount Partitions](#-mount-partitions)
-- [Verification](#-verification)
+- [What is LVM?](#what-is-lvm)
+- [LVM Concepts](#lvm-concepts)
+- [Partition Layout](#partition-layout)
+- [Step-by-Step Setup](#step-by-step-setup)
+- [Mount Partitions](#mount-partitions)
+- [Verification](#verification)
 
 ---
 
-## 💡 What is LVM?
+## What is LVM?
 
-**LVM (Logical Volume Manager)** is a device mapper that provides a layer of abstraction between your physical disks and filesystems.
+**LVM (Logical Volume Manager)** provides a layer of abstraction between your physical disks and filesystems.
 
 ### Benefits of LVM
 
@@ -30,15 +30,15 @@
 
 ### When to Use LVM
 
-- ✅ You want flexibility to resize partitions later
-- ✅ You might add more disks in the future
-- ✅ You need snapshot capability
-- ✅ You're setting up a server
-- ❌ Simple desktop with fixed storage needs
+- You want flexibility to resize partitions later
+- You might add more disks in the future
+- You need snapshot capability
+- You're setting up a server
+- Not ideal for simple desktop with fixed storage needs
 
 ---
 
-## 📚 LVM Concepts
+## LVM Concepts
 
 ```
 Physical Disk(s)
@@ -74,7 +74,7 @@ Think of it like a warehouse:
 
 ---
 
-## 📐 Partition Layout
+## Partition Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -101,7 +101,7 @@ Think of it like a warehouse:
 
 ---
 
-## 🛠️ Step-by-Step Setup
+## Step-by-Step Setup
 
 ### Step 1: Create Partitions
 
@@ -318,7 +318,7 @@ mkswap /dev/volgroup0/lv_swap
 
 ---
 
-## 📁 Mount Partitions
+## Mount Partitions
 
 ### Step 1: Mount Root
 
@@ -348,7 +348,7 @@ swapon /dev/volgroup0/lv_swap
 
 ---
 
-## ✅ Verification
+## Verification
 
 ### Check Block Devices
 
@@ -389,7 +389,7 @@ lvs
 
 ---
 
-## 📋 Complete Command Summary
+## Complete Command Summary
 
 ```bash
 # 1. Create partitions
@@ -429,7 +429,7 @@ lsblk
 
 ---
 
-## 🔧 LVM Management Commands
+## LVM Management Commands
 
 After installation, you can manage LVM with these commands:
 
@@ -462,7 +462,7 @@ lvcreate -L 10G -s -n root_snapshot /dev/volgroup0/lv_root
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Your LVM setup is complete!
 

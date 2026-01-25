@@ -1,8 +1,8 @@
-# ⚡ Performance Tweaks
+# Performance Tweaks
 
 > Optimizing your Arch Linux system.
 
-## 🚀 Quick Optimizations
+## Quick Optimizations
 
 ### Enable Parallel Downloads
 
@@ -42,7 +42,7 @@ sudo systemctl status fstrim.timer
 sudo fstrim -av
 ```
 
-> ⚠️ Only use TRIM if you have an SSD. Check with `lsblk -d -o name,rota` (0 = SSD, 1 = HDD).
+> Only use TRIM if you have an SSD. Check with `lsblk -d -o name,rota` (0 = SSD, 1 = HDD).
 
 ### Reduce Swappiness
 
@@ -72,7 +72,7 @@ sudo systemctl start systemd-zram-setup@zram0.service
 
 ---
 
-## 🧠 Memory & Application Preloading
+## Memory & Application Preloading
 
 ### Preload (Application Prefetcher)
 
@@ -116,7 +116,7 @@ cycle = 20
 
 ---
 
-## ⚡ CPU Frequency Scaling
+## CPU Frequency Scaling
 
 ### auto-cpufreq (Automatic CPU Speed & Power Optimization)
 
@@ -184,7 +184,7 @@ turbo = auto
 
 ---
 
-## ⌨️ Boot Optimizations
+## Boot Optimizations
 
 ### Enable NumLock on Boot
 
@@ -458,7 +458,7 @@ System suspends to RAM but also saves to disk as backup.
 
 ---
 
-## 🚀 Advanced Kernel Optimization
+## Advanced Kernel Optimization
 
 ### CachyOS Kernel (Performance-Optimized)
 

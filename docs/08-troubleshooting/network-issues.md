@@ -1,10 +1,10 @@
-# 🌐 Network Issues
+# Network Issues
 
-> Solutions for WiFi, Ethernet, DNS, and connectivity problems.
+Solutions for WiFi, Ethernet, DNS, and connectivity problems.
 
 ![Network Issues](../../images/network-issues.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [No Network at All](#no-network-at-all)
 - [WiFi Not Working](#wifi-not-working)
@@ -347,7 +347,7 @@ sudo systemctl enable wg-quick@wg0
 
 ---
 
-## 🔍 Network Diagnostic Commands
+## Network Diagnostic Commands
 
 ```bash
 # All interfaces
@@ -379,7 +379,7 @@ journalctl -u NetworkManager
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 - [Driver Problems](driver-problems.md) - If network hardware isn't detected
 - [System Recovery](system-recovery.md) - If you need to fix from Live USB
