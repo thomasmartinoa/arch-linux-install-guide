@@ -492,7 +492,6 @@ ss -tulpn
 
 ## ➡️ Next Steps
 
-- [Performance Tweaks](performance-tweaks.md)
 - [System Maintenance](maintenance.md)
 
 ---
