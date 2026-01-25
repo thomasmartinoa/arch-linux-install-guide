@@ -408,8 +408,7 @@ HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encryp
 Regenerate initramfs:
 
 ```bash
-mkinitcpio -p linux
-mkinitcpio -p linux-lts  # If you have LTS kernel
+mkinitcpio -P
 ```
 
 ---

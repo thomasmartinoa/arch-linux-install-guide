@@ -26,6 +26,17 @@ sudo pacman -S mc            # Midnight Commander
 sudo pacman -S unzip zip     # Archive tools
 sudo pacman -S p7zip         # 7zip support
 sudo pacman -S unrar         # RAR support
+sudo pacman -S tar           # TAR archives
+sudo pacman -S rsync         # File synchronization
+```
+
+### Filesystem Support
+
+```bash
+sudo pacman -S ntfs-3g       # NTFS read/write support
+sudo pacman -S exfat-utils   # exFAT filesystem support
+sudo pacman -S fuse-exfat    # FUSE exFAT driver (fallback)
+sudo pacman -S dosfstools    # FAT32 tools
 ```
 
 ### Terminal Emulators
@@ -57,8 +68,6 @@ sudo pacman -S fzf           # Fuzzy finder
 ```bash
 sudo pacman -S gparted       # Partition manager
 sudo pacman -S gnome-disk-utility  # Disk utility
-sudo pacman -S ntfs-3g       # NTFS support
-sudo pacman -S dosfstools    # FAT tools
 ```
 
 ---
@@ -140,6 +149,14 @@ sudo pacman -S celluloid     # MPV frontend
 sudo pacman -S pavucontrol   # Volume control
 sudo pacman -S spotify       # Spotify (AUR)
 sudo pacman -S cmus          # Terminal music player
+sudo pacman -S flac          # FLAC audio codec
+```
+
+### Media Codecs & Libraries
+
+```bash
+sudo pacman -S jasper        # JPEG-2000 library
+sudo pacman -S gst-plugins-good gst-plugins-bad gst-plugins-ugly  # GStreamer codecs
 ```
 
 ### Screen Recording
@@ -148,6 +165,40 @@ sudo pacman -S cmus          # Terminal music player
 sudo pacman -S obs-studio    # Recording/streaming
 sudo pacman -S wf-recorder   # Wayland recorder
 ```
+
+### Screenshots (Wayland)
+
+For Hyprland and other Wayland compositors:
+
+```bash
+sudo pacman -S grim slurp wl-clipboard --needed
+```
+
+**What each tool does:**
+
+| Tool | Purpose | Example |
+|------|---------|---------|
+| `grim` | Takes screenshots | `grim screenshot.png` |
+| `slurp` | Select area with mouse | `grim -g "$(slurp)" screenshot.png` |
+| `wl-clipboard` | Copy to clipboard | `grim - \| wl-copy` |
+
+**Usage examples:**
+
+```bash
+# Full screen screenshot
+grim ~/Pictures/screenshot.png
+
+# Select area screenshot
+grim -g "$(slurp)" ~/Pictures/area.png
+
+# Copy screenshot to clipboard
+grim - | wl-copy
+
+# Copy selected area to clipboard
+grim -g "$(slurp)" - | wl-copy
+```
+
+> 💡 **Tip:** Add these as keybindings in your Hyprland config for quick access!
 
 ---
 
@@ -174,9 +225,10 @@ sudo pacman -S thunderbird   # Email client
 
 ```bash
 sudo pacman -S wget curl     # Download tools
-sudo pacman -S aria2         # Download manager
+sudo pacman -S aria2         # Multi-protocol download manager
 sudo pacman -S transmission-gtk  # Torrent client
 sudo pacman -S filezilla     # FTP client
+sudo pacman -S ldns          # DNS library and utilities
 ```
 
 ---

@@ -362,8 +362,7 @@ nvim /etc/mkinitcpio.conf
 # Ensure: HOOKS=(... block encrypt lvm2 filesystems ...)
 
 # Regenerate
-mkinitcpio -p linux
-mkinitcpio -p linux-lts
+mkinitcpio -P
 
 # Exit and reboot
 exit
