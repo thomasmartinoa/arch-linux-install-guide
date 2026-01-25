@@ -1,10 +1,10 @@
-# 🚫 Boot Problems
+# Boot Problems
 
 > Solutions for boot failures, GRUB errors, black screens, and kernel panics.
 
 ![Boot Problems](../../images/boot-problems.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [No Bootable Device](#no-bootable-device)
 - [GRUB Rescue Mode](#grub-rescue-mode)
@@ -358,7 +358,7 @@ reboot
 
 ---
 
-## 🔍 Boot Diagnostic Commands
+## Boot Diagnostic Commands
 
 ```bash
 # Check EFI entries
@@ -379,7 +379,7 @@ journalctl -b -p err
 
 ---
 
-## ➡️ Still Having Issues?
+## Still Having Issues?
 
 - [Network Issues](network-issues.md) - If you can boot but have no network
 - [Driver Problems](driver-problems.md) - If you have display issues

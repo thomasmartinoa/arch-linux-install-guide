@@ -1,21 +1,21 @@
-# 📦 Essential Packages
+# Essential Packages
 
 > Must-have packages after installing Arch Linux.
 
 ![Essential Packages](../../images/essential-packages.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [System Utilities](#-system-utilities)
-- [Development Tools](#-development-tools)
-- [Media & Graphics](#-media--graphics)
-- [Internet & Communication](#-internet--communication)
-- [Office & Productivity](#-office--productivity)
-- [System Monitoring](#-system-monitoring)
+- [System Utilities](#system-utilities)
+- [Development Tools](#development-tools)
+- [Media & Graphics](#media--graphics)
+- [Internet & Communication](#internet--communication)
+- [Office & Productivity](#office--productivity)
+- [System Monitoring](#system-monitoring)
 
 ---
 
-## 🔧 System Utilities
+## System Utilities
 
 ### File Management
 
@@ -72,7 +72,7 @@ sudo pacman -S gnome-disk-utility  # Disk utility
 
 ---
 
-## 💻 Development Tools
+## Development Tools
 
 ### Editors
 
@@ -124,7 +124,7 @@ sudo systemctl enable libvirtd
 
 ---
 
-## 🎨 Media & Graphics
+## Media & Graphics
 
 ### Image Viewers & Editors
 
@@ -202,7 +202,7 @@ grim -g "$(slurp)" - | wl-copy
 
 ---
 
-## 🌐 Internet & Communication
+## Internet & Communication
 
 ### Web Browsers
 
@@ -233,7 +233,7 @@ sudo pacman -S ldns          # DNS library and utilities
 
 ---
 
-## 📝 Office & Productivity
+## Office & Productivity
 
 ### Office Suite
 
@@ -260,7 +260,7 @@ sudo pacman -S logseq        # Knowledge management
 
 ---
 
-## 📊 System Monitoring
+## System Monitoring
 
 ```bash
 sudo pacman -S htop          # Process viewer
@@ -272,7 +272,7 @@ sudo pacman -S nethogs       # Network monitor
 
 ---
 
-## 📋 Quick Install Script
+## Quick Install Script
 
 ### Essential Desktop Setup
 
@@ -300,7 +300,7 @@ sudo pacman -S --needed \
 
 ---
 
-## ➡️ What's Next?
+## What's Next?
 
 Choose your path based on your priorities:
 

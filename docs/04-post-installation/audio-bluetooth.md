@@ -1,18 +1,18 @@
-# 🔊 Audio and Bluetooth Setup
+# Audio and Bluetooth Setup
 
 > Setting up PipeWire for audio and Bluetooth connectivity.
 
 ![Audio Bluetooth](../../images/audio-bluetooth.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Audio with PipeWire](#-audio-with-pipewire)
-- [Bluetooth Setup](#-bluetooth-setup)
-- [Troubleshooting](#-troubleshooting)
+- [Audio with PipeWire](#audio-with-pipewire)
+- [Bluetooth Setup](#bluetooth-setup)
+- [Troubleshooting](#troubleshooting)
 
 ---
 
-## 🔊 Audio with PipeWire
+## Audio with PipeWire
 
 **PipeWire** is the modern audio system for Linux, replacing PulseAudio and JACK.
 
@@ -54,7 +54,7 @@ systemctl --user enable --now wireplumber
 systemctl --user enable --now pipewire pipewire-pulse
 ```
 
-> 💡 The `--user` flag runs services as your user, not system-wide.
+> The `--user` flag runs services as your user, not system-wide.
 
 ### Verify Audio
 
@@ -170,7 +170,7 @@ blueman-manager
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### No Sound
 
@@ -240,7 +240,7 @@ sudo modprobe btusb
 
 ---
 
-## 📋 Quick Reference
+## Quick Reference
 
 ```bash
 # Install audio
@@ -265,7 +265,7 @@ bluetoothctl
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Your audio and Bluetooth are configured!
 

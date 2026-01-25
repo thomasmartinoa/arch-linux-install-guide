@@ -1,32 +1,32 @@
-# 🖥️ Live Environment Setup
+# Live Environment Setup
 
-> This guide covers booting into the Arch Linux live environment and initial setup before installation.
+> Booting into the Arch Linux live environment and initial setup.
 
 ![Live Environment](../../images/live-environment.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Booting the USB](#-booting-the-usb)
-- [First Steps in Live Environment](#-first-steps-in-live-environment)
-- [Setting Console Font](#-setting-console-font)
-- [Connecting to the Internet](#-connecting-to-the-internet)
-- [System Clock](#-system-clock)
-- [Updating Package Database](#-updating-package-database)
-- [Verifying Boot Mode](#-verifying-boot-mode)
+- [Booting the USB](#booting-the-usb)
+- [First Steps](#first-steps-in-live-environment)
+- [Console Font](#setting-console-font)
+- [Internet Connection](#connecting-to-the-internet)
+- [System Clock](#system-clock)
+- [Package Database](#updating-package-database)
+- [Verify Boot Mode](#verifying-boot-mode)
 
 ---
 
-## 🚀 Booting the USB
+## Booting the USB
 
 ### Step 1: Insert USB and Boot
 
-1. Insert your bootable USB drive
-2. Restart/Power on your computer
-3. Press the **Boot Menu key** (F12, F8, etc.) or enter BIOS
+1. Plug in your bootable USB
+2. Restart/power on
+3. Hit the Boot Menu key (F12, F8, etc.) or enter BIOS
 
 ### Step 2: Select Boot Device
 
-From the boot menu, select your USB drive:
+From the boot menu, pick your USB:
 
 ```
 UEFI: USB Drive Name
@@ -34,11 +34,11 @@ UEFI: USB Drive Name
 UEFI: Generic Flash Disk
 ```
 
-> ⚠️ **Important:** Make sure to select the **UEFI** option, not Legacy!
+> **Important:** Select the **UEFI** option, not Legacy!
 
 ### Step 3: GRUB Menu
 
-You'll see the Arch Linux boot menu:
+You'll see the Arch boot menu:
 
 ```
 Arch Linux install medium (x86_64, UEFI)
@@ -49,41 +49,41 @@ Reboot
 Power Off
 ```
 
-Select the first option and press **Enter**.
+Pick the first one and hit Enter.
 
 ---
 
-## 🎯 First Steps in Live Environment
+## First Steps in Live Environment
 
-After booting, you'll see a command prompt:
+After booting, you'll see:
 
 ```
 root@archiso ~ # 
 ```
 
-**Congratulations!** You're now in the Arch Linux live environment.
+**You're in!** This is the Arch Linux live environment.
 
-### What is the Live Environment?
+### What is this?
 
-The live environment is a complete Linux system running from your USB drive. It has:
-- Root access (administrator privileges)
-- Networking tools
-- Disk partitioning tools
-- All tools needed for installation
+The live environment is a complete Linux system running from your USB. You've got:
+- Root access
+- Network tools
+- Disk tools
+- Everything needed for installation
 
 ---
 
-## 🔤 Setting Console Font
+## Setting Console Font
 
-The default console font is tiny, especially on high-resolution displays. Let's fix that!
+The default font is tiny, especially on high-res displays.
 
-### Set a Larger Font
+### Set a Bigger Font
 
 ```bash
 setfont ter-132n
 ```
 
-**Command Breakdown:**
+**What this does:**
 | Part | Meaning |
 |------|---------|
 | `setfont` | Command to change console font |
@@ -103,13 +103,13 @@ ls /usr/share/kbd/consolefonts/ | grep ter
 # ter-132n  - Extra Large (32) - Recommended for HiDPI
 ```
 
-> 💡 **Tip:** For 4K displays, use `ter-132n`. For 1080p, `ter-120n` works well.
+> **Tip:** For 4K displays, use `ter-132n`. For 1080p, `ter-120n` works well.
 
 ---
 
-## 🌐 Connecting to the Internet
+## Connecting to the Internet
 
-Internet is required for installation. Choose your connection method:
+Internet is required for installation. Pick your connection:
 
 ### Check Current Connection
 
@@ -118,7 +118,7 @@ ip addr
 ```
 
 **What this shows:**
-- `lo` - Loopback interface (ignore this)
+- `lo` - Loopback interface (ignore)
 - `eth0` or `enp*` - Ethernet interface
 - `wlan0` or `wlp*` - WiFi interface
 
@@ -128,7 +128,7 @@ ip addr
 ping -c 3 archlinux.org
 ```
 
-**Command Breakdown:**
+**What each part does:**
 | Part | Meaning |
 |------|---------|
 | `ping` | Send ICMP packets to test connectivity |
@@ -144,7 +144,7 @@ ping -c 3 archlinux.org
 
 ---
 
-### Option A: Ethernet (Recommended) ⭐
+### Option A: Ethernet (Recommended)
 
 Ethernet usually works automatically via DHCP.
 
@@ -164,9 +164,9 @@ ping -c 3 archlinux.org
 
 ---
 
-### Option B: WiFi Connection 📶
+### Option B: WiFi Connection
 
-For wireless connections, use `iwctl`:
+For wireless, use `iwctl`:
 
 ```bash
 # Enter interactive mode
@@ -248,7 +248,7 @@ ip link show
 
 ---
 
-## 🕐 System Clock
+## System Clock
 
 ### Enable Network Time Synchronization
 
@@ -256,7 +256,7 @@ ip link show
 timedatectl set-ntp true
 ```
 
-**Command Breakdown:**
+**What this does:**
 | Part | Meaning |
 |------|---------|
 | `timedatectl` | Control the system time and date |
@@ -268,7 +268,7 @@ timedatectl set-ntp true
 timedatectl set-timezone Asia/Kolkata
 ```
 
-**Command Breakdown:**
+**What this does:**
 | Part | Meaning |
 |------|---------|
 | `set-timezone` | Set the system timezone |
@@ -305,7 +305,7 @@ System clock synchronized: yes
 
 ---
 
-## 📦 Updating Package Database
+## Updating Package Database
 
 ### Synchronize Package Database
 
@@ -313,7 +313,7 @@ System clock synchronized: yes
 pacman -Sy
 ```
 
-**Command Breakdown:**
+**What this does:**
 | Part | Meaning |
 |------|---------|
 | `pacman` | Arch Linux package manager |
@@ -322,7 +322,7 @@ pacman -Sy
 
 ### Update Keyring (Recommended)
 
-If you're using an older ISO, update the keyring:
+If you're using an older ISO:
 
 ```bash
 pacman -Sy archlinux-keyring
@@ -335,7 +335,7 @@ pacman -Sy archlinux-keyring
 
 ---
 
-## ✅ Verifying Boot Mode
+## Verifying Boot Mode
 
 ### Check UEFI Mode
 
@@ -346,9 +346,9 @@ cat /sys/firmware/efi/fw_platform_size
 **Results:**
 | Output | Meaning |
 |--------|---------|
-| `64` | 64-bit UEFI mode ✅ (What we want) |
+| `64` | 64-bit UEFI mode (what we want) |
 | `32` | 32-bit UEFI mode |
-| Error/No file | Legacy BIOS mode ❌ |
+| Error/No file | Legacy BIOS mode (not good) |
 
 ```bash
 # Alternative check
@@ -357,11 +357,11 @@ ls /sys/firmware/efi/efivars
 
 If this directory exists, you're in UEFI mode.
 
-> ⚠️ **Important:** If you're not in UEFI mode, reboot and check your BIOS settings!
+> **Important:** If you're not in UEFI mode, reboot and check your BIOS settings!
 
 ---
 
-## 🔍 Disk Information
+## Disk Information
 
 ### View Available Disks
 
@@ -398,9 +398,9 @@ sdb           8:16   1   8.0G  0 disk
 
 ---
 
-## 📝 Summary Checklist
+## Summary Checklist
 
-Before proceeding to partitioning, verify:
+Before proceeding to partitioning:
 
 - [ ] Booted in **UEFI mode** (`cat /sys/firmware/efi/fw_platform_size` returns 64)
 - [ ] **Console font** is readable (`setfont ter-132n`)
@@ -411,7 +411,7 @@ Before proceeding to partitioning, verify:
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Now you're ready to partition your disk!
 

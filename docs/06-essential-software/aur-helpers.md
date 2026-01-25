@@ -1,20 +1,20 @@
-# 📦 AUR Helpers
+# AUR Helpers
 
 > Accessing the Arch User Repository (AUR).
 
 ![AUR](../../images/aur.png)
 
-## 💡 What is the AUR?
+## What is the AUR?
 
 The **Arch User Repository (AUR)** is a community-driven repository with PKGBUILDs for software not in official repos.
 
-> ⚠️ AUR packages are user-submitted and not officially supported.
+> **Warning:** AUR packages are user-submitted and not officially supported.
 
 ---
 
-## 🔧 Installing an AUR Helper
+## Installing an AUR Helper
 
-### yay (Recommended) ⭐
+### yay (Recommended)
 
 ```bash
 # Install dependencies
@@ -44,7 +44,7 @@ rm -rf paru
 
 ---
 
-## 📖 Using yay
+## Using yay
 
 ### Search Packages
 
@@ -72,7 +72,7 @@ yay -Rns package_name
 
 ---
 
-## 🎯 Popular AUR Packages
+## Popular AUR Packages
 
 ```bash
 # Browsers
@@ -90,7 +90,7 @@ yay -S pamac-aur          # GUI package manager
 
 ---
 
-## ⚠️ Safety Tips
+## Safety Tips
 
 1. **Read PKGBUILDs** before installing
 2. **Check comments** on AUR page

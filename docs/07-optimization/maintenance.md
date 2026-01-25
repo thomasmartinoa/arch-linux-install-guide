@@ -1,8 +1,8 @@
-# 🔧 System Maintenance
+# System Maintenance
 
 > Keeping your Arch system healthy.
 
-## 📦 Package Management
+## Package Management
 
 ### Update System
 
@@ -28,7 +28,7 @@ sudo pacman -Rns $(pacman -Qtdq)
 
 ---
 
-## 💾 Backups with Timeshift
+## Backups with Timeshift
 
 ```bash
 yay -S timeshift
@@ -38,7 +38,7 @@ Create snapshots before major updates!
 
 ---
 
-## 📊 Check Disk Usage
+## Check Disk Usage
 
 ```bash
 df -h
@@ -47,7 +47,7 @@ ncdu /  # Interactive disk usage
 
 ---
 
-## 🔍 Check for Issues
+## Check for Issues
 
 ```bash
 # Failed services
@@ -59,7 +59,7 @@ journalctl -p 3 -xb
 
 ---
 
-## 📅 Maintenance Schedule
+## Maintenance Schedule
 
 | Task | Frequency |
 |------|-----------|

@@ -1,10 +1,10 @@
-# 🔧 System Recovery
+# System Recovery
 
-> Guide for recovering a broken Arch Linux system, fixing packages, and performing rollbacks.
+Guide for recovering a broken Arch Linux system, fixing packages, and performing rollbacks.
 
 ![System Recovery](../../images/system-recovery.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Chroot Recovery](#chroot-recovery)
 - [Broken Packages](#broken-packages)
@@ -392,7 +392,7 @@ yay -S --needed - < aurlist.txt
 
 ---
 
-## 🔍 Recovery Diagnostic Commands
+## Recovery Diagnostic Commands
 
 ```bash
 # Check filesystem
@@ -419,7 +419,7 @@ sudo pacman -Qkk
 
 ---
 
-## 🚨 Emergency Contacts
+## Emergency Contacts
 
 If you can't fix the issue:
 

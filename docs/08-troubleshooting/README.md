@@ -1,8 +1,8 @@
-# 🔧 Troubleshooting Guide
+# Troubleshooting Guide
 
 > Solutions for common Arch Linux installation and post-installation problems.
 
-## 📋 Troubleshooting Topics
+## Troubleshooting Topics
 
 | Guide | Common Issues |
 |-------|---------------|
@@ -14,7 +14,7 @@
 
 ---
 
-## 🚨 Emergency Quick Reference
+## Emergency Quick Reference
 
 ### Can't Boot? Start Here:
 
@@ -32,7 +32,7 @@
 
 ---
 
-## 🛠️ General Troubleshooting Steps
+## General Troubleshooting Steps
 
 ### 1. Boot from Live USB
 
@@ -84,7 +84,7 @@ reboot
 
 ---
 
-## 📊 Diagnostic Commands
+## Diagnostic Commands
 
 ### System Information
 

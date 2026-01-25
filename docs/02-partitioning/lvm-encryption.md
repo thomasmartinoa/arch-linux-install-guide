@@ -1,22 +1,22 @@
-# 🔐 LVM with Full Disk Encryption
+# LVM with Full Disk Encryption
 
 > The most secure setup using LUKS encryption with LVM for flexible partition management.
 
 ![Encrypted LVM](../../images/encrypted-lvm.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Overview](#-overview)
-- [Understanding Encryption](#-understanding-encryption)
-- [Partition Layout](#-partition-layout)
-- [Step-by-Step Setup](#-step-by-step-setup)
-- [Important Configuration](#-important-configuration)
-- [Mount Partitions](#-mount-partitions)
-- [Verification](#-verification)
+- [Overview](#overview)
+- [Understanding Encryption](#understanding-encryption)
+- [Partition Layout](#partition-layout)
+- [Step-by-Step Setup](#step-by-step-setup)
+- [Important Configuration](#important-configuration)
+- [Mount Partitions](#mount-partitions)
+- [Verification](#verification)
 
 ---
 
-## 📊 Overview
+## Overview
 
 This setup encrypts your entire system except the EFI and boot partitions:
 
@@ -42,7 +42,7 @@ This setup encrypts your entire system except the EFI and boot partitions:
 
 ---
 
-## 🔒 Understanding Encryption
+## Understanding Encryption
 
 ### What is LUKS?
 
@@ -68,15 +68,15 @@ This setup encrypts your entire system except the EFI and boot partitions:
 
 | Partition | Encrypted? | Reason |
 |-----------|------------|--------|
-| EFI | ❌ No | UEFI can't read encrypted partitions |
-| Boot | ❌ No | Bootloader needs to load kernel |
-| Root (/) | ✅ Yes | Contains system files |
-| Home (/home) | ✅ Yes | Contains personal data |
-| Swap | ✅ Yes | May contain sensitive RAM data |
+| EFI | No | UEFI can't read encrypted partitions |
+| Boot | No | Bootloader needs to load kernel |
+| Root (/) | Yes | Contains system files |
+| Home (/home) | Yes | Contains personal data |
+| Swap | Yes | May contain sensitive RAM data |
 
 ---
 
-## 📐 Partition Layout
+## Partition Layout
 
 For a **1TB NVMe drive** (adjust sizes for your disk):
 
@@ -96,7 +96,7 @@ For a **1TB NVMe drive** (adjust sizes for your disk):
 
 ---
 
-## 🛠️ Step-by-Step Setup
+## Step-by-Step Setup
 
 ### Step 1: Create Partitions
 
@@ -104,7 +104,7 @@ For a **1TB NVMe drive** (adjust sizes for your disk):
 gdisk /dev/nvme0n1
 ```
 
-> 💡 Using `gdisk` instead of `cfdisk` for better GPT handling.
+> Using `gdisk` instead of `cfdisk` for better GPT handling.
 
 #### In gdisk:
 
@@ -172,7 +172,7 @@ mkfs.ext4 /dev/nvme0n1p2
 cryptsetup luksFormat /dev/nvme0n1p3
 ```
 
-**You will see:**
+**You'll see:**
 ```
 WARNING!
 ========
@@ -307,7 +307,7 @@ mkswap /dev/volgroup0/lv_swap
 
 ---
 
-## 📁 Mount Partitions
+## Mount Partitions
 
 ### Mount in Correct Order
 
@@ -344,7 +344,7 @@ mount /dev/nvme0n1p1 /mnt/boot/EFI
 
 ---
 
-## ✅ Verification
+## Verification
 
 ### Check Mount Points
 
@@ -373,7 +373,7 @@ swapon --show
 
 ---
 
-## ⚠️ Important Configuration
+## Important Configuration
 
 After installing the base system, you **MUST** configure:
 
@@ -443,7 +443,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 
 ---
 
-## 📋 Complete Command Summary
+## Complete Command Summary
 
 ```bash
 # 1. Create partitions with gdisk
@@ -490,7 +490,7 @@ lsblk
 
 ---
 
-## 🔐 LUKS Management
+## LUKS Management
 
 ### Add Backup Passphrase
 
@@ -520,7 +520,7 @@ cryptsetup luksDump /dev/nvme0n1p3
 
 ---
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### "No key available with this passphrase"
 
@@ -542,7 +542,7 @@ cryptsetup luksDump /dev/nvme0n1p3
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Your encrypted system is ready for base installation!
 

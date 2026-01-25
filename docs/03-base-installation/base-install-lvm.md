@@ -1,12 +1,12 @@
-# 📦 LVM Base Installation
+# LVM Base Installation
 
 > For users with **LVM Setup** (without encryption).
 
 ![Base Installation](../../images/base-install.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Prerequisites](#-prerequisites)
+- [Prerequisites](#prerequisites)
 - [Step 1: Verify Mounts](#step-1-verify-mounts)
 - [Step 2: Install Base System](#step-2-install-base-system)
 - [Step 3: Generate fstab](#step-3-generate-fstab)
@@ -17,11 +17,11 @@
 - [Step 8: GPU Drivers](#step-8-gpu-drivers)
 - [Step 9: Configure mkinitcpio](#step-9-configure-mkinitcpio)
 - [Step 10: Enable Services](#step-10-enable-services)
-- [Next: Bootloader](#-next-bootloader)
+- [Next: Bootloader](#next-bootloader)
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 Before proceeding, ensure:
 
@@ -63,7 +63,7 @@ sda                       8:0    0   500G  0 disk
 - Root (`/mnt`), home (`/mnt/home`), and boot (`/mnt/boot`) are mounted
 - Swap shows `[SWAP]`
 
-> ⚠️ If mounts don't look right, go back to [LVM Setup](../02-partitioning/lvm-setup.md)
+> If mounts don't look right, go back to [LVM Setup](../02-partitioning/lvm-setup.md)
 
 ---
 
@@ -400,7 +400,7 @@ systemctl enable sshd
 
 ---
 
-## ✅ Quick Reference Summary
+## Quick Reference Summary
 
 ```bash
 # Install base system
@@ -448,7 +448,7 @@ systemctl enable sshd
 
 ---
 
-## ➡️ Next: Bootloader
+## Next: Bootloader
 
 Continue to LVM bootloader installation:
 

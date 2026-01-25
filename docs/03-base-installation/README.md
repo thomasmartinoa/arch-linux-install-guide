@@ -1,25 +1,25 @@
-# 📦 Base System Installation
+# Base System Installation
 
 > Choose the guide that matches your partition setup.
 
-## 🛤️ Choose Your Installation Guide
+## Choose Your Installation Guide
 
 | Your Partition Method | Installation Guide |
 |-----------------------|--------------------|
-| [Basic Partitioning](../02-partitioning/basic-partitioning.md) | [📄 Standard Installation](base-install-standard.md) |
-| [Advanced Partitioning](../02-partitioning/advanced-partitioning.md) | [📄 Standard Installation](base-install-standard.md) |
-| [LVM Setup](../02-partitioning/lvm-setup.md) | [📦 LVM Installation](base-install-lvm.md) |
-| [LVM + Encryption](../02-partitioning/lvm-encryption.md) | [🔐 Encrypted Installation](base-install-encrypted.md) |
+| [Basic Partitioning](../02-partitioning/basic-partitioning.md) | [Standard Installation](base-install-standard.md) |
+| [Advanced Partitioning](../02-partitioning/advanced-partitioning.md) | [Standard Installation](base-install-standard.md) |
+| [LVM Setup](../02-partitioning/lvm-setup.md) | [LVM Installation](base-install-lvm.md) |
+| [LVM + Encryption](../02-partitioning/lvm-encryption.md) | [Encrypted Installation](base-install-encrypted.md) |
 
 ---
 
-## ⚠️ Important
+## Important
 
 > **Don't mix guides!** Each installation guide is complete and self-contained. Follow only the one that matches your partitioning method.
 
 ---
 
-## 📋 What Each Guide Covers
+## What Each Guide Covers
 
 ### Standard Installation
 - For simple partition setups (EFI + Root + Swap)

@@ -1,26 +1,26 @@
-# 🌿 Btrfs Partitioning Guide
+# Btrfs Partitioning Guide
 
 > Modern copy-on-write filesystem with snapshots, compression, and easy rollbacks.
 
 ![Btrfs Setup](../../images/btrfs-setup.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Why Btrfs?](#-why-btrfs)
-- [Partition Layout](#-partition-layout)
-- [Step-by-Step Setup](#-step-by-step-setup)
-- [Subvolume Layout](#-subvolume-layout)
-- [Mount Options](#-mount-options)
-- [Snapshot Setup](#-snapshot-setup)
-- [Verification](#-verification)
+- [Why Btrfs?](#why-btrfs)
+- [Partition Layout](#partition-layout)
+- [Step-by-Step Setup](#step-by-step-setup)
+- [Subvolume Layout](#subvolume-layout)
+- [Mount Options](#mount-options)
+- [Snapshot Setup](#snapshot-setup)
+- [Verification](#verification)
 
 ---
 
-## 💡 Why Btrfs?
+## Why Btrfs?
 
 Btrfs (B-tree File System) is a modern copy-on-write filesystem with powerful features.
 
-> ⚠️ **Required Package:** You MUST install `btrfs-progs` during base installation for Btrfs to work!
+> **Required Package:** You MUST install `btrfs-progs` during base installation for Btrfs to work!
 
 ### Features
 
@@ -35,27 +35,27 @@ Btrfs (B-tree File System) is a modern copy-on-write filesystem with powerful fe
 
 ### When to Use Btrfs
 
-- ✅ You want easy system rollbacks
-- ✅ You want transparent compression
-- ✅ You need flexible storage management
-- ✅ You want built-in data integrity
-- ⚠️ Not recommended for databases (disable CoW)
-- ⚠️ RAID 5/6 still experimental
+- You want easy system rollbacks
+- You want transparent compression
+- You need flexible storage management
+- You want built-in data integrity
+- Not recommended for databases (disable CoW)
+- RAID 5/6 still experimental
 
 ### Btrfs vs ext4
 
 | Feature | Btrfs | ext4 |
 |---------|-------|------|
-| Snapshots | ✅ Native | ❌ Need LVM |
-| Compression | ✅ Native | ❌ No |
-| Checksums | ✅ Yes | ❌ No |
-| Resize Online | ✅ Grow & Shrink | ✅ Grow only |
+| Snapshots | Native | Need LVM |
+| Compression | Native | No |
+| Checksums | Yes | No |
+| Resize Online | Grow & Shrink | Grow only |
 | Maturity | Good | Excellent |
 | Performance | Good | Excellent |
 
 ---
 
-## 📐 Partition Layout
+## Partition Layout
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
@@ -78,11 +78,11 @@ Btrfs (B-tree File System) is a modern copy-on-write filesystem with powerful fe
 | EFI | 512MB | FAT32 | Boot files |
 | Root | Remaining | Btrfs | Everything else |
 
-> 💡 **No separate swap partition needed!** We'll use a swap file on Btrfs.
+> **No separate swap partition needed!** We'll use a swap file on Btrfs.
 
 ---
 
-## 🛠️ Step-by-Step Setup
+## Step-by-Step Setup
 
 ### Step 1: Create Partitions
 
@@ -121,7 +121,7 @@ mkfs.btrfs -L "Arch" /dev/sda2
 
 ---
 
-## 📁 Subvolume Layout
+## Subvolume Layout
 
 ### Step 4: Mount Btrfs Partition
 
@@ -175,7 +175,7 @@ umount /mnt
 
 ---
 
-## ⚙️ Mount Options
+## Mount Options
 
 ### Step 8: Mount with Options
 
@@ -217,7 +217,7 @@ mount /dev/sda1 /mnt/boot
 
 ---
 
-## 💾 Swap File Setup
+## Swap File Setup
 
 ### Step 9: Create Swap File
 
@@ -240,7 +240,7 @@ swapon /mnt/swap/swapfile
 
 ---
 
-## 📸 Snapshot Setup
+## Snapshot Setup
 
 ### Install Required Packages (In Chroot)
 
@@ -309,7 +309,7 @@ This allows booting from snapshots directly from GRUB menu!
 
 ---
 
-## ✅ Verification
+## Verification
 
 ### Check Mounts
 
@@ -347,7 +347,7 @@ btrfs filesystem usage /
 
 ---
 
-## 📋 Complete fstab Example
+## Complete fstab Example
 
 After running `genfstab -U /mnt >> /mnt/etc/fstab`, your fstab should look like:
 
@@ -369,7 +369,7 @@ UUID=xxxxx-xxxxx  /boot          vfat   defaults                                
 
 ---
 
-## 📋 Quick Reference
+## Quick Reference
 
 ```bash
 # Create partitions
@@ -412,7 +412,7 @@ lsblk -f
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 After partitioning, continue to:
 

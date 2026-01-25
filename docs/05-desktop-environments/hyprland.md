@@ -1,22 +1,22 @@
 #  Hyprland
 
-> Setting up Hyprland - the modern dynamic tiling Wayland compositor.
+> Getting Hyprland running - a modern tiling Wayland compositor.
 
 ![Hyprland Desktop](../../images/hyprland-desktop.png)
 
-## 🌊 What is Hyprland?
+##  What is Hyprland?
 
-**Hyprland** is a dynamic tiling Wayland compositor with beautiful animations and modern features.
+**Hyprland** is a dynamic tiling Wayland compositor. Think i3 or bspwm, but with smooth animations and running native on Wayland.
 
 ### Features
 
 | Feature | Description |
 |---------|-------------|
-| **Animations** | Smooth window/workspace animations |
-| **Tiling** | Automatic window tiling |
+| **Animations** | Window and workspace transitions that actually look nice |
+| **Tiling** | Automatic window tiling (like i3) |
 | **Wayland** | Modern display protocol |
-| **Eye Candy** | Blur, shadows, rounded corners |
-| **Highly Configurable** | Single config file |
+| **Eye Candy** | Blur, shadows, rounded corners - all built-in |
+| **Highly Configurable** | Everything's in one config file |
 
 ### Screenshots
 
@@ -25,7 +25,7 @@
 
 ---
 
- **FOR FULL INSTALLTION** Check out my [**Complete Hyprland Setup Guide**](https://github.com/thomasmartinoa/Hyprland_guide) for detailed customization, dotfiles, and advanced features!
+ **FOR FULL INSTALLATION** Check out my [**Complete Hyprland Setup Guide**](https://github.com/thomasmartinoa/Hyprland_guide) for the full walkthrough, dotfiles, and all the customization details.
 
 ---
 
@@ -37,22 +37,22 @@
 
 ---
 
-## 🎉 Installation Complete!
+## Installation Complete!
 
-**Congratulations!** You now have a fully functional Arch Linux system with Hyprland desktop environment.
+**Nice!** You've got Arch running with Hyprland now.
 
-Your base installation is complete, but there's more to enhance your experience:
+The base system is done. Here's what you might want to set up next:
 
-### 🚀 Continue Your Journey
+###  Continue Your Journey
 
 | Next Steps | Why? |
 |------------|------|
-| [**Essential Packages**](../06-essential-software/essential-packages.md) | Install must-have software for daily use |
-| [**AUR Helpers**](../06-essential-software/aur-helpers.md) | Access thousands of community packages |
-| [**Performance Tweaks**](../07-optimization/performance-tweaks.md) | Optimize speed, battery life, and gaming |
-| [**Security Hardening**](../07-optimization/security.md) | Protect your system with firewall and best practices |
-| [**Maintenance Guide**](../07-optimization/maintenance.md) | Keep your system healthy long-term |
-| [**Troubleshooting**](../08-troubleshooting/README.md) | Fix common issues like boot, network, or driver problems |
+| [**Essential Packages**](../06-essential-software/essential-packages.md) | Software you'll actually want to use |
+| [**AUR Helpers**](../06-essential-software/aur-helpers.md) | Get access to community packages |
+| [**Performance Tweaks**](../07-optimization/performance-tweaks.md) | Speed things up, better battery life, gaming performance |
+| [**Security Hardening**](../07-optimization/security.md) | Set up firewall and other security basics |
+| [**Maintenance Guide**](../07-optimization/maintenance.md) | Keep things running smooth |
+| [**Troubleshooting**](../08-troubleshooting/README.md) | Fix common problems |
 
 > 💡 **Recommended flow:** Essential Packages → AUR Helpers → Performance → Security → Troubleshooting
 

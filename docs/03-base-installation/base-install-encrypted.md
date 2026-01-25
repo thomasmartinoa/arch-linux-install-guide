@@ -1,12 +1,12 @@
-# 🔐 Encrypted LVM Base Installation
+# Encrypted LVM Base Installation
 
 > For users with **LUKS Encryption + LVM**.
 
 ![Base Installation](../../images/base-install.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Prerequisites](#-prerequisites)
+- [Prerequisites](#prerequisites)
 - [Step 1: Verify Mounts](#step-1-verify-mounts)
 - [Step 2: Install Base System](#step-2-install-base-system)
 - [Step 3: Generate fstab](#step-3-generate-fstab)
@@ -17,11 +17,11 @@
 - [Step 8: GPU Drivers](#step-8-gpu-drivers)
 - [Step 9: Configure mkinitcpio](#step-9-configure-mkinitcpio-critical)
 - [Step 10: Enable Services](#step-10-enable-services)
-- [Next: Bootloader](#-next-bootloader)
+- [Next: Bootloader](#next-bootloader)
 
 ---
 
-## ✅ Prerequisites
+## Prerequisites
 
 Before proceeding, ensure:
 
@@ -67,7 +67,7 @@ nvme0n1                   259:0    0     1T  0 disk
 - Root, home, boot, and EFI are all mounted
 - Swap shows `[SWAP]`
 
-> ⚠️ If mounts don't look right, go back to [LVM Encryption](../02-partitioning/lvm-encryption.md)
+> If mounts don't look right, go back to [LVM Encryption](../02-partitioning/lvm-encryption.md)
 
 ---
 
@@ -418,7 +418,7 @@ systemctl enable sshd
 
 ---
 
-## ✅ Quick Reference Summary
+## Quick Reference Summary
 
 ```bash
 # Install base system
@@ -466,7 +466,7 @@ systemctl enable sshd
 
 ---
 
-## 🔐 Encryption Notes
+## Encryption Notes
 
 ### What Happens at Boot
 
@@ -497,7 +497,7 @@ You can try again (usually 3 attempts before dropping to emergency shell).
 
 ---
 
-## ➡️ Next: Bootloader
+## Next: Bootloader
 
 Continue to encrypted bootloader installation:
 

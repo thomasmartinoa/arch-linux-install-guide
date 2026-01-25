@@ -1,26 +1,26 @@
-# 🔒 Security Hardening
+# Security Hardening
 
-> Comprehensive security guide for protecting your Arch Linux system.
+Complete guide for protecting your Arch Linux system.
 
 ![Security](../../images/security.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [Security Overview](#-security-overview)
-- [User Security](#-user-security)
-- [Firewall (UFW)](#-firewall-ufw)
-- [Firewall (nftables)](#-firewall-nftables)
-- [SSH Security](#-ssh-security)
-- [Fail2ban](#-fail2ban)
-- [AppArmor](#-apparmor)
-- [Secure Boot](#-secure-boot)
-- [Automatic Security Updates](#-automatic-security-updates)
-- [Kernel Hardening](#-kernel-hardening)
-- [Security Audit](#-security-audit)
+- [Security Overview](#security-overview)
+- [User Security](#user-security)
+- [Firewall (UFW)](#firewall-ufw)
+- [Firewall (nftables)](#firewall-nftables)
+- [SSH Security](#ssh-security)
+- [Fail2ban](#fail2ban)
+- [AppArmor](#apparmor)
+- [Secure Boot](#secure-boot)
+- [Automatic Security Updates](#automatic-security-updates)
+- [Kernel Hardening](#kernel-hardening)
+- [Security Audit](#security-audit)
 
 ---
 
-## 📊 Security Overview
+## Security Overview
 
 ### Security Layers
 
@@ -47,19 +47,19 @@
 
 | Priority | Measure | Difficulty |
 |----------|---------|------------|
-| 🔴 High | Firewall | Easy |
-| 🔴 High | User security/sudo | Easy |
-| 🔴 High | SSH key authentication | Medium |
-| 🟡 Medium | Fail2ban | Easy |
-| 🟡 Medium | Automatic updates | Easy |
-| 🟡 Medium | Disk encryption | Medium |
-| 🟢 Low | AppArmor | Medium |
-| 🟢 Low | Secure Boot | Advanced |
-| 🟢 Low | Kernel hardening | Advanced |
+| High | Firewall | Easy |
+| High | User security/sudo | Easy |
+| High | SSH key authentication | Medium |
+| Medium | Fail2ban | Easy |
+| Medium | Automatic updates | Easy |
+| Medium | Disk encryption | Medium |
+| Low | AppArmor | Medium |
+| Low | Secure Boot | Advanced |
+| Low | Kernel hardening | Advanced |
 
 ---
 
-## 👤 User Security
+## User Security
 
 ### Principle of Least Privilege
 
@@ -99,7 +99,7 @@ sudo passwd -l root
 
 ---
 
-## 🔥 Firewall (UFW)
+## Firewall (UFW)
 
 UFW (Uncomplicated Firewall) is the easiest firewall to configure.
 
@@ -203,7 +203,7 @@ sudo ufw reset
 
 ---
 
-## 🔥 Firewall (nftables)
+## Firewall (nftables)
 
 nftables is the modern replacement for iptables.
 
@@ -254,7 +254,7 @@ sudo systemctl enable --now nftables
 
 ---
 
-## 🔑 SSH Security
+## SSH Security
 
 ### Generate SSH Keys (On Client)
 
@@ -289,7 +289,7 @@ sudo systemctl restart sshd
 
 ---
 
-## 🛡️ Fail2ban
+## Fail2ban
 
 Fail2ban bans IPs that show malicious signs.
 
@@ -331,7 +331,7 @@ sudo fail2ban-client status sshd
 
 ---
 
-## 🛡️ AppArmor
+## AppArmor
 
 AppArmor provides Mandatory Access Control for applications.
 
@@ -366,7 +366,7 @@ sudo aa-status
 
 ---
 
-## 🔐 Secure Boot
+## Secure Boot
 
 Enable UEFI Secure Boot with your own keys (advanced).
 
@@ -398,7 +398,7 @@ Then enable Secure Boot in BIOS.
 
 ---
 
-## 🔄 Automatic Security Updates
+## Automatic Security Updates
 
 ### Enable Reflector Timer
 
@@ -416,7 +416,7 @@ sudo systemctl enable --now paccache.timer
 
 ---
 
-## 🔧 Kernel Hardening
+## Kernel Hardening
 
 ### Sysctl Security Settings
 
@@ -454,7 +454,7 @@ sudo sysctl --system
 
 ---
 
-## 🔍 Security Audit
+## Security Audit
 
 ### Lynis Security Audit
 
@@ -479,7 +479,7 @@ ss -tulpn
 
 ---
 
-## 📋 Security Checklist
+## Security Checklist
 
 - [ ] **User Security** - Strong password, sudo configured, root locked
 - [ ] **Firewall** - UFW/nftables enabled, default deny incoming
@@ -490,7 +490,7 @@ ss -tulpn
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 - [System Maintenance](maintenance.md)
 

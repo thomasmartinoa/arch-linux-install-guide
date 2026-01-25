@@ -1,23 +1,23 @@
-# 🖼️ Desktop Environments Overview
+# Desktop Environments Overview
 
-> Choosing the right desktop environment for your Arch Linux system.
+> Choosing the right desktop environment for your Arch system.
 
 ![Desktop Environments](../../images/desktop-environments.png)
 
-## 📋 Table of Contents
+## Table of Contents
 
-- [What is a Desktop Environment?](#-what-is-a-desktop-environment)
-- [Comparison Chart](#-comparison-chart)
-- [Desktop Environments](#-desktop-environments)
-- [Window Managers](#-window-managers)
-- [Display Managers](#-display-managers)
-- [Making Your Choice](#-making-your-choice)
+- [What is a Desktop Environment?](#what-is-a-desktop-environment)
+- [Comparison Chart](#comparison-chart)
+- [Desktop Environments](#desktop-environments)
+- [Window Managers](#window-managers)
+- [Display Managers](#display-managers)
+- [Making Your Choice](#making-your-choice)
 
 ---
 
-## 💡 What is a Desktop Environment?
+## What is a Desktop Environment?
 
-A **Desktop Environment (DE)** provides a complete graphical interface including:
+A **Desktop Environment (DE)** provides a complete graphical interface:
 
 - Window manager
 - File manager
@@ -35,7 +35,7 @@ A **Desktop Environment (DE)** provides a complete graphical interface including
 
 ---
 
-## 📊 Comparison Chart
+## Comparison Chart
 
 | DE/WM | RAM Usage | Customization | Learning Curve | Best For |
 |-------|-----------|---------------|----------------|----------|
@@ -50,13 +50,13 @@ A **Desktop Environment (DE)** provides a complete graphical interface including
 
 ---
 
-## 🖥️ Desktop Environments
+## Desktop Environments
 
 ### GNOME
 
 ![GNOME Desktop](../../images/de-gnome.png)
 
-**Modern, clean, and streamlined.**
+**Modern, clean, streamlined.**
 
 | Aspect | Details |
 |--------|---------|
@@ -196,9 +196,9 @@ sudo systemctl enable lightdm
 
 ---
 
-## 🪟 Window Managers
+## Window Managers
 
-### Hyprland (Wayland) ⭐
+### Hyprland (Wayland)
 
 ![Hyprland](../../images/wm-hyprland.png)
 
@@ -280,7 +280,7 @@ sudo pacman -S sway swaylock swayidle waybar wofi
 
 ---
 
-## 🚪 Display Managers
+## Display Managers
 
 **Display Managers (DM)** provide graphical login screens.
 
@@ -341,7 +341,7 @@ fi
 
 ---
 
-## 🎯 Making Your Choice
+## Making Your Choice
 
 ### For Beginners
 
@@ -370,7 +370,7 @@ fi
 
 ---
 
-## 🔗 Detailed Guides
+## Detailed Guides
 
 - [Hyprland Setup](hyprland.md)
 - [KDE Plasma Setup](kde-plasma.md)
@@ -380,7 +380,7 @@ fi
 
 ---
 
-## ➡️ Next Steps
+## Next Steps
 
 Choose your desktop environment and follow the specific guide:
 
@@ -395,6 +395,6 @@ Choose your desktop environment and follow the specific guide:
 
 <div align="center">
 
-[← Audio & Bluetooth](../04-post-installation/audio-bluetooth.md) | [Back to Main Guide](../../README.md) | [Next: Choose Your basic IDE →](gnome.md)
+[← Audio & Bluetooth](../04-post-installation/audio-bluetooth.md) | [Back to Main Guide](../../README.md) | [Next: Choose Your DE →](gnome.md)
 
 </div>
