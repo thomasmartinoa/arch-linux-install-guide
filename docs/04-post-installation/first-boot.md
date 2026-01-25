@@ -432,8 +432,6 @@ ping -c 3 archlinux.org
 Your base system is configured! Continue with:
 
 → [Install Drivers](drivers.md) - GPU and hardware drivers
-→ [Audio & Bluetooth Setup](audio-bluetooth.md)
-→ [Choose Desktop Environment](../05-desktop-environments/de-overview.md)
 
 ---
 

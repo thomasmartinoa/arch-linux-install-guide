@@ -160,6 +160,10 @@ Having issues? Check these guides:
 - [Arch Linux Forums](https://bbs.archlinux.org/) - Community support
 - [r/archlinux](https://www.reddit.com/r/archlinux/) - Reddit community
 
+### 🚀 Advanced Guides
+
+- [**CachyOS Kernel on Arch**](https://github.com/thomasmartinoa/cachyos-kernel_on_arch) - Install the performance-optimized CachyOS kernel (better gaming & responsiveness)
+
 ---
 
 ## 🤝 Contributing
@@ -177,7 +181,5 @@ Found an error or want to improve this guide? Contributions are welcome!
 <div align="center">
 
 **⭐ Star this repo if you found it helpful!**
-
-Made with ❤️ by Martin
 
 </div>

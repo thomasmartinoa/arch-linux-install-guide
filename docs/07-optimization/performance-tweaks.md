@@ -458,6 +458,36 @@ System suspends to RAM but also saves to disk as backup.
 
 ---
 
+## 🚀 Advanced Kernel Optimization
+
+### CachyOS Kernel (Performance-Optimized)
+
+CachyOS provides a custom-compiled Linux kernel with performance optimizations for desktop and gaming.
+
+**Benefits:**
+- Better gaming performance
+- Improved system responsiveness
+- Optimized CPU scheduler (BORE or BMQ)
+- Pre-compiled with performance flags
+- Optional LTO (Link Time Optimization)
+
+**Installation:**
+
+For detailed installation instructions, see the dedicated guide:
+
+🔗 [**CachyOS Kernel Installation Guide**](https://github.com/thomasmartinoa/cachyos-kernel_on_arch)
+
+The guide covers:
+- Adding CachyOS repositories
+- Choosing the right kernel variant
+- Installation and configuration
+- Bootloader setup
+- Troubleshooting
+
+> 💡 **Recommended for:** Gaming PCs, desktops where performance matters. Not necessary for servers or minimal systems.
+
+---
+
 ## 🎮 Gaming Optimizations
 
 ### Enable multilib Repository

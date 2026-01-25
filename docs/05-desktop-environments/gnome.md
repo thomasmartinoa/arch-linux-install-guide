@@ -55,6 +55,6 @@ Recommended extensions:
 
 <div align="center">
 
-[← DE Overview](de-overview.md) | [Back to Main Guide](../../README.md) | [Next: AUR Installer setup →](../06-essential-software/aur-helpers.md)
+[← DE Overview](de-overview.md) | [Back to Main Guide](../../README.md) | [Next: Essential Software →](../06-essential-software/essential-packages.md)
 
 </div>

@@ -50,6 +50,6 @@ sudo pacman -S ristretto
 
 <div align="center">
 
-[← DE Overview](de-overview.md) | [Back to Main Guide](../../README.md)
+[← DE Overview](de-overview.md) | [Back to Main Guide](../../README.md) | [Next: Essential Software →](../06-essential-software/essential-packages.md)
 
 </div>

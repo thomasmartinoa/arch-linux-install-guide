@@ -300,15 +300,24 @@ sudo pacman -S --needed \
 
 ---
 
-## ➡️ Next Steps
+## ➡️ What's Next?
 
-→ [AUR Helpers](aur-helpers.md) - Access the AUR
-→ [Recommended Apps](recommended-apps.md) - More applications
+Choose your path based on your priorities:
+
+| Path | Description | When to Use | Link |
+|------|-------------|-------------|------|
+| 🔧 **AUR Helpers** | Install yay or paru to access AUR packages (community-maintained software) | You need software not in official repos (themes, proprietary apps, etc.) | [Go to AUR Helpers →](aur-helpers.md) |
+| ⚡ **Performance Tweaks** | Optimize system speed, battery life, gaming performance, and hibernation | You want faster boot, better gaming, or laptop power management | [Go to Performance →](../07-optimization/performance-tweaks.md) |
+| 🔒 **Security Hardening** | Enable firewall, configure SSH, set up Fail2ban, and AppArmor | You want to secure your system against threats | [Go to Security →](../07-optimization/security.md) |
+| 🛠️ **Maintenance** | Learn system updates, cleaning, backup strategies | You want to keep your system healthy long-term | [Go to Maintenance →](../07-optimization/maintenance.md) |
+| 🆘 **Troubleshooting** | Fix common issues: boot problems, network, drivers, audio | Something isn't working properly | [Go to Troubleshooting →](../08-troubleshooting/README.md) |
+
+> 💡 **Recommended order:** AUR Helpers → Performance Tweaks → Security → Maintenance
 
 ---
 
 <div align="center">
 
-[← Next: AUR Helpers](aur-helpers.md)| [Back to Main Guide](../../README.md) | [Next: Troubleshotting →](../08-troubleshooting/README.md)
+[← Desktop Environments](../05-desktop-environments/de-overview.md) | [Back to Main Guide](../../README.md) | [Next: AUR Helpers →](aur-helpers.md)
 
 </div>
