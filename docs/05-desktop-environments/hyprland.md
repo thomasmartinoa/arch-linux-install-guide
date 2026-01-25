@@ -426,11 +426,24 @@ Hyprland
 
 ---
 
-## ➡️ Next Steps
+## 🎉 Installation Complete!
 
-Check out my Hyprland dotfiles repository for my complete configuration!
+**Congratulations!** You now have a fully functional Arch Linux system with Hyprland desktop environment.
 
-→ [Essential Software](../06-essential-software/essential-packages.md)
+Your base installation is complete, but there's more to enhance your experience:
+
+### 🚀 Continue Your Journey
+
+| Next Steps | Why? |
+|------------|------|
+| [**Essential Packages**](../06-essential-software/essential-packages.md) | Install must-have software for daily use |
+| [**AUR Helpers**](../06-essential-software/aur-helpers.md) | Access thousands of community packages |
+| [**Performance Tweaks**](../07-optimization/performance-tweaks.md) | Optimize speed, battery life, and gaming |
+| [**Security Hardening**](../07-optimization/security.md) | Protect your system with firewall and best practices |
+| [**Maintenance Guide**](../07-optimization/maintenance.md) | Keep your system healthy long-term |
+| [**Troubleshooting**](../08-troubleshooting/README.md) | Fix common issues like boot, network, or driver problems |
+
+> 💡 **Recommended flow:** Essential Packages → AUR Helpers → Performance → Security → Troubleshooting
 
 ---
 
