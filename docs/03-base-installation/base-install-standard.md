@@ -74,14 +74,14 @@ sda      8:0    0   500G  0 disk
 ## Step 2: Install Base System
 
 ```bash
-pacstrap -i /mnt base
+pacstrap -K /mnt base
 ```
 
 **What this does:**
 | Part | Meaning |
-|------|---------|
+|------|--------|
 | `pacstrap` | Install packages to new root |
-| `-i` | Interactive mode (confirm packages) |
+| `-K` | Initialize pacman keyring in target |
 | `/mnt` | Target mount point |
 | `base` | Base system meta-package |
 
@@ -363,14 +363,23 @@ pacman -S amd-ucode
 After installing the kernel, regenerate the initial ramdisk:
 
 ```bash
+mkinitcpio -P
+```
+
+**Alternative (specific presets):**
+```bash
 mkinitcpio -p linux
 mkinitcpio -p linux-lts
 ```
 
 **What this does:**
-- Creates the initial RAM filesystem image
-- Includes necessary modules for booting
-- Must be run after kernel installation
+| Command | Meaning |
+|---------|---------|
+| `mkinitcpio -P` | Regenerate **all** presets (recommended) |
+| `mkinitcpio -p linux` | Regenerate only linux preset |
+| `mkinitcpio -p linux-lts` | Regenerate only linux-lts preset |
+
+> 💡 Use `-P` (capital P) to regenerate all kernels at once - modern and convenient!
 
 **Expected output:**
 ```
@@ -436,7 +445,7 @@ systemctl enable sshd
 
 ```bash
 # Install base system
-pacstrap -i /mnt base
+pacstrap -K /mnt base
 
 # Generate fstab
 genfstab -U -p /mnt >> /mnt/etc/fstab
@@ -469,8 +478,7 @@ pacman -S mesa intel-media-driver  # or your GPU driver
 EDITOR=nvim visudo
 
 # Regenerate initramfs
-mkinitcpio -p linux
-mkinitcpio -p linux-lts
+mkinitcpio -P
 
 # Enable services
 systemctl enable NetworkManager

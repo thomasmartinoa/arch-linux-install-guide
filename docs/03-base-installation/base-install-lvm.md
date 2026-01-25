@@ -70,14 +70,14 @@ sda                       8:0    0   500G  0 disk
 ## Step 2: Install Base System
 
 ```bash
-pacstrap -i /mnt base
+pacstrap -K /mnt base
 ```
 
 **What this does:**
 | Part | Meaning |
-|------|---------|
+|------|--------|
 | `pacstrap` | Install packages to new root |
-| `-i` | Interactive mode (confirm packages) |
+| `-K` | Initialize pacman keyring in target |
 | `/mnt` | Target mount point |
 | `base` | Base system meta-package |
 
@@ -359,6 +359,11 @@ Without the `lvm2` hook, the system won't find your root partition!
 ### Regenerate initramfs
 
 ```bash
+mkinitcpio -P
+```
+
+**Or for specific presets:**
+```bash
 mkinitcpio -p linux
 mkinitcpio -p linux-lts
 ```
@@ -399,7 +404,7 @@ systemctl enable sshd
 
 ```bash
 # Install base system
-pacstrap -i /mnt base
+pacstrap -K /mnt base
 
 # Generate fstab
 genfstab -U -p /mnt >> /mnt/etc/fstab
@@ -434,8 +439,7 @@ EDITOR=nvim visudo
 # IMPORTANT: Add lvm2 to mkinitcpio HOOKS
 nvim /etc/mkinitcpio.conf
 # Change: HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
-mkinitcpio -p linux
-mkinitcpio -p linux-lts
+mkinitcpio -P
 
 # Enable services
 systemctl enable NetworkManager

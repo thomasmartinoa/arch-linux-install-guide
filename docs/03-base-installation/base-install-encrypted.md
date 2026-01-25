@@ -74,14 +74,14 @@ nvme0n1                   259:0    0     1T  0 disk
 ## Step 2: Install Base System
 
 ```bash
-pacstrap -i /mnt base
+pacstrap -K /mnt base
 ```
 
 **What this does:**
 | Part | Meaning |
-|------|---------|
+|------|--------|
 | `pacstrap` | Install packages to new root |
-| `-i` | Interactive mode |
+| `-K` | Initialize pacman keyring in target |
 | `/mnt` | Target mount point |
 | `base` | Base system meta-package |
 
@@ -373,6 +373,11 @@ If reversed, LVM would try to activate before decryption = **fail**!
 ### Regenerate initramfs
 
 ```bash
+mkinitcpio -P
+```
+
+**Or for specific presets:**
+```bash
 mkinitcpio -p linux
 mkinitcpio -p linux-lts
 ```
@@ -417,7 +422,7 @@ systemctl enable sshd
 
 ```bash
 # Install base system
-pacstrap -i /mnt base
+pacstrap -K /mnt base
 
 # Generate fstab
 genfstab -U -p /mnt >> /mnt/etc/fstab
@@ -452,8 +457,7 @@ EDITOR=nvim visudo
 # CRITICAL: Add keyboard, encrypt, lvm2 to mkinitcpio HOOKS
 nvim /etc/mkinitcpio.conf
 # Change: HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)
-mkinitcpio -p linux
-mkinitcpio -p linux-lts
+mkinitcpio -P
 
 # Enable services
 systemctl enable NetworkManager
