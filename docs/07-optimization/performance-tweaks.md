@@ -249,6 +249,289 @@ sudo systemctl mask systemd-rfkill.socket
 
 ---
 
+## 💤 Hibernation Setup
+
+Hibernation saves your system state to disk and completely powers off, allowing you to resume exactly where you left off.
+
+### Prerequisites
+
+You need a swap space **at least as large as your RAM**. Check your RAM size:
+
+```bash
+free -h
+```
+
+### Option 1: Using Swap Partition
+
+If you already have a swap partition from installation:
+
+```bash
+# Find your swap partition UUID
+sudo blkid | grep swap
+```
+
+Note the UUID (e.g., `UUID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"`).
+
+### Option 2: Create Swap File
+
+If you don't have a swap partition or need more swap:
+
+```bash
+# Create 16GB swap file (adjust size to match your RAM)
+sudo dd if=/dev/zero of=/swapfile bs=1M count=16384 status=progress
+
+# Set permissions
+sudo chmod 600 /swapfile
+
+# Format as swap
+sudo mkswap /swapfile
+
+# Enable swap
+sudo swapon /swapfile
+
+# Verify
+sudo swapon --show
+```
+
+**Add to fstab:**
+```bash
+echo '/swapfile none swap defaults 0 0' | sudo tee -a /etc/fstab
+```
+
+**For Btrfs users:**
+```bash
+# Disable CoW for swap file
+sudo chattr +C /swapfile
+```
+
+### Configure Hibernation
+
+#### 1. Get Swap Information
+
+**For swap partition:**
+```bash
+sudo blkid | grep swap
+# Note the UUID
+```
+
+**For swap file:**
+```bash
+# Get swap file offset
+sudo filefrag -v /swapfile | head -n 5
+# Note the first physical_offset value
+```
+
+#### 2. Edit GRUB Configuration
+
+```bash
+sudo nvim /etc/default/grub
+```
+
+**For swap partition:**
+Add to `GRUB_CMDLINE_LINUX_DEFAULT`:
+```bash
+GRUB_CMDLINE_LINUX_DEFAULT="... resume=UUID=your-swap-uuid"
+```
+
+**For swap file:**
+Add both resume and resume_offset:
+```bash
+# First, find your root partition UUID
+sudo blkid | grep "/ "
+
+# Then add to GRUB (replace values)
+GRUB_CMDLINE_LINUX_DEFAULT="... resume=UUID=your-root-uuid resume_offset=your_offset"
+```
+
+**Example:**
+```bash
+GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet resume=UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx resume_offset=34816"
+```
+
+#### 3. Regenerate GRUB
+
+```bash
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+#### 4. Configure mkinitcpio
+
+```bash
+sudo nvim /etc/mkinitcpio.conf
+```
+
+Find the `HOOKS` line and add `resume` **after** `filesystems`:
+
+```bash
+# Before
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
+
+# After
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems resume fsck)
+```
+
+> ⚠️ **Important:** `resume` must come AFTER `filesystems` but BEFORE `fsck`!
+
+**Rebuild initramfs:**
+```bash
+sudo mkinitcpio -P
+```
+
+### For systemd-boot Users
+
+Edit your boot entry:
+
+```bash
+sudo nvim /boot/loader/entries/arch.conf
+```
+
+Add resume parameters to the `options` line:
+
+**For swap partition:**
+```
+options root=UUID=... rw resume=UUID=your-swap-uuid
+```
+
+**For swap file:**
+```
+options root=UUID=... rw resume=UUID=your-root-uuid resume_offset=your_offset
+```
+
+### Testing Hibernation
+
+```bash
+# Test hibernation
+sudo systemctl hibernate
+```
+
+Your system should:
+1. Save state to disk
+2. Power off completely
+3. On next boot, restore your session
+
+### Troubleshooting
+
+**Hibernation fails:**
+```bash
+# Check swap is active
+sudo swapon --show
+
+# Check journal for errors
+sudo journalctl -b -u systemd-hibernate
+```
+
+**Resume doesn't work:**
+```bash
+# Verify resume hook is in initramfs
+lsinitcpio /boot/initramfs-linux.img | grep resume
+
+# Check kernel parameters
+cat /proc/cmdline | grep resume
+```
+
+**Swap file offset not working:**
+```bash
+# Recalculate offset
+sudo filefrag -v /swapfile | awk '$1=="0:" {print $4}'
+# Use this value (remove trailing period)
+```
+
+### Hibernate vs Suspend
+
+| Feature | Suspend (Sleep) | Hibernate |
+|---------|----------------|-----------|
+| Power usage | Low (RAM powered) | None (fully off) |
+| Resume speed | Very fast (2-5s) | Slower (10-30s) |
+| Battery drain | Yes (small) | No |
+| Disk writes | No | Yes |
+| Best for | Short breaks | Long periods |
+
+### Hybrid Sleep (Optional)
+
+Combines suspend and hibernate for safety:
+
+```bash
+sudo systemctl hybrid-sleep
+```
+
+System suspends to RAM but also saves to disk as backup.
+
+---
+
+## 🎮 Gaming Optimizations
+
+### Enable multilib Repository
+
+For 32-bit game support (Steam, Wine):
+
+```bash
+sudo nvim /etc/pacman.conf
+```
+
+Uncomment these lines:
+```ini
+[multilib]
+Include = /etc/pacman.d/mirrorlist
+```
+
+**Update package database:**
+```bash
+sudo pacman -Sy
+```
+
+**What multilib enables:**
+- 32-bit libraries for games
+- Steam compatibility
+- Wine/Proton support
+- lib32 packages
+
+### Install Gaming Essentials
+
+```bash
+# Enable GameMode
+sudo pacman -S gamemode lib32-gamemode
+
+# Steam (requires multilib)
+sudo pacman -S steam
+
+# Proton/Wine
+sudo pacman -S wine wine-gecko wine-mono
+
+# Additional 32-bit graphics drivers
+# For NVIDIA:
+sudo pacman -S lib32-nvidia-utils
+
+# For AMD:
+sudo pacman -S lib32-mesa lib32-vulkan-radeon
+
+# For Intel:
+sudo pacman -S lib32-mesa lib32-vulkan-intel
+```
+
+### Verify multilib
+
+```bash
+# Check if multilib is enabled
+pacman -Sl multilib | head -10
+
+# Install a 32-bit package to test
+sudo pacman -S lib32-glibc
+```
+
+---
+
+## 🔋 Laptop Power Management
+
+```bash
+sudo pacman -S tlp tlp-rdw
+sudo systemctl enable tlp
+sudo systemctl enable NetworkManager-dispatcher
+sudo systemctl mask systemd-rfkill.service
+sudo systemctl mask systemd-rfkill.socket
+```
+
+---
+
 <div align="center">
 
 [← Essential Software](../06-essential-software/essential-packages.md) | [Back to Main Guide](../../README.md)
