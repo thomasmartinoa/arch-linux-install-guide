@@ -6,7 +6,7 @@
 
 ![Arch Linux Banner](images/arch-banner.png)
 
-## 📋 Table of Contents
+##  Table of Contents
 
 1. [Introduction](#-introduction)
 2. [Prerequisites](#-prerequisites)
@@ -166,7 +166,7 @@ Run into problems? Here's where to look:
 
 ---
 
-## 🤝 Contributing
+##  Contributing
 
 Found a mistake or want to add something?
 
