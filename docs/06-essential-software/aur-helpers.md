@@ -101,6 +101,6 @@ yay -S pamac-aur          # GUI package manager
 
 <div align="center">
 
-[← Desktop Environments](../05-desktop-environments/de-overview.md)  | [Back to Main Guide](../../README.md) | [Next: Essential Packages →](essential-packages.md)
+[← Essential Packages](essential-packages.md) | [Back to Main Guide](../../README.md) | [Next: Performance Tweaks →](../07-optimization/performance-tweaks.md)
 
 </div>

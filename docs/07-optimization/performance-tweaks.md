@@ -564,6 +564,6 @@ sudo systemctl mask systemd-rfkill.socket
 
 <div align="center">
 
-[← Essential Software](../06-essential-software/essential-packages.md) | [Back to Main Guide](../../README.md)
+[← AUR Helpers](../06-essential-software/aur-helpers.md) | [Back to Main Guide](../../README.md) | [Next: Security →](security.md)
 
 </div>

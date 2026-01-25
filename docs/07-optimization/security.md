@@ -499,6 +499,6 @@ ss -tulpn
 
 <div align="center">
 
-[← Maintenance](maintenance.md) | [Back to Main Guide](../../README.md)
+[← Performance Tweaks](performance-tweaks.md) | [Back to Main Guide](../../README.md) | [Next: Maintenance →](maintenance.md)
 
 </div>

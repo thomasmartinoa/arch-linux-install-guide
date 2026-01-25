@@ -73,6 +73,6 @@ journalctl -p 3 -xb
 
 <div align="center">
 
-[Back to Main Guide](../../README.md)
+[← Security](security.md) | [Back to Main Guide](../../README.md) | [Next: Troubleshooting →](../08-troubleshooting/README.md)
 
 </div>
