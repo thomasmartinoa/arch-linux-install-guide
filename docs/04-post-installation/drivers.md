@@ -45,6 +45,61 @@ lspci -v -s $(lspci | grep -i vga | cut -d' ' -f1)
 
 ---
 
+## 🔧 CPU Microcode (Important)
+
+Microcode updates provide CPU bug fixes and security patches.
+
+### For Intel CPUs
+
+```bash
+sudo pacman -S intel-ucode
+```
+
+### For AMD CPUs
+
+```bash
+sudo pacman -S amd-ucode
+```
+
+### Regenerate GRUB Configuration
+
+After installing microcode, update GRUB:
+
+```bash
+sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+**Expected output:**
+```
+Generating grub configuration file...
+Found linux image: /boot/vmlinuz-linux
+Found initrd image: /boot/initramfs-linux.img
+Found intel-ucode image: /boot/intel-ucode.img  ← Verify this line
+```
+
+> ✅ Look for "Found intel-ucode" or "Found amd-ucode" in the output.
+
+### For systemd-boot Users
+
+Microcode is automatically loaded if present, no action needed.
+
+### Verify Microcode Loaded
+
+After reboot:
+
+```bash
+dmesg | grep microcode
+```
+
+**Expected output:**
+```
+[    0.000000] microcode: updated early to revision 0xf0
+```
+
+> 💡 **Why install microcode?** It fixes CPU bugs, improves stability, and patches security vulnerabilities like Spectre/Meltdown.
+
+---
+
 ## 💙 Intel Graphics
 
 Intel integrated graphics use open-source drivers included in the kernel.

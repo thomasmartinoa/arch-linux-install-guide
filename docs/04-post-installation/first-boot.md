@@ -179,6 +179,92 @@ ping -c 3 archlinux.org
 
 ## 📦 Update System
 
+### Sync Package Database
+
+```bash
+sudo pacman -Sy
+```
+
+### Full System Update
+
+```bash
+sudo pacman -Syu
+```
+
+> ⚠️ Always run full updates (`-Syu`) to avoid partial upgrades.
+
+---
+
+## 🌐 Optimize Mirrors (Recommended)
+
+Reflector automatically selects the fastest mirrors for faster downloads.
+
+### Install Reflector
+
+```bash
+sudo pacman -S reflector
+```
+
+### Backup Current Mirrorlist
+
+```bash
+sudo cp /etc/pacman.d/mirrorlist /etc/pacman.d/mirrorlist.bak
+```
+
+### Generate Optimized Mirrorlist
+
+```bash
+sudo reflector --verbose --latest 10 --protocol https --sort rate --save /etc/pacman.d/mirrorlist
+```
+
+**What this does:**
+
+| Flag | Meaning |
+|------|---------|
+| `--verbose` | Show detailed output |
+| `--latest 10` | Use 10 most recently synchronized mirrors |
+| `--protocol https` | Only HTTPS mirrors (more secure) |
+| `--sort rate` | Sort by download speed |
+| `--save` | Save to mirrorlist file |
+
+### Update Package Database
+
+```bash
+sudo pacman -Sy
+```
+
+You should notice faster download speeds!
+
+### Automate Mirror Updates (Optional)
+
+Enable weekly mirror optimization:
+
+```bash
+sudo systemctl enable reflector.timer
+sudo systemctl start reflector.timer
+```
+
+Configure reflector settings:
+
+```bash
+sudo nvim /etc/xdg/reflector/reflector.conf
+```
+
+Recommended configuration:
+```
+--save /etc/pacman.d/mirrorlist
+--protocol https
+--country India,Singapore,Germany,US
+--latest 10
+--sort rate
+```
+
+> 💡 **Tip:** Replace countries with those closest to your location for best results.
+
+---
+
+## 📦 Install Essential Packages
+
 ### Sync and Update All Packages
 
 ```bash

@@ -103,25 +103,58 @@ sudo passwd -l root
 
 UFW (Uncomplicated Firewall) is the easiest firewall to configure.
 
-### Install and Configure UFW
+### Install UFW
 
 ```bash
 sudo pacman -S ufw
+```
 
-# Default policies
+### Configure and Enable
+
+```bash
+# Set default policies
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
 
 # Enable firewall
 sudo ufw enable
+
+# Enable at boot
 sudo systemctl enable ufw
+
+# Start immediately
+sudo systemctl start ufw
 ```
+
+### Verify Status
+
+```bash
+sudo ufw status verbose
+```
+
+**Expected output:**
+```
+Status: active
+Logging: on (low)
+Default: deny (incoming), allow (outgoing), disabled (routed)
+New profiles: skip
+```
+
+### Check Service Status
+
+```bash
+sudo systemctl status ufw
+```
+
+Should show "active (running)".
 
 ### Allow Common Services
 
 ```bash
 # SSH (if needed)
 sudo ufw allow ssh
+# or
+sudo ufw allow 22/tcp
 
 # HTTP/HTTPS (for web servers)
 sudo ufw allow 80/tcp
@@ -129,21 +162,44 @@ sudo ufw allow 443/tcp
 
 # Custom port
 sudo ufw allow 8080/tcp
+
+# Allow from specific IP
+sudo ufw allow from 192.168.1.100
+
+# Allow specific app
+sudo ufw allow in "CUPS"
 ```
 
-### Check Status
+### List All Rules
 
 ```bash
-sudo ufw status verbose
 sudo ufw status numbered
 ```
 
 ### Delete Rules
 
 ```bash
+# List rules with numbers
 sudo ufw status numbered
+
+# Delete rule by number
 sudo ufw delete 2
+
+# Delete rule by specification
+sudo ufw delete allow 8080/tcp
 ```
+
+### Disable/Reset UFW
+
+```bash
+# Disable temporarily
+sudo ufw disable
+
+# Reset all rules
+sudo ufw reset
+```
+
+> 💡 **Recommended:** Enable UFW immediately after installation to protect your system.
 
 ---
 
