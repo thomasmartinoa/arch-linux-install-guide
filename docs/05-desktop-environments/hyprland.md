@@ -1,4 +1,4 @@
-# 🌊 Hyprland Installation Guide
+#  Hyprland
 
 > Setting up Hyprland - the modern dynamic tiling Wayland compositor.
 
@@ -25,24 +25,9 @@
 
 ---
 
-> 📖 **FOR FULL INSTALLTION** Check out my [**Complete Hyprland Setup Guide**](https://github.com/thomasmartinoa/Hyprland_guide) for detailed customization, dotfiles, and advanced features!
+ **FOR FULL INSTALLTION** Check out my [**Complete Hyprland Setup Guide**](https://github.com/thomasmartinoa/Hyprland_guide) for detailed customization, dotfiles, and advanced features!
 
 ---
-
-## ✅ Prerequisites
-
-### Required
-- Working Arch Linux installation
-- GPU drivers installed
-- Basic terminal knowledge
-
-### GPU Notes
-
-| GPU | Status |
-|-----|--------|
-| AMD | ✅ Excellent support |
-| Intel | ✅ Excellent support |
-| NVIDIA | ⚠️ Works, requires configuration |
 
 
 ### Official Resources
