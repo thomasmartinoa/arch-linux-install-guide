@@ -1,6 +1,6 @@
 # System Migration
 
-> Exporting your Arch Linux setup to install on another PC.
+> Moving your Arch setup to a new PC without losing your mind.
 
 ## Table of Contents
 
@@ -20,9 +20,9 @@
 
 ## Overview
 
-Moving your Arch setup to a new PC doesn't mean starting from scratch. You can export your package lists, dotfiles, and configurations, then restore everything on the new machine.
+Got a new PC? Don't reinstall everything from memory - that's a nightmare. Just export your current setup and restore it on the new machine.
 
-**The basic idea:**
+**Here's how it works:**
 
 ```
 Old PC                          New PC
@@ -37,16 +37,16 @@ Old PC                          New PC
 
 ## What to Export
 
-Before migrating, gather these from your current system:
+You'll want to grab these from your old system:
 
-| Category | What to Export | Location |
-|----------|----------------|----------|
-| Official packages | Explicitly installed | `pacman -Qqe` |
-| AUR packages | Foreign packages | `pacman -Qqem` |
-| All packages | Including dependencies | `pacman -Qq` |
-| Dotfiles | User configs | `~/.config`, `~/.*` |
-| System configs | Modified /etc files | `/etc/` |
-| Enabled services | Systemd units | `systemctl list-unit-files` |
+| Category | What It Is | How to Get It |
+|----------|------------|---------------|
+| Official packages | Stuff you installed from repos | `pacman -Qqe` |
+| AUR packages | Stuff from the AUR | `pacman -Qqem` |
+| All packages | Everything (including deps) | `pacman -Qq` |
+| Dotfiles | Your personal configs | `~/.config`, `~/.*` |
+| System configs | Modified system files | `/etc/` |
+| Enabled services | What starts on boot | `systemctl list-unit-files` |
 | Cron jobs | Scheduled tasks | `crontab -l` |
 
 ---
@@ -55,32 +55,32 @@ Before migrating, gather these from your current system:
 
 ### Official Repository Packages
 
-Get all explicitly installed packages from the official repos:
+First, get everything you explicitly installed from the official repos:
 
 ```bash
 pacman -Qqen > pkglist.txt
 ```
 
-**What this means:**
-- `-Q` - Query installed packages
-- `-q` - Quiet (names only, no versions)
-- `-e` - Explicitly installed (not dependencies)
-- `-n` - Native (from official repos only)
+**Breaking it down:**
+- `-Q` - Query what's installed
+- `-q` - Quiet mode (just names, no versions)
+- `-e` - Only stuff you chose to install (not auto-dependencies)
+- `-n` - Native packages only (from official repos)
 
 ### AUR Packages
 
-Get your AUR packages separately:
+Grab your AUR packages in a separate list:
 
 ```bash
 pacman -Qqem > aurlist.txt
 ```
 
-**What this means:**
-- `-m` - Foreign packages (not in sync database = AUR)
+**What `-m` does:**
+- Foreign packages (anything not in the official repos - that's your AUR stuff)
 
 ### All Packages (Including Dependencies)
 
-If you want a complete snapshot:
+Want absolutely everything? Here you go:
 
 ```bash
 pacman -Qq > all-packages.txt
@@ -88,7 +88,7 @@ pacman -Qq > all-packages.txt
 
 ### Optional Dependencies
 
-Export optional deps you've installed:
+If you've manually installed some optional deps:
 
 ```bash
 comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort) > optdeps.txt
@@ -98,13 +98,13 @@ comm -13 <(pacman -Qqdt | sort) <(pacman -Qqdtt | sort) > optdeps.txt
 
 ## Export Enabled Services
 
-Get a list of all enabled systemd services:
+Grab everything that starts on boot:
 
 ```bash
 systemctl list-unit-files --state=enabled > services.txt
 ```
 
-For a cleaner list (just service names):
+Want just the names without the extra info?
 
 ```bash
 systemctl list-unit-files --state=enabled --no-legend | awk '{print $1}' > services-clean.txt
@@ -112,7 +112,7 @@ systemctl list-unit-files --state=enabled --no-legend | awk '{print $1}' > servi
 
 ### User Services
 
-Don't forget user-level services:
+Also check for user-level services (these run as your user, not root):
 
 ```bash
 systemctl --user list-unit-files --state=enabled --no-legend | awk '{print $1}' > user-services.txt
@@ -124,13 +124,13 @@ systemctl --user list-unit-files --state=enabled --no-legend | awk '{print $1}' 
 
 ### System Configuration (/etc)
 
-Find modified config files:
+Find which system config files you've changed:
 
 ```bash
 pacman -Qii | awk '/\[modified\]/ {print $(NF - 1)}' > modified-configs.txt
 ```
 
-Copy important configs:
+Grab the important stuff:
 
 ```bash
 mkdir -p ~/backup/etc
@@ -147,7 +147,7 @@ sudo cp -r /etc/vconsole.conf ~/backup/etc/
 
 ### User Dotfiles
 
-Common dotfiles to backup:
+Your personal config files - the ones that make your system *yours*:
 
 ```bash
 mkdir -p ~/backup/dotfiles
@@ -159,14 +159,14 @@ cp -r ~/.config/kitty ~/backup/dotfiles/
 cp -r ~/.config/alacritty ~/backup/dotfiles/
 cp -r ~/.config/hypr ~/backup/dotfiles/
 cp -r ~/.config/waybar ~/backup/dotfiles/
-cp -r ~/.ssh ~/backup/dotfiles/    # Be careful with private keys!
+cp -r ~/.ssh ~/backup/dotfiles/    # Careful - these are private keys!
 ```
 
 ---
 
 ## Dotfiles with GNU Stow
 
-GNU Stow creates symlinks from a central directory to your home folder. It's the cleanest way to manage dotfiles.
+Stow is brilliant - it creates symlinks from one folder to your home directory. So you can keep all your dotfiles organized in one place and version control them.
 
 ### Install Stow
 
@@ -176,7 +176,7 @@ sudo pacman -S stow
 
 ### Set Up Dotfiles Directory
 
-Create a structured dotfiles folder:
+Make a folder for all your dotfiles:
 
 ```bash
 mkdir -p ~/dotfiles
@@ -185,7 +185,7 @@ cd ~/dotfiles
 
 ### Organize by Application
 
-Each app gets its own folder, mirroring where files should go in `~`:
+Each app gets its own folder. The folder structure mirrors where files go in your home:
 
 ```
 ~/dotfiles/
@@ -227,22 +227,22 @@ mv ~/.config/nvim ~/dotfiles/nvim/.config/
 
 ### Deploy with Stow
 
-From the dotfiles directory:
+From your dotfiles folder:
 
 ```bash
 cd ~/dotfiles
 
-# Stow individual packages
+# Stow specific apps
 stow bash
 stow zsh
 stow nvim
 stow kitty
 
-# Or stow everything at once
+# Or just stow everything
 stow */
 ```
 
-This creates symlinks:
+Now you've got symlinks:
 - `~/dotfiles/zsh/.zshrc` → `~/.zshrc`
 - `~/dotfiles/nvim/.config/nvim` → `~/.config/nvim`
 
@@ -282,7 +282,7 @@ stow */
 
 ## Dotfiles with Git (Bare Repository)
 
-This method tracks dotfiles directly without symlinks. Good if you don't want stow as a dependency.
+This method tracks dotfiles right in your home directory without symlinks. Less dependencies, but a bit trickier.
 
 ### Initialize Bare Repository
 
@@ -292,7 +292,7 @@ alias dotfiles='/usr/bin/git --git-dir="$HOME/.dotfiles/" --work-tree="$HOME"'
 dotfiles config status.showUntrackedFiles no
 ```
 
-Add the alias to your shell config:
+Add the alias to your shell so it sticks:
 
 ```bash
 echo "alias dotfiles='/usr/bin/git --git-dir=\"\$HOME/.dotfiles/\" --work-tree=\"\$HOME\"'" >> ~/.bashrc
@@ -317,7 +317,7 @@ dotfiles checkout
 dotfiles config status.showUntrackedFiles no
 ```
 
-If you get conflicts with existing files:
+If you hit conflicts with existing files:
 
 ```bash
 mkdir -p ~/.dotfiles-backup
@@ -329,11 +329,11 @@ dotfiles checkout
 
 ## Clean Package Lists
 
-Hardware-specific packages shouldn't be installed on different hardware. Filter them out.
+You don't want to install your old GPU drivers on a machine with different hardware. Filter out the hardware-specific stuff.
 
 ### Remove Kernels and GPU Drivers
 
-Create a filtered package list:
+Clean up your package list:
 
 ```bash
 grep -Ev \
@@ -341,13 +341,13 @@ grep -Ev \
 pkglist.txt > pkglist-clean.txt
 ```
 
-**What gets excluded:**
-- `linux*` - Kernels (you'll install the right one for new hardware)
+**What this removes:**
+- `linux*` - Kernels (install the right one on new hardware)
 - `nvidia*` - NVIDIA drivers
 - `mesa`, `vulkan-*` - GPU drivers  
 - `xf86-video-*` - Xorg video drivers
-- `*-ucode` - CPU microcode (Intel/AMD specific)
-- `linux-firmware` - Hardware firmware
+- `*-ucode` - CPU microcode (Intel vs AMD)
+- `linux-firmware` - Hardware-specific firmware
 
 ### Clean AUR List Too
 
@@ -357,28 +357,28 @@ grep -Ev \
 aurlist.txt > aurlist-clean.txt
 ```
 
-### Review Before Using
+### Double Check Before Using
 
-Always check the cleaned lists:
+Make sure nothing important got filtered:
 
 ```bash
 cat pkglist-clean.txt | less
 ```
 
-Make sure nothing important got filtered out accidentally.
+Better safe than sorry - review what's in there.
 
 ---
 
 ## Restore on New System
 
-After installing Arch on the new PC, restore your setup.
+You've installed Arch on the new PC. Now let's bring back all your stuff.
 
 ### Step 1: Copy Files to New System
 
-Use USB drive, rsync, or cloud storage:
+Use whatever works - USB drive, rsync over network, cloud storage:
 
 ```bash
-# On old system - create archive
+# On old system - pack it up
 tar -czvf arch-backup.tar.gz \
     pkglist-clean.txt \
     aurlist-clean.txt \
@@ -386,9 +386,9 @@ tar -czvf arch-backup.tar.gz \
     ~/backup/etc \
     ~/dotfiles
 
-# Transfer to new system...
+# Transfer however you want...
 
-# On new system - extract
+# On new system - unpack
 tar -xzvf arch-backup.tar.gz
 ```
 
@@ -398,11 +398,11 @@ tar -xzvf arch-backup.tar.gz
 sudo pacman -S --needed - < pkglist-clean.txt
 ```
 
-**What `--needed` does:** Skips packages that are already installed and up-to-date.
+**The `--needed` flag:** Skips stuff that's already installed. Saves time.
 
 ### Step 3: Install AUR Helper
 
-If you were using yay:
+If you used yay:
 
 ```bash
 sudo pacman -S --needed base-devel git
@@ -419,7 +419,7 @@ rm -rf yay
 yay -S --needed - < aurlist-clean.txt
 ```
 
-Or with paru:
+Or if you're using paru:
 
 ```bash
 paru -S --needed - < aurlist-clean.txt
@@ -434,7 +434,7 @@ cd ~/dotfiles
 stow */
 ```
 
-Or with bare git method:
+Or with the bare git method:
 
 ```bash
 dotfiles checkout
@@ -448,32 +448,32 @@ while read -r service; do
 done < services-clean.txt
 ```
 
-Or manually:
+Or just do it manually:
 
 ```bash
 sudo systemctl enable NetworkManager
 sudo systemctl enable bluetooth
 sudo systemctl enable sddm
-# etc...
+# whatever else you need...
 ```
 
 ### Step 7: Install Correct Drivers
 
-Based on your new hardware:
+Figure out what hardware you've got:
 
 ```bash
-# Detect CPU and install microcode
+# Auto-detect CPU and install microcode
 if grep -q "GenuineIntel" /proc/cpuinfo; then
     sudo pacman -S intel-ucode
 elif grep -q "AuthenticAMD" /proc/cpuinfo; then
     sudo pacman -S amd-ucode
 fi
 
-# Install GPU drivers (check what you have)
+# Check your GPU
 lspci -k | grep -A 2 VGA
 ```
 
-Then regenerate initramfs and update bootloader:
+Then update initramfs and bootloader:
 
 ```bash
 sudo mkinitcpio -P
@@ -484,24 +484,24 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 ## Post-Migration Checklist
 
-After migrating, verify everything works:
+Make sure everything's working:
 
-- [ ] System boots properly
-- [ ] Network works (WiFi and/or Ethernet)
-- [ ] Graphics drivers installed for new GPU
-- [ ] Audio works
-- [ ] All important packages installed
-- [ ] Dotfiles deployed correctly
-- [ ] SSH keys work (if copied)
-- [ ] Browser data synced or imported
-- [ ] Development environments set up
-- [ ] Enabled services running (`systemctl --failed`)
+- [ ] System boots (obviously important)
+- [ ] Network connects (WiFi and/or Ethernet)
+- [ ] Graphics drivers match your new GPU
+- [ ] Audio plays
+- [ ] All your important packages installed
+- [ ] Dotfiles look right
+- [ ] SSH keys work (if you copied them)
+- [ ] Browser data synced
+- [ ] Dev environments set up
+- [ ] No failed services (`systemctl --failed`)
 
 ---
 
 ## Complete Migration Script
 
-Here's a script to automate the export process on your old system:
+Here's a script that does all the export stuff for you. Run this on your old system:
 
 ```bash
 #!/bin/bash
@@ -548,7 +548,7 @@ echo "  AUR packages: $(wc -l < "$BACKUP_DIR/aurlist-clean.txt")"
 echo "  Enabled services: $(wc -l < "$BACKUP_DIR/services.txt")"
 ```
 
-Make it executable and run:
+Make it run:
 
 ```bash
 chmod +x export-system.sh
@@ -557,7 +557,7 @@ chmod +x export-system.sh
 
 ---
 
-> **Tip:** Keep your dotfiles in a git repository and update it regularly. That way you're always ready to migrate or recover from a fresh install.
+> **Tip:** Keep your dotfiles in git and update them regularly. Makes migrating (or recovering from disasters) way easier.
 
 ---
 
