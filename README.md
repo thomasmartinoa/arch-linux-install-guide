@@ -138,6 +138,25 @@ Choose your partitioning method based on your needs:
 
 ---
 
+## System Migration
+
+Got a new PC? Don't start from scratch - just migrate your setup!
+
+| Guide | What It Does |
+|-------|-------------|
+| [System Migration Guide](docs/07-optimization/system-migration.md) | Export everything and restore it on your new machine |
+
+**What you can bring over:**
+- All your packages (official repos + AUR)
+- Dotfiles and configs (with Stow or Git)
+- System settings from /etc
+- Enabled services
+- Your scripts and tweaks
+
+Basically, you export a list of what you've got, copy your configs, then reinstall everything on the new PC. Way easier than remembering what you installed.
+
+---
+
 ## Troubleshooting
 
 Run into problems? Here's where to look:

@@ -73,6 +73,6 @@ journalctl -p 3 -xb
 
 <div align="center">
 
-[← Security](security.md) | [Back to Main Guide](../../README.md) | [Next: Troubleshooting →](../08-troubleshooting/README.md)
+[← Security](security.md) | [Back to Main Guide](../../README.md) | [Next: System Migration →](system-migration.md)
 
 </div>
