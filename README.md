@@ -135,6 +135,7 @@ Choose your partitioning method based on your needs:
 | [Security Hardening](docs/07-optimization/security.md) | Firewall, SSH, Fail2ban, AppArmor |
 | [Performance Tweaks](docs/07-optimization/performance-tweaks.md) | SSD, swap, kernel optimization |
 | [System Maintenance](docs/07-optimization/maintenance.md) | Updates, cleaning, backups |
+| [System Migration](docs/07-optimization/system-migration.md) | Export & restore packages, dotfiles |
 
 ---
 
