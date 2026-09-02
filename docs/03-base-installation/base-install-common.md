@@ -409,6 +409,31 @@ mkinitcpio -P
 starting with `==> ERROR:` means the resulting initramfs is broken and will not boot — fix it
 now, while you still have a working shell, rather than discovering it after a reboot.
 
+You will almost certainly see this, and it is harmless:
+
+```
+==> WARNING: consolefont: no font found in configuration
+```
+
+That is the `consolefont` hook noting you did not set a `FONT=` in `/etc/vconsole.conf` (Step
+5.6). It skips itself and moves on. Set a font only if you want one, and install its package if
+you do. **`WARNING` is fine; `ERROR` is not** — that distinction is the whole point of reading
+this output.
+
+The error that matters most on encrypted paths:
+
+```
+==> ERROR: file not found: `cryptsetup'
+```
+
+That means the `cryptsetup` package is missing. The resulting initramfs cannot unlock your
+disk, and the machine will not boot. Install it and re-run:
+
+```bash
+pacman -S cryptsetup
+mkinitcpio -P
+```
+
 Confirm your hooks actually ran:
 
 ```bash

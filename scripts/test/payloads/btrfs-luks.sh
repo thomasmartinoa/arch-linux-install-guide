@@ -25,9 +25,11 @@ partprobe "$D"; sleep 2
 
 mkfs.fat -F32 "${D}1"
 
+# NOTE: only luksFormat takes a positional [<key file>]; `open` requires --key-file=-.
+#       Both use --key-file=- here so the exact same bytes are read in each case.
 log "LUKS format + open as cryptroot"
-echo -n "$LUKS_PASS" | cryptsetup luksFormat --type luks2 --batch-mode "${D}2" -
-echo -n "$LUKS_PASS" | cryptsetup open "${D}2" cryptroot -
+printf '%s' "$LUKS_PASS" | cryptsetup luksFormat --type luks2 --batch-mode --key-file=- "${D}2"
+printf '%s' "$LUKS_PASS" | cryptsetup open --key-file=- "${D}2" cryptroot
 LUKS_UUID=$(blkid -s UUID -o value "${D}2")
 log "LUKS UUID = $LUKS_UUID"
 

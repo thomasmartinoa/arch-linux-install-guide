@@ -38,6 +38,21 @@ qcow2, prints `ARCHTEST: INSTALL COMPLETE`, and powers off.
 the serial console, sends the LUKS passphrase when an encrypted path prompts for one, and exits
 0 only on reaching a login prompt. A kernel panic, emergency shell, or timeout fails the run.
 
+### Two things that are easy to get wrong
+
+Both cost real debugging time when this harness was built, and both are load-bearing:
+
+**Payload output must be redirected to `/dev/ttyS0`.** archiso runs the `script=` payload from
+the **tty1 autologin shell**, not the serial console. Without `exec > /dev/ttyS0 2>&1` at the
+top of each payload, the install runs perfectly and the harness sees nothing — every assertion
+fails against an empty log while the VM quietly does the right thing.
+
+**The OVMF NVRAM image must persist between pass 1 and pass 2.** `grub-install` writes the UEFI
+boot entry into that NVRAM. Re-copying a pristine `OVMF_VARS.fd` before pass 2 discards it, and
+the firmware reports `No bootable option or device was found` on a perfectly good install.
+(`grub-install` only writes the removable fallback path `\EFI\BOOT\BOOTX64.EFI` when given
+`--removable`, which the guide does not use.)
+
 ```
 scripts/test/
 ├── run-path.sh              orchestrator
