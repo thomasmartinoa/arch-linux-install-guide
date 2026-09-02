@@ -21,7 +21,7 @@
 
 Ensure you have completed:
 
-- [ ] [LVM Base Installation](base-install-lvm.md)
+- [ ] [Base System Installation](base-install-common.md)
 - [ ] mkinitcpio configured with `lvm2` hook
 - [ ] Still in chroot environment
 
@@ -84,7 +84,7 @@ systemctl daemon-reload
 ### Install GRUB to EFI
 
 ```bash
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 ```
 
 **Command breakdown:**
@@ -93,7 +93,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi
 | `grub-install` | GRUB installation command |
 | `--target=x86_64-efi` | 64-bit UEFI target |
 | `--efi-directory=/boot` | Path to EFI System Partition |
-| `--bootloader-id=grub_uefi` | Name in UEFI boot menu |
+| `--bootloader-id=GRUB` | Name in UEFI boot menu |
 | `--recheck` | Recheck device map |
 
 **Expected output:**
@@ -102,10 +102,13 @@ Installing for x86_64-efi platform.
 Installation finished. No error reported.
 ```
 
-### Copy Locale File
+### Copy the Locale File (optional)
+
+Gives GRUB translated messages. Purely cosmetic — skip it without consequence.
 
 ```bash
-cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+mkdir -p /boot/grub/locale
+cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 ```
 
 ---
@@ -115,7 +118,7 @@ cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 ### Edit GRUB Defaults
 
 ```bash
-nvim /etc/default/grub
+vim /etc/default/grub
 ```
 
 ### Recommended Settings for LVM
@@ -144,7 +147,7 @@ GRUB_DISABLE_OS_PROBER=false
 
 ### Save and Exit
 
-In nvim: Press `Esc`, type `:wq`, press `Enter`
+In vim: Press `Esc`, type `:wq`, press `Enter`
 
 ---
 
@@ -212,10 +215,11 @@ grub-mkconfig -o /boot/grub/grub.cfg
 exit
 ```
 
-### Unmount All Partitions
+### Unmount Everything
 
 ```bash
-umount -a
+umount -R /mnt
+swapoff -a
 ```
 
 > ⚠️ You may see "target is busy" warnings - that's normal.
@@ -238,16 +242,17 @@ mount /dev/sda1 /boot
 
 # Install GRUB
 systemctl daemon-reload
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
-cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
+mkdir -p /boot/grub/locale && cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 
 # Configure GRUB
-nvim /etc/default/grub
+vim /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # Exit and reboot
 exit
-umount -a
+umount -R /mnt
+swapoff -a
 reboot
 ```
 
@@ -258,7 +263,7 @@ reboot
 ### GRUB Not Found in UEFI
 
 ```bash
-grub-install --target=x86_64-efi --bootloader-id=grub_uefi --recheck
+grub-install --target=x86_64-efi --bootloader-id=GRUB --recheck
 ```
 
 ### "Volume group not found" at Boot
@@ -280,7 +285,7 @@ grep "HOOKS" /etc/mkinitcpio.conf
 # Should have: ... block lvm2 filesystems ...
 
 # If missing, edit and add lvm2
-nvim /etc/mkinitcpio.conf
+vim /etc/mkinitcpio.conf
 
 # Regenerate
 mkinitcpio -p linux
@@ -326,7 +331,7 @@ lsblk
 ```
 NAME                   SIZE TYPE  MOUNTPOINT
 sda                    500G disk  
-├─sda1                 512M part  /boot
+├─sda1                   1G part  /boot
 └─sda2               499.5G part  
   ├─volgroup0-lv_root   50G lvm   /
   ├─volgroup0-lv_swap    8G lvm   [SWAP]
@@ -345,6 +350,6 @@ After rebooting successfully:
 
 <div align="center">
 
-[← Base Installation](base-install-lvm.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
+[← Base Installation](base-install-common.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
 
 </div>

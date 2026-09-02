@@ -2,8 +2,6 @@
 
 > Setting up PipeWire for audio and Bluetooth connectivity.
 
-![Audio Bluetooth](../../images/audio-bluetooth.png)
-
 ## Table of Contents
 
 - [Audio with PipeWire](#audio-with-pipewire)
@@ -151,7 +149,7 @@ exit
 Edit Bluetooth config:
 
 ```bash
-sudo nvim /etc/bluetooth/main.conf
+sudo vim /etc/bluetooth/main.conf
 ```
 
 Find and change:
@@ -217,7 +215,7 @@ sudo systemctl restart bluetooth
 Increase Bluetooth audio quality:
 
 ```bash
-sudo nvim /etc/bluetooth/main.conf
+sudo vim /etc/bluetooth/main.conf
 ```
 
 Add under `[General]`:

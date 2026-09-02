@@ -2,8 +2,6 @@
 
 > A guide to understanding disk partitioning before you start.
 
-![Partition Overview](../../images/partition-overview.png)
-
 ## Table of Contents
 
 - [Device Naming](#device-naming)
@@ -129,7 +127,7 @@ MBR:
 |----------|-------|
 | **Purpose** | Stores bootloaders and boot files |
 | **Required** | Yes (for UEFI) |
-| **Size** | 512MB - 1GB |
+| **Size** | 1GB recommended (512MB absolute minimum) |
 | **Filesystem** | FAT32 |
 | **Mount Point** | `/boot` or `/boot/efi` |
 
@@ -137,6 +135,13 @@ MBR:
 # Create EFI partition filesystem
 mkfs.fat -F32 /dev/sdX1
 ```
+
+> **Why 1GB and not 512MB?** On most layouts in this guide the ESP is mounted at `/boot`, so it
+> holds your kernels and initramfs images as well as the bootloader. Two kernels (`linux` and
+> `linux-lts`), each with a normal and a fallback initramfs, plus microcode, comes to roughly
+> 400-500MB — and the fallback images grow substantially once NVIDIA modules are involved.
+> 512MB works until it suddenly doesn't, and it fails during a kernel update, which is the worst
+> time to run out of space on `/boot`. 1GB costs nothing and removes the problem.
 
 ---
 
@@ -146,7 +151,7 @@ mkfs.fat -F32 /dev/sdX1
 |----------|-------|
 | **Purpose** | Stores kernel and initramfs |
 | **Required** | Only for encrypted setups |
-| **Size** | 512MB - 1GB |
+| **Size** | 1GB recommended (512MB absolute minimum) |
 | **Filesystem** | ext4 or FAT32 |
 | **Mount Point** | `/boot` |
 
@@ -226,14 +231,14 @@ mkfs.fat -F32 /dev/sdX1
 │                   DISK                      │
 ├─────────┬───────────────────────────────────┤
 │   EFI   │            ROOT (/)               │
-│  512MB  │          (remaining)              │
+│   1GB   │          (remaining)              │
 │  FAT32  │            ext4                   │
 └─────────┴───────────────────────────────────┘
 ```
 
 | Partition | Size | Type | Mount |
 |-----------|------|------|-------|
-| EFI | 512MB | FAT32 | /boot |
+| ESP | 1GB | FAT32 | /boot |
 | Root | Remaining | ext4 | / |
 
 **Pros:** Simple, minimal partitions
@@ -248,14 +253,14 @@ mkfs.fat -F32 /dev/sdX1
 │                      DISK                         │
 ├─────────┬─────────────────────────────┬───────────┤
 │   EFI   │          ROOT (/)           │   SWAP    │
-│  512MB  │        (remaining)          │   8GB     │
+│   1GB   │        (remaining)          │   8GB     │
 │  FAT32  │          ext4               │   swap    │
 └─────────┴─────────────────────────────┴───────────┘
 ```
 
 | Partition | Size | Type | Mount |
 |-----------|------|------|-------|
-| EFI | 512MB | FAT32 | /boot |
+| ESP | 1GB | FAT32 | /boot |
 | Root | Remaining - 8GB | ext4 | / |
 | Swap | 8GB | swap | [SWAP] |
 
@@ -271,14 +276,14 @@ mkfs.fat -F32 /dev/sdX1
 │                          DISK                               │
 ├─────────┬───────────┬───────────────────────────┬───────────┤
 │   EFI   │   ROOT    │          HOME             │   SWAP    │
-│  512MB  │   50GB    │       (remaining)         │   8GB     │
+│   1GB   │   50GB    │       (remaining)         │   8GB     │
 │  FAT32  │   ext4    │          ext4             │   swap    │
 └─────────┴───────────┴───────────────────────────┴───────────┘
 ```
 
 | Partition | Size | Type | Mount |
 |-----------|------|------|-------|
-| EFI | 512MB | FAT32 | /boot |
+| ESP | 1GB | FAT32 | /boot |
 | Root | 50-100GB | ext4 | / |
 | Home | Remaining - 8GB | ext4 | /home |
 | Swap | 8GB | swap | [SWAP] |
@@ -295,14 +300,14 @@ mkfs.fat -F32 /dev/sdX1
 │                              DISK                                     │
 ├─────────┬─────────┬───────────┬───────────────────────────┬───────────┤
 │   EFI   │  BOOT   │   ROOT    │          HOME             │   SWAP    │
-│  512MB  │   1GB   │   50GB    │       (remaining)         │   8GB     │
+│   1GB   │   1GB   │   50GB    │       (remaining)         │   8GB     │
 │  FAT32  │  ext4   │   ext4    │          ext4             │   swap    │
 └─────────┴─────────┴───────────┴───────────────────────────┴───────────┘
 ```
 
 | Partition | Size | Type | Mount |
 |-----------|------|------|-------|
-| EFI | 512MB | FAT32 | /boot/efi |
+| ESP | 1GB | FAT32 | /boot/efi |
 | Boot | 1GB | ext4 | /boot |
 | Root | 50-100GB | ext4 | / |
 | Home | Remaining - 8GB | ext4 | /home |
@@ -320,7 +325,7 @@ mkfs.fat -F32 /dev/sdX1
 │                          DISK                                 │
 ├─────────┬─────────────────────────────────────────────────────┤
 │   EFI   │              BTRFS Partition                        │
-│  512MB  │  ┌───────────────────────────────────────────────┐  │
+│   1GB   │  ┌───────────────────────────────────────────────┐  │
 │         │  │             Btrfs Subvolumes                  │  │
 │  FAT32  │  │  ┌─────┐ ┌──────┐ ┌──────────┐ ┌───────────┐  │  │
 │         │  │  │  @  │ │@home │ │@snapshots│ │  @var_log │  │  │
@@ -332,7 +337,7 @@ mkfs.fat -F32 /dev/sdX1
 
 | Partition | Size | Type | Mount |
 |-----------|------|------|-------|
-| EFI | 512MB | FAT32 | /boot |
+| ESP | 1GB | FAT32 | /boot |
 | Btrfs | Remaining | btrfs | / (with subvolumes) |
 
 **Subvolumes:**
@@ -355,7 +360,7 @@ mkfs.fat -F32 /dev/sdX1
 │                                DISK                                     │
 ├─────────┬───────────────────────────────────────────────────────────────┤
 │   EFI   │                    LVM Physical Volume                        │
-│  512MB  │  ┌──────────────────────────────────────────────────────────┐ │
+│   1GB   │  ┌──────────────────────────────────────────────────────────┐ │
 │         │  │              Volume Group (volgroup0)                    │ │
 │  FAT32  │  │ ┌─────────┐  ┌──────────────────┐  ┌───────────────────┐ │ │
 │         │  │ │   ROOT  │  │       HOME       │  │       SWAP        │ │ │
@@ -378,7 +383,7 @@ mkfs.fat -F32 /dev/sdX1
 │                                 DISK                                       │
 ├─────────┬─────────┬────────────────────────────────────────────────────────┤
 │   EFI   │  BOOT   │              LUKS Encrypted Container                  │
-│  512MB  │   1GB   │  ┌────────────────────────────────────────────────────┐│
+│   1GB   │   1GB   │  ┌────────────────────────────────────────────────────┐│
 │         │         │  │              LVM Physical Volume                   ││
 │  FAT32  │  ext4   │  │  ┌──────────────────────────────────────────────┐  ││
 │         │         │  │  │           Volume Group (volgroup0)           │  ││
@@ -396,23 +401,59 @@ mkfs.fat -F32 /dev/sdX1
 
 ---
 
+### Scheme 8: Btrfs + LUKS (Encrypted, with Snapshots) ⭐
+
+```
+┌─────────┬───────────────────────────────────────────────────────┐
+│   ESP   │              LUKS Encrypted Container                 │
+│   1GB   │  ┌─────────────────────────────────────────────────┐  │
+│         │  │                   Btrfs                         │  │
+│  FAT32  │  │   @  →  /        @home  →  /home                │  │
+│  /boot  │  │   @snapshots  →  /.snapshots                    │  │
+│         │  │   @var_log    →  /var/log                       │  │
+│         │  │   @swap       →  /swap                          │  │
+│         │  └─────────────────────────────────────────────────┘  │
+└─────────┴───────────────────────────────────────────────────────┘
+      ↑                            ↑
+ unencrypted                   ENCRYPTED
+```
+
+| Partition | Size | Type | Mount |
+|-----------|------|------|-------|
+| ESP | 1GB | FAT32 | /boot |
+| LUKS → Btrfs | Remaining | btrfs | / (with subvolumes) |
+
+**Pros:** Full disk encryption **and** snapshots, only two partitions, no LVM layer
+**Cons:** Passphrase at every boot
+
+> 💡 **Recommended for:** laptops. You get the theft protection of encryption and the
+> broken-update protection of snapshots, without stacking LVM underneath.
+
+---
+
 ## Choosing Your Setup
 
 ### Decision Flowchart
 
 ```
 Do you need disk encryption?
-├── YES → LVM + Encryption
-└── NO
-    │
-    Do you need flexible partition resizing?
-    ├── YES → LVM (without encryption)
-    └── NO
-        │
-        Do you want separate /home?
-        ├── YES → Standard partitioning
-        └── NO → Basic partitioning
+│
+├── YES ─── Do you want snapshots / easy rollback?
+│           ├── YES → Btrfs + Encryption   ⭐ (2 partitions, no LVM)
+│           └── NO  → LVM + Encryption        (3 partitions)
+│
+└── NO ──── Do you want snapshots / easy rollback?
+            ├── YES → Btrfs                ⭐
+            └── NO  ── Do you need to resize volumes later?
+                       ├── YES → LVM
+                       └── NO ── Separate /home?
+                                 ├── YES → Advanced (Standard)
+                                 └── NO  → Basic
 ```
+
+**The short version:** if you are unsure and this is a normal desktop or laptop, pick **Btrfs**
+— the snapshots will save you from a bad update at least once. Add encryption if the machine
+ever leaves your house.
 
 ### Recommendations by Use Case
 
@@ -421,7 +462,8 @@ Do you need disk encryption?
 | First time Linux | Basic with Swap | [Basic Guide](basic-partitioning.md) |
 | Daily desktop use | Btrfs ⭐ | [Btrfs Guide](btrfs-setup.md) |
 | Want easy system rollback | Btrfs with Snapper | [Btrfs Guide](btrfs-setup.md) |
-| Laptop with sensitive data | LVM + Encryption | [Encryption Guide](lvm-encryption.md) |
+| Laptop with sensitive data | Btrfs + Encryption ⭐ | [Btrfs Encryption](btrfs-encryption.md) |
+| Encrypted, prefer LVM volumes | LVM + Encryption | [LVM Encryption](lvm-encryption.md) |
 | Server / Multi-disk | LVM | [LVM Guide](lvm-setup.md) |
 | Dual boot with Windows | Basic or Standard | [Basic Guide](basic-partitioning.md) |
 
@@ -441,8 +483,6 @@ cfdisk /dev/sdX
 - Visual interface
 - Easy to use
 - Supports GPT and MBR
-
-![cfdisk screenshot](../../images/cfdisk.png)
 
 ---
 
@@ -533,7 +573,8 @@ Choose your partitioning guide:
 | [Advanced Partitioning](advanced-partitioning.md) | Separate /home partition |
 | [Btrfs Setup](btrfs-setup.md) | Modern filesystem with snapshots |
 | [LVM Setup](lvm-setup.md) | Flexible Logical Volume Manager |
-| [LVM + Encryption](lvm-encryption.md) | Full disk encryption |
+| [LVM + Encryption](lvm-encryption.md) | Full disk encryption with LVM |
+| [Btrfs + Encryption](btrfs-encryption.md) | Full disk encryption with snapshots ⭐ |
 
 ---
 

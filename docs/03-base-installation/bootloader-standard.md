@@ -21,7 +21,7 @@
 
 Ensure you have completed:
 
-- [ ] [Standard Base Installation](base-install-standard.md)
+- [ ] [Base System Installation](base-install-common.md)
 - [ ] Still in chroot environment
 
 **Verify packages are installed:**
@@ -74,7 +74,7 @@ systemctl daemon-reload
 ### Install GRUB to EFI
 
 ```bash
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 ```
 
 **Command breakdown:**
@@ -83,7 +83,7 @@ grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi
 | `grub-install` | GRUB installation command |
 | `--target=x86_64-efi` | 64-bit UEFI target |
 | `--efi-directory=/boot` | Path to EFI System Partition |
-| `--bootloader-id=grub_uefi` | Name in UEFI boot menu |
+| `--bootloader-id=GRUB` | Name in UEFI boot menu |
 | `--recheck` | Recheck device map |
 
 **Expected output:**
@@ -92,10 +92,13 @@ Installing for x86_64-efi platform.
 Installation finished. No error reported.
 ```
 
-### Copy Locale File
+### Copy the Locale File (optional)
+
+Gives GRUB translated messages. Purely cosmetic — skip it without consequence.
 
 ```bash
-cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+mkdir -p /boot/grub/locale
+cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 ```
 
 ---
@@ -105,7 +108,7 @@ cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 ### Edit GRUB Defaults
 
 ```bash
-nvim /etc/default/grub
+vim /etc/default/grub
 ```
 
 ### Recommended Settings
@@ -138,7 +141,7 @@ GRUB_DISABLE_OS_PROBER=false
 
 ### Save and Exit
 
-In nvim: Press `Esc`, type `:wq`, press `Enter`
+In vim: Press `Esc`, type `:wq`, press `Enter`
 
 ---
 
@@ -220,10 +223,11 @@ reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TimeZoneInformation
 exit
 ```
 
-### Unmount All Partitions
+### Unmount Everything
 
 ```bash
-umount -a
+umount -R /mnt
+swapoff -a
 ```
 
 > ⚠️ You may see "target is busy" warnings - that's normal.
@@ -246,16 +250,17 @@ mount /dev/sda1 /boot
 
 # Install GRUB
 systemctl daemon-reload
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
-cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
+mkdir -p /boot/grub/locale && cp /usr/share/locale/en@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
 
 # Configure GRUB
-nvim /etc/default/grub
+vim /etc/default/grub
 grub-mkconfig -o /boot/grub/grub.cfg
 
 # Exit and reboot
 exit
-umount -a
+umount -R /mnt
+swapoff -a
 reboot
 ```
 
@@ -267,10 +272,10 @@ reboot
 
 ```bash
 # Reinstall GRUB
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 
 # Check EFI partition
-ls /boot/EFI/grub_uefi/
+ls /boot/EFI/GRUB/
 ```
 
 ### "error: no such device" at Boot
@@ -283,7 +288,7 @@ ls /boot/EFI/grub_uefi/
 
 1. Enter UEFI setup (usually F2/F12/Del at boot)
 2. Find Boot Order settings
-3. Move `grub_uefi` to first position
+3. Move `GRUB` to first position
 4. Disable Windows Fast Startup
 
 ### No Windows Entry in GRUB
@@ -293,7 +298,7 @@ ls /boot/EFI/grub_uefi/
 pacman -S os-prober
 
 # Enable it
-nvim /etc/default/grub
+vim /etc/default/grub
 # Set: GRUB_DISABLE_OS_PROBER=false
 
 # Regenerate config
@@ -313,6 +318,6 @@ After rebooting successfully:
 
 <div align="center">
 
-[← Base Installation](base-install-standard.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
+[← Base Installation](base-install-common.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
 
 </div>

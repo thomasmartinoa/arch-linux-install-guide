@@ -2,8 +2,6 @@
 
 > Modern copy-on-write filesystem with snapshots, compression, and easy rollbacks.
 
-![Btrfs Setup](../../images/btrfs-setup.png)
-
 ## Table of Contents
 
 - [Why Btrfs?](#why-btrfs)
@@ -61,8 +59,8 @@ Btrfs (B-tree File System) is a modern copy-on-write filesystem with powerful fe
 ┌─────────────────────────────────────────────────────────────────┐
 │                            DISK                                 │
 ├─────────────┬───────────────────────────────────────────────────┤
-│    EFI      │                    Btrfs                          │
-│   512MB     │  ┌─────────────────────────────────────────────┐  │
+│    ESP      │                    Btrfs                          │
+│    1GB      │  ┌─────────────────────────────────────────────┐  │
 │             │  │             Subvolumes                      │  │
 │   FAT32     │  │  @          → /     (root)                  │  │
 │             │  │  @home      → /home (user data)             │  │
@@ -75,7 +73,7 @@ Btrfs (B-tree File System) is a modern copy-on-write filesystem with powerful fe
 
 | Partition | Size | Filesystem | Purpose |
 |-----------|------|------------|---------|
-| EFI | 512MB | FAT32 | Boot files |
+| ESP | 1GB | FAT32 | Bootloader + kernels |
 | Root | Remaining | Btrfs | Everything else |
 
 > **No separate swap partition needed!** We'll use a swap file on Btrfs.
@@ -94,12 +92,12 @@ Create two partitions:
 
 | # | Size | Type |
 |---|------|------|
-| 1 | 512M | EFI System |
+| 1 | 1G | EFI System |
 | 2 | Remaining | Linux filesystem |
 
 Write and quit.
 
-### Step 2: Format EFI Partition
+### Step 2: Format the ESP
 
 ```bash
 mkfs.fat -F32 /dev/sda1
@@ -181,16 +179,16 @@ umount /mnt
 
 ```bash
 # Mount root subvolume
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@ /dev/sda2 /mnt
+mount -o noatime,compress=zstd,subvol=@ /dev/sda2 /mnt
 
 # Create mount points
 mkdir -p /mnt/{boot,home,.snapshots,var/log,var/cache,swap}
 
 # Mount other subvolumes
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@home /dev/sda2 /mnt/home
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@snapshots /dev/sda2 /mnt/.snapshots
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@var_log /dev/sda2 /mnt/var/log
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@var_cache /dev/sda2 /mnt/var/cache
+mount -o noatime,compress=zstd,subvol=@home /dev/sda2 /mnt/home
+mount -o noatime,compress=zstd,subvol=@snapshots /dev/sda2 /mnt/.snapshots
+mount -o noatime,compress=zstd,subvol=@var_log /dev/sda2 /mnt/var/log
+mount -o noatime,compress=zstd,subvol=@var_cache /dev/sda2 /mnt/var/cache
 mount -o noatime,subvol=@swap /dev/sda2 /mnt/swap
 
 # Mount EFI
@@ -203,7 +201,6 @@ mount /dev/sda1 /mnt/boot
 |--------|---------|
 | `noatime` | Don't update access time (performance) |
 | `compress=zstd` | Use zstd compression (best ratio/speed) |
-| `space_cache=v2` | Improved free space tracking |
 | `subvol=@` | Mount specific subvolume |
 
 ### Alternative Compression Options
@@ -222,90 +219,38 @@ mount /dev/sda1 /mnt/boot
 ### Step 9: Create Swap File
 
 ```bash
-# Disable copy-on-write for swap
-chattr +C /mnt/swap
-
-# Create swap file (8GB example)
-dd if=/dev/zero of=/mnt/swap/swapfile bs=1M count=8192 status=progress
-
-# Set permissions
-chmod 600 /mnt/swap/swapfile
-
-# Format as swap
-mkswap /mnt/swap/swapfile
-
-# Enable swap
+btrfs filesystem mkswapfile --size 8g --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 ```
 
+| Part | Meaning |
+|------|---------|
+| `mkswapfile` | Creates the file, sets NOCOW, preallocates it and runs `mkswap` in one step |
+| `--size 8g` | Adjust to your RAM. For hibernation, at least as much as you have RAM |
+| `--uuid clear` | Zeroed UUID — avoids clashing with swap from a previous install |
+
+> **Why not `dd` and `chattr +C`?** That is the old recipe and it is easy to get subtly wrong.
+> `chattr +C` only affects files created *after* it is set on an empty directory, so running the
+> steps in the wrong order silently produces a copy-on-write swap file that corrupts under
+> memory pressure. `mkswapfile` (btrfs-progs 6.1+) does the whole thing correctly.
+
 ---
 
-## Snapshot Setup
+## Snapshots
 
-### Install Required Packages (In Chroot)
+Snapper setup happens **after the first reboot**, not now. It is covered in full — including the
+`/.snapshots` conflict that trips up almost everyone — on the path notes page:
 
-> 🔴 **CRITICAL:** Install `btrfs-progs` during base installation, NOT after reboot!
+→ **[Path Notes: Btrfs — Setting up Snapper](../03-base-installation/deltas/btrfs.md#setting-up-snapper-after-first-boot)**
 
-During base installation (while in chroot):
-
-```bash
-pacman -S btrfs-progs
-```
-
-### Install Snapper (After Base Install)
-
-After installing the base system and rebooting:
+The one thing you must not forget during installation is the package:
 
 ```bash
-sudo pacman -S snapper snap-pac grub-btrfs
+pacman -S btrfs-progs      # in chroot, during base installation
 ```
 
-### Configure Snapper
-
-```bash
-# Create config for root
-sudo snapper -c root create-config /
-
-# Check config
-sudo snapper -c root list
-```
-
-### Snapper Configuration
-
-```bash
-sudo nvim /etc/snapper/configs/root
-```
-
-Recommended settings:
-```ini
-# Limits for timeline cleanup
-TIMELINE_MIN_AGE="1800"
-TIMELINE_LIMIT_HOURLY="5"
-TIMELINE_LIMIT_DAILY="7"
-TIMELINE_LIMIT_WEEKLY="0"
-TIMELINE_LIMIT_MONTHLY="0"
-TIMELINE_LIMIT_YEARLY="0"
-
-# Limits for number cleanup
-NUMBER_MIN_AGE="1800"
-NUMBER_LIMIT="50"
-NUMBER_LIMIT_IMPORTANT="10"
-```
-
-### Enable Automatic Snapshots
-
-```bash
-sudo systemctl enable --now snapper-timeline.timer
-sudo systemctl enable --now snapper-cleanup.timer
-```
-
-### Enable GRUB Boot Snapshots
-
-```bash
-sudo systemctl enable --now grub-btrfsd
-```
-
-This allows booting from snapshots directly from GRUB menu!
+> 🔴 Without `btrfs-progs` the installed system cannot mount its own root filesystem. There is no
+> warning at install time — it simply fails to boot.
 
 ---
 
@@ -353,11 +298,11 @@ After running `genfstab -U /mnt >> /mnt/etc/fstab`, your fstab should look like:
 
 ```
 # /dev/sda2 LABEL=Arch
-UUID=xxxxx-xxxxx  /              btrfs  noatime,compress=zstd,space_cache=v2,subvol=/@          0 0
-UUID=xxxxx-xxxxx  /home          btrfs  noatime,compress=zstd,space_cache=v2,subvol=/@home      0 0
-UUID=xxxxx-xxxxx  /.snapshots    btrfs  noatime,compress=zstd,space_cache=v2,subvol=/@snapshots 0 0
-UUID=xxxxx-xxxxx  /var/log       btrfs  noatime,compress=zstd,space_cache=v2,subvol=/@var_log   0 0
-UUID=xxxxx-xxxxx  /var/cache     btrfs  noatime,compress=zstd,space_cache=v2,subvol=/@var_cache 0 0
+UUID=xxxxx-xxxxx  /              btrfs  noatime,compress=zstd,subvol=/@          0 0
+UUID=xxxxx-xxxxx  /home          btrfs  noatime,compress=zstd,subvol=/@home      0 0
+UUID=xxxxx-xxxxx  /.snapshots    btrfs  noatime,compress=zstd,subvol=/@snapshots 0 0
+UUID=xxxxx-xxxxx  /var/log       btrfs  noatime,compress=zstd,subvol=/@var_log   0 0
+UUID=xxxxx-xxxxx  /var/cache     btrfs  noatime,compress=zstd,subvol=/@var_cache 0 0
 UUID=xxxxx-xxxxx  /swap          btrfs  noatime,subvol=/@swap                                   0 0
 
 # /dev/sda1
@@ -390,20 +335,17 @@ btrfs subvolume create /mnt/@swap
 umount /mnt
 
 # Mount with options
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@ /dev/sda2 /mnt
+mount -o noatime,compress=zstd,subvol=@ /dev/sda2 /mnt
 mkdir -p /mnt/{boot,home,.snapshots,var/log,var/cache,swap}
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@home /dev/sda2 /mnt/home
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@snapshots /dev/sda2 /mnt/.snapshots
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@var_log /dev/sda2 /mnt/var/log
-mount -o noatime,compress=zstd,space_cache=v2,subvol=@var_cache /dev/sda2 /mnt/var/cache
+mount -o noatime,compress=zstd,subvol=@home /dev/sda2 /mnt/home
+mount -o noatime,compress=zstd,subvol=@snapshots /dev/sda2 /mnt/.snapshots
+mount -o noatime,compress=zstd,subvol=@var_log /dev/sda2 /mnt/var/log
+mount -o noatime,compress=zstd,subvol=@var_cache /dev/sda2 /mnt/var/cache
 mount -o noatime,subvol=@swap /dev/sda2 /mnt/swap
 mount /dev/sda1 /mnt/boot
 
 # Create swap
-chattr +C /mnt/swap
-dd if=/dev/zero of=/mnt/swap/swapfile bs=1M count=8192 status=progress
-chmod 600 /mnt/swap/swapfile
-mkswap /mnt/swap/swapfile
+btrfs filesystem mkswapfile --size 8g --uuid clear /mnt/swap/swapfile
 swapon /mnt/swap/swapfile
 
 # Verify
@@ -414,20 +356,30 @@ lsblk -f
 
 ## Next Steps
 
-After partitioning, continue to:
+→ **[Base System Installation](../03-base-installation/base-install-common.md)**
 
-→ [Standard Base Installation](../03-base-installation/base-install-standard.md)
+At its two branch points, use the **Btrfs** row:
 
-> 📝 **Important for Btrfs users:**
-> - Install `btrfs-progs` during base installation (covered in the guide)
-> - Choose your bootloader:
->   - [GRUB](../03-base-installation/bootloader-standard.md) - Works with all setups
->   - [systemd-boot](../03-base-installation/bootloader-systemd.md) - Simpler, requires `rootflags=subvol=@`
+| Branch | Answer |
+|--------|--------|
+| Step 6.2 — extra packages | `btrfs-progs` |
+| Step 9 — HOOKS | Arch default, unchanged |
+
+Details: **[Path Notes: Btrfs](../03-base-installation/deltas/btrfs.md)**
+
+Then pick a bootloader:
+
+- [GRUB](../03-base-installation/bootloader-standard.md) — works everywhere, and `grub-btrfs`
+  gives you a boot-from-snapshot menu
+- [systemd-boot](../03-base-installation/bootloader-systemd.md) — simpler and faster, but you
+  must add `rootflags=subvol=@` to the entry by hand
+
+> **Want encryption too?** See [Btrfs with Full Disk Encryption](btrfs-encryption.md).
 
 ---
 
 <div align="center">
 
-[← LVM Setup](lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-standard.md)
+[← LVM Setup](lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
 
 </div>

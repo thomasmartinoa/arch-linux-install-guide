@@ -2,8 +2,6 @@
 
 > Simple partition setup for beginners - perfect for your first Arch installation.
 
-![Basic Partitioning](../../images/basic-partition.png)
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -25,14 +23,14 @@ This guide creates a simple partition layout:
 │                      DISK                         │
 ├─────────┬─────────────────────────────┬───────────┤
 │   EFI   │          ROOT (/)           │   SWAP    │
-│  512MB  │        (remaining)          │   8GB     │
+│   1GB   │        (remaining)          │   8GB     │
 │  FAT32  │          ext4               │   swap    │
 └─────────┴─────────────────────────────┴───────────┘
 ```
 
 | Partition | Size | Filesystem | Purpose |
 |-----------|------|------------|---------|
-| EFI | 512MB | FAT32 | Boot files |
+| ESP | 1GB | FAT32 | Boot files |
 | Root | Remaining | ext4 | Operating system + data |
 | Swap | 8GB | swap | Virtual memory |
 
@@ -91,7 +89,7 @@ For a **500GB disk**, here's the layout:
 
 | # | Name | Size | Type Code | Filesystem |
 |---|------|------|-----------|------------|
-| 1 | EFI | 512MB | EF00 | FAT32 |
+| 1 | ESP | 1GB | EF00 | FAT32 |
 | 2 | Root | ~484GB | 8300 | ext4 |
 | 3 | Swap | 8GB | 8200 | swap |
 
@@ -127,14 +125,14 @@ Select `gpt` and press Enter.
 #### Step 2: Create EFI Partition
 
 1. Select **[ New ]** (use arrow keys, Enter to select)
-2. Enter size: `512M`
+2. Enter size: `1G`
 3. Select the new partition
 4. Select **[ Type ]**
 5. Choose **EFI System**
 
 ```
 Device         Size     Type
-/dev/sda1      512M     EFI System
+/dev/sda1        1G     EFI System
 Free space    499.5G
 ```
 
@@ -147,7 +145,7 @@ Free space    499.5G
 
 ```
 Device         Size     Type
-/dev/sda1      512M     EFI System
+/dev/sda1        1G     EFI System
 /dev/sda2     491.5G    Linux filesystem
 Free space      8G
 ```
@@ -162,7 +160,7 @@ Free space      8G
 
 ```
 Device         Size     Type
-/dev/sda1      512M     EFI System
+/dev/sda1        1G     EFI System
 /dev/sda2     491.5G    Linux filesystem
 /dev/sda3       8G      Linux swap
 ```
@@ -199,7 +197,7 @@ Created a new GPT disklabel.
 Command (m for help): n
 Partition number (1-128, default 1): 1
 First sector: [Enter for default]
-Last sector: +512M
+Last sector: +1G
 
 Command (m for help): t
 Partition type (type L to list all types): 1
@@ -210,7 +208,7 @@ Changed type of partition 'Linux filesystem' to 'EFI System'.
 | Command | Action |
 |---------|--------|
 | `n` | New partition |
-| `+512M` | Set size to 512 megabytes |
+| `+1G` | Set size to 1 gigabyte |
 | `t` | Change partition type |
 | `1` | Type code for EFI System |
 
@@ -248,7 +246,7 @@ Changed type to 'Linux swap'.
 Command (m for help): p
 
 Device       Start        End    Sectors   Size Type
-/dev/sda1     2048    1050623    1048576   512M EFI System
+/dev/sda1     2048    2099199    2097152     1G EFI System
 /dev/sda2  1050624  980566015  979515392   467G Linux filesystem
 /dev/sda3 980566016  997339135   16773120     8G Linux swap
 
@@ -388,7 +386,7 @@ lsblk
 ```
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
 sda      8:0    0   500G  0 disk
-├─sda1   8:1    0   512M  0 part /mnt/boot
+├─sda1   8:1    0     1G  0 part /mnt/boot
 ├─sda2   8:2    0 491.5G  0 part /mnt
 └─sda3   8:3    0     8G  0 part [SWAP]
 ```
@@ -459,14 +457,23 @@ partprobe /dev/sda
 
 ## Next Steps
 
-Your disk is now partitioned and ready!
+→ **[Base System Installation](../03-base-installation/base-install-common.md)**
 
-→ [Standard Base Installation](../03-base-installation/base-install-standard.md)
+At its two branch points, use the **Standard (ext4)** row:
+
+| Branch | Answer |
+|--------|--------|
+| Step 6.2 — extra packages | *(none)* |
+| Step 9 — HOOKS | Arch default, unchanged |
+
+Details: **[Path Notes: Standard (ext4)](../03-base-installation/deltas/standard.md)**
+
+Then: [GRUB](../03-base-installation/bootloader-standard.md) or [systemd-boot](../03-base-installation/bootloader-systemd.md)
 
 ---
 
 <div align="center">
 
-[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-standard.md)
+[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
 
 </div>

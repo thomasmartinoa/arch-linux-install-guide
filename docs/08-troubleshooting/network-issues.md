@@ -2,8 +2,6 @@
 
 Solutions for WiFi, Ethernet, DNS, and connectivity problems.
 
-![Network Issues](../../images/network-issues.png)
-
 ## Table of Contents
 
 - [No Network at All](#no-network-at-all)
@@ -80,7 +78,7 @@ lsusb | grep -i wireless
 sudo pacman -S linux-firmware
 
 # For Broadcom
-sudo pacman -S broadcom-wl
+yay -S broadcom-wl-dkms   # AUR — no longer in the official repos
 
 # For Realtek USB adapters (from AUR)
 yay -S rtl8821cu-morrownr-dkms-git
@@ -142,7 +140,7 @@ iwconfig wlan0 | grep "Power Management"
 sudo iwconfig wlan0 power off
 
 # Make permanent
-sudo nvim /etc/NetworkManager/conf.d/wifi-powersave.conf
+sudo vim /etc/NetworkManager/conf.d/wifi-powersave.conf
 ```
 
 Add:
@@ -237,7 +235,7 @@ sudo systemctl enable --now systemd-resolved
 sudo ln -sf /run/systemd/resolve/stub-resolv.conf /etc/resolv.conf
 
 # Configure DNS
-sudo nvim /etc/systemd/resolved.conf
+sudo vim /etc/systemd/resolved.conf
 ```
 
 Add:
@@ -255,7 +253,7 @@ sudo systemctl restart systemd-resolved
 ### Solution 3: Edit resolv.conf Directly
 
 ```bash
-sudo nvim /etc/resolv.conf
+sudo vim /etc/resolv.conf
 ```
 
 Add:
@@ -304,7 +302,7 @@ sudo ip link set enp3s0 mtu 1400
 sudo sysctl -w net.ipv6.conf.all.disable_ipv6=1
 
 # Permanent
-sudo nvim /etc/sysctl.d/40-ipv6.conf
+sudo vim /etc/sysctl.d/40-ipv6.conf
 ```
 
 Add:

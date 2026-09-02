@@ -24,7 +24,7 @@ sudo pacman -S thunar        # GUI file manager
 sudo pacman -S ranger        # Terminal file manager
 sudo pacman -S mc            # Midnight Commander
 sudo pacman -S unzip zip     # Archive tools
-sudo pacman -S p7zip         # 7zip support
+sudo pacman -S 7zip         # 7zip support
 sudo pacman -S unrar         # RAR support
 sudo pacman -S tar           # TAR archives
 sudo pacman -S rsync         # File synchronization
@@ -35,7 +35,7 @@ sudo pacman -S rsync         # File synchronization
 ```bash
 sudo pacman -S ntfs-3g       # NTFS read/write support
 sudo pacman -S exfat-utils   # exFAT filesystem support
-sudo pacman -S fuse-exfat    # FUSE exFAT driver (fallback)
+sudo pacman -S exfatprogs    # exFAT tools (kernel has the driver built in)
 sudo pacman -S dosfstools    # FAT32 tools
 ```
 
@@ -79,7 +79,7 @@ sudo pacman -S gnome-disk-utility  # Disk utility
 ```bash
 sudo pacman -S neovim        # Modern vim
 sudo pacman -S code          # VS Code (OSS)
-sudo pacman -S sublime-text  # Sublime Text (AUR)
+yay -S sublime-text          # Sublime Text (AUR)
 ```
 
 ### Version Control
@@ -118,7 +118,7 @@ sudo systemctl enable docker
 sudo usermod -aG docker $USER
 
 # Virtual machines
-sudo pacman -S qemu virt-manager libvirt
+sudo pacman -S qemu-desktop virt-manager libvirt edk2-ovmf dnsmasq
 sudo systemctl enable libvirtd
 ```
 
@@ -147,7 +147,7 @@ sudo pacman -S celluloid     # MPV frontend
 
 ```bash
 sudo pacman -S pavucontrol   # Volume control
-sudo pacman -S spotify       # Spotify (AUR)
+yay -S spotify               # Spotify (AUR)
 sudo pacman -S cmus          # Terminal music player
 sudo pacman -S flac          # FLAC audio codec
 ```
@@ -255,7 +255,7 @@ sudo pacman -S okular        # PDF viewer (KDE)
 
 ```bash
 sudo pacman -S obsidian      # Note taking
-sudo pacman -S logseq        # Knowledge management
+yay -S logseq                # Knowledge management (AUR)
 ```
 
 ---
@@ -282,7 +282,7 @@ sudo pacman -S --needed \
     neovim git \
     firefox \
     btop neofetch \
-    unzip zip p7zip \
+    unzip zip 7zip \
     mpv imv \
     bat eza ripgrep fd fzf
 ```

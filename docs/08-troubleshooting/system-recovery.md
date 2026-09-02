@@ -2,8 +2,6 @@
 
 Guide for recovering a broken Arch Linux system, fixing packages, and performing rollbacks.
 
-![System Recovery](../../images/system-recovery.png)
-
 ## Table of Contents
 
 - [Chroot Recovery](#chroot-recovery)
@@ -49,7 +47,7 @@ mount /dev/mapper/volgroup0-lv_home /mnt/home
 **Encrypted LVM Installation:**
 ```bash
 # Decrypt
-cryptsetup open /dev/nvme0n1p3 lvm
+cryptsetup open /dev/nvme0n1p3 cryptlvm
 
 # Activate LVM
 vgscan
@@ -58,7 +56,7 @@ vgchange -ay
 # Mount
 mount /dev/mapper/volgroup0-lv_root /mnt
 mount /dev/nvme0n1p2 /mnt/boot
-mount /dev/nvme0n1p1 /mnt/boot/EFI
+mount /dev/nvme0n1p1 /mnt/efi
 mount /dev/mapper/volgroup0-lv_home /mnt/home
 ```
 
@@ -262,7 +260,7 @@ At GRUB menu, select "Arch Linux, with Linux linux (fallback initramfs)".
 sudo pacman -S linux-lts linux-lts-headers
 
 # For NVIDIA
-sudo pacman -S nvidia-lts
+sudo pacman -S nvidia-open-lts
 
 # Regenerate GRUB
 sudo grub-mkconfig -o /boot/grub/grub.cfg

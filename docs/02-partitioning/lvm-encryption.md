@@ -2,8 +2,6 @@
 
 > The most secure setup using LUKS encryption with LVM for flexible partition management.
 
-![Encrypted LVM](../../images/encrypted-lvm.png)
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -25,7 +23,7 @@ This setup encrypts your entire system except the EFI and boot partitions:
 │                                 DISK                                       │
 ├─────────┬─────────┬────────────────────────────────────────────────────────┤
 │   EFI   │  BOOT   │              LUKS Encrypted Container                  │
-│  512MB  │   1GB   │  ┌────────────────────────────────────────────────────┐│
+│   1GB   │   1GB   │  ┌────────────────────────────────────────────────────┐│
 │         │         │  │              LVM Physical Volume                   ││
 │  FAT32  │  ext4   │  │  ┌──────────────────────────────────────────────┐  ││
 │         │ (clear) │  │  │           Volume Group (volgroup0)           │  ││
@@ -82,7 +80,7 @@ For a **1TB NVMe drive** (adjust sizes for your disk):
 
 | # | Partition | Size | Type | Encrypted |
 |---|-----------|------|------|-----------|
-| 1 | EFI | 512MB | FAT32 | No |
+| 1 | ESP | 1GB | FAT32 | No |
 | 2 | Boot | 1GB | ext4 | No |
 | 3 | LUKS Container | Remaining | LUKS | Yes |
 
@@ -117,7 +115,7 @@ Proceed? Y
 Command: n
 Partition number: 1
 First sector: [Enter]
-Last sector: +512M
+Last sector: +1G
 Hex code: EF00
 
 # Partition 2: Boot
@@ -203,21 +201,20 @@ Verify passphrase: [repeat passphrase]
 #### Open LUKS Container
 
 ```bash
-cryptsetup open --type luks /dev/nvme0n1p3 lvm
+cryptsetup open /dev/nvme0n1p3 cryptlvm
 ```
 
 **Command breakdown:**
 
 | Part | Meaning |
 |------|---------|
-| `open` | Open/unlock the container |
-| `--type luks` | Specify LUKS type |
+| `open` | Unlock the container |
 | `/dev/nvme0n1p3` | Encrypted partition |
-| `lvm` | Mapper name (appears at /dev/mapper/lvm) |
+| `lvm` | Mapper name (appears at /dev/mapper/cryptlvm) |
 
 Enter your passphrase when prompted.
 
-The decrypted container is now available at `/dev/mapper/lvm`.
+The decrypted container is now available at `/dev/mapper/cryptlvm`.
 
 ---
 
@@ -226,7 +223,7 @@ The decrypted container is now available at `/dev/mapper/lvm`.
 #### Create Physical Volume
 
 ```bash
-pvcreate /dev/mapper/lvm
+pvcreate /dev/mapper/cryptlvm
 ```
 
 **What this does:**
@@ -238,7 +235,7 @@ pvcreate /dev/mapper/lvm
 #### Create Volume Group
 
 ```bash
-vgcreate volgroup0 /dev/mapper/lvm
+vgcreate volgroup0 /dev/mapper/cryptlvm
 ```
 
 ---
@@ -331,16 +328,17 @@ swapon /dev/volgroup0/lv_swap
 
 ---
 
-### Mount EFI Partition
-
-EFI goes in `/boot/EFI` (after base install):
+### Mount the ESP
 
 ```bash
-mkdir /mnt/boot/EFI
-mount /dev/nvme0n1p1 /mnt/boot/EFI
+mkdir /mnt/efi
+mount /dev/nvme0n1p1 /mnt/efi
 ```
 
-> ⚠️ Note: Some setups mount EFI at `/boot/efi`. We use `/boot/EFI` here.
+> **Why `/efi` and not `/boot/EFI`?** GRUB creates a directory literally named `EFI` inside the
+> ESP. Mounting the ESP *at* `/boot/EFI` therefore gives you `/boot/EFI/EFI/GRUB/` — a
+> confusing double `EFI` that makes every recovery instruction harder to follow. Mounting at
+> `/efi` keeps the unencrypted ESP and the unencrypted `/boot` as two clearly separate things.
 
 ---
 
@@ -356,10 +354,10 @@ lsblk
 ```
 NAME                      SIZE TYPE  MOUNTPOINT
 nvme0n1                    1T  disk
-├─nvme0n1p1              512M  part  /mnt/boot/EFI
+├─nvme0n1p1                1G  part  /mnt/efi
 ├─nvme0n1p2                1G  part  /mnt/boot
 └─nvme0n1p3              998G  part
-  └─lvm                  998G  crypt
+  └─cryptlvm                 998G  crypt
     ├─volgroup0-lv_root  200G  lvm   /mnt
     ├─volgroup0-lv_swap   40G  lvm   [SWAP]
     └─volgroup0-lv_home  500G  lvm   /mnt/home
@@ -373,73 +371,18 @@ swapon --show
 
 ---
 
-## Important Configuration
+## What Comes Next (Important)
 
-After installing the base system, you **MUST** configure:
+Two things must be configured during base installation or this system **will not boot**. Both
+are covered in detail on the path notes page — this is just so you know they are coming:
 
-### 1. mkinitcpio Hooks
+| What | Why |
+|------|-----|
+| Install `lvm2` **and `cryptsetup`** | The `encrypt` hook copies the `cryptsetup` binary into the initramfs. No package, no unlock |
+| HOOKS `... block `**`encrypt lvm2`**` filesystems fsck` | `encrypt` unlocks the container; `lvm2` then activates the volume group *inside* it. That order is not negotiable |
+| `GRUB_CMDLINE_LINUX="cryptdevice=UUID=<luks-uuid>:cryptlvm"` | Tells the initramfs which device to unlock |
 
-Edit `/etc/mkinitcpio.conf`:
-
-```bash
-# In chroot environment
-nvim /etc/mkinitcpio.conf
-```
-
-Find the HOOKS line and modify:
-
-```
-# Original
-HOOKS=(base udev autodetect modconf block filesystems keyboard fsck)
-
-# Modified (add encrypt and lvm2, move keyboard before block)
-HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)
-```
-
-**Order matters!** Critical hooks must be in this order:
-1. `keyboard keymap consolefont` - Keyboard support (needed to type password!)
-2. `block` - Block device support
-3. `encrypt` - LUKS decryption
-4. `lvm2` - LVM support
-5. `filesystems` - Mount filesystems
-
-> ⚠️ **IMPORTANT:** `keyboard` MUST come BEFORE `block` and `encrypt`, otherwise you won't be able to type your encryption password!
-
-Regenerate initramfs:
-
-```bash
-mkinitcpio -P
-```
-
----
-
-### 2. GRUB Configuration
-
-Edit `/etc/default/grub`:
-
-```bash
-nvim /etc/default/grub
-```
-
-Add encrypted device to kernel parameters:
-
-```
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet cryptdevice=/dev/nvme0n1p3:lvm"
-```
-
-**Parameter breakdown:**
-
-| Part | Meaning |
-|------|--------|
-| `cryptdevice=` | Specify encrypted device |
-| `/dev/nvme0n1p3` | LUKS partition |
-| `:lvm` | Name after decryption (must match `cryptsetup open ... lvm`) |
-
-Regenerate GRUB config:
-
-```bash
-grub-mkconfig -o /boot/grub/grub.cfg
-```
+→ **[Path Notes: LUKS + LVM](../03-base-installation/deltas/luks-lvm.md)**
 
 ---
 
@@ -448,7 +391,7 @@ grub-mkconfig -o /boot/grub/grub.cfg
 ```bash
 # 1. Create partitions with gdisk
 gdisk /dev/nvme0n1
-# Create: 512M EFI (EF00), 1G Boot (8300), remaining LVM (8E00)
+# Create: 1G ESP (EF00), 1G Boot (8300), remaining LVM (8E00)
 
 # 2. Format EFI and Boot
 mkfs.fat -F32 /dev/nvme0n1p1
@@ -456,11 +399,11 @@ mkfs.ext4 /dev/nvme0n1p2
 
 # 3. Setup encryption
 cryptsetup luksFormat /dev/nvme0n1p3
-cryptsetup open --type luks /dev/nvme0n1p3 lvm
+cryptsetup open /dev/nvme0n1p3 cryptlvm
 
 # 4. Create LVM
-pvcreate /dev/mapper/lvm
-vgcreate volgroup0 /dev/mapper/lvm
+pvcreate /dev/mapper/cryptlvm
+vgcreate volgroup0 /dev/mapper/cryptlvm
 lvcreate -L 200GB volgroup0 -n lv_root
 lvcreate -L 40GB volgroup0 -n lv_swap
 lvcreate -L 500GB volgroup0 -n lv_home
@@ -479,8 +422,8 @@ mkswap /dev/volgroup0/lv_swap
 mount /dev/volgroup0/lv_root /mnt
 mkdir /mnt/boot /mnt/home
 mount /dev/nvme0n1p2 /mnt/boot
-mkdir /mnt/boot/EFI
-mount /dev/nvme0n1p1 /mnt/boot/EFI
+mkdir /mnt/efi
+mount /dev/nvme0n1p1 /mnt/efi
 mount /dev/volgroup0/lv_home /mnt/home
 swapon /dev/volgroup0/lv_swap
 
@@ -544,16 +487,30 @@ cryptsetup luksDump /dev/nvme0n1p3
 
 ## Next Steps
 
-Your encrypted system is ready for base installation!
+→ **[Base System Installation](../03-base-installation/base-install-common.md)**
 
-→ [Encrypted Base Installation](../03-base-installation/base-install-encrypted.md)
+At its two branch points, use the **LUKS + LVM** row:
 
-> 💡 The encrypted guide includes mkinitcpio hooks and GRUB cryptdevice configuration!
+| Branch | Answer |
+|--------|--------|
+| Step 6.2 — extra packages | `lvm2 cryptsetup` |
+| Step 9 — HOOKS | `... block `**`encrypt lvm2`**` filesystems fsck` |
+
+Details: **[Path Notes: LUKS + LVM](../03-base-installation/deltas/luks-lvm.md)**
+
+Then: **[GRUB — Encrypted](../03-base-installation/bootloader-encrypted.md)**
+
+> 🔴 **Do not skip `cryptsetup`.** Leaving it out is the single most common way to finish this
+> path with a machine that never boots again.
+
+> **Simpler alternative:** if you want encryption *and* snapshots, consider
+> [Btrfs with Encryption](btrfs-encryption.md) — Btrfs subvolumes replace LVM here, so it is
+> two partitions instead of three and one initramfs hook instead of two.
 
 ---
 
 <div align="center">
 
-[← LVM Setup](lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: Encrypted Base Installation →](../03-base-installation/base-install-encrypted.md)
+[← LVM Setup](lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
 
 </div>

@@ -78,7 +78,7 @@ PACKAGES=(
     git github-cli python nodejs npm
     
     # Utilities
-    unzip zip p7zip wget curl
+    unzip zip 7zip wget curl
     
     # Fonts
     noto-fonts noto-fonts-emoji ttf-firacode-nerd

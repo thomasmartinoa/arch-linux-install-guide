@@ -2,8 +2,6 @@
 
 > Flexible partition management using Logical Volume Manager.
 
-![LVM Setup](../../images/lvm-setup.png)
-
 ## Table of Contents
 
 - [What is LVM?](#what-is-lvm)
@@ -81,7 +79,7 @@ Think of it like a warehouse:
 │                                DISK                                     │
 ├─────────┬───────────────────────────────────────────────────────────────┤
 │   EFI   │                    LVM Physical Volume                        │
-│  512MB  │  ┌──────────────────────────────────────────────────────────┐ │
+│   1GB   │  ┌──────────────────────────────────────────────────────────┐ │
 │         │  │              Volume Group (volgroup0)                    │ │
 │  FAT32  │  │ ┌─────────┐  ┌──────────────────┐  ┌───────────────────┐ │ │
 │         │  │ │lv_root  │  │     lv_home      │  │     lv_swap       │ │ │
@@ -94,7 +92,7 @@ Think of it like a warehouse:
 
 | Volume | Size | Filesystem | Purpose |
 |--------|------|------------|---------|
-| EFI Partition | 512MB | FAT32 | Boot files |
+| ESP | 1GB | FAT32 | Bootloader + kernels |
 | lv_root | 50GB | ext4 | Operating system |
 | lv_home | 400GB+ | ext4 | Personal files |
 | lv_swap | 8GB | swap | Virtual memory |
@@ -115,13 +113,13 @@ cfdisk /dev/sda
 
 | # | Size | Type |
 |---|------|------|
-| 1 | 512M | EFI System |
+| 1 | 1G | EFI System |
 | 2 | Remaining | Linux LVM |
 
 **Result:**
 ```
 Device         Size     Type
-/dev/sda1      512M     EFI System
+/dev/sda1        1G     EFI System
 /dev/sda2    499.5G     Linux LVM
 ```
 
@@ -360,7 +358,7 @@ lsblk
 ```
 NAME                   SIZE TYPE  MOUNTPOINT
 sda                    500G disk
-├─sda1                 512M part  /mnt/boot
+├─sda1                   1G part  /mnt/boot
 └─sda2               499.5G part
   ├─volgroup0-lv_root   50G lvm   /mnt
   ├─volgroup0-lv_swap    8G lvm   [SWAP]
@@ -394,7 +392,7 @@ lvs
 ```bash
 # 1. Create partitions
 cfdisk /dev/sda
-# Create: 512M EFI, remaining Linux LVM
+# Create: 1G ESP (EF00), remaining Linux LVM (8E00)
 
 # 2. Format EFI
 mkfs.fat -F32 /dev/sda1
@@ -464,17 +462,23 @@ lvcreate -L 10G -s -n root_snapshot /dev/volgroup0/lv_root
 
 ## Next Steps
 
-Your LVM setup is complete!
+→ **[Base System Installation](../03-base-installation/base-install-common.md)**
 
-→ [LVM Base Installation](../03-base-installation/base-install-lvm.md)
+At its two branch points, use the **LVM** row:
 
-Or for encrypted LVM:
-→ [LVM with Encryption](lvm-encryption.md)
+| Branch | Answer |
+|--------|--------|
+| Step 6.2 — extra packages | `lvm2` |
+| Step 9 — HOOKS | `... block `**`lvm2`**` filesystems fsck` |
+
+Details: **[Path Notes: LVM](../03-base-installation/deltas/lvm.md)**
+
+Then: [GRUB — LVM](../03-base-installation/bootloader-lvm.md)
 
 ---
 
 <div align="center">
 
-[← Advanced Partitioning](advanced-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: LVM Base Installation →](../03-base-installation/base-install-lvm.md)
+[← Advanced Partitioning](advanced-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
 
 </div>

@@ -2,8 +2,6 @@
 
 > Before booting the Arch installer, you need to configure your BIOS settings.
 
-![BIOS Settings](../../images/bios-settings.png)
-
 ## Table of Contents
 
 - [Accessing BIOS/UEFI](#accessing-biosuefi)
@@ -52,8 +50,6 @@ It prevents unauthorized operating systems from loading. Linux can work with it,
 1. Go to Security or Boot tab
 2. Find Secure Boot option
 3. Set to Disabled
-
-![Disable Secure Boot](../../images/secure-boot-disable.png)
 
 > **Note:** You can re-enable it later if you want, but it needs extra setup.
 

@@ -2,8 +2,6 @@
 
 > Installing graphics drivers for Intel, AMD, and NVIDIA GPUs.
 
-![GPU Drivers](../../images/gpu-drivers.png)
-
 ## Table of Contents
 
 - [Identify Your GPU](#identify-your-gpu)
@@ -144,15 +142,18 @@ AMD uses open-source AMDGPU drivers (included in kernel).
 ### Install AMD Drivers
 
 ```bash
-sudo pacman -S mesa libva-mesa-driver
+sudo pacman -S mesa vulkan-radeon
 ```
 
 **Package descriptions:**
 
 | Package | Purpose |
 |---------|---------|
-| `mesa` | OpenGL implementation |
-| `libva-mesa-driver` | Hardware video acceleration |
+| `mesa` | OpenGL **and** hardware video acceleration (VA-API/VDPAU) |
+| `vulkan-radeon` | Vulkan driver — needed for gaming and most modern compositors |
+
+> ⚠️ **`libva-mesa-driver` and `mesa-vdpau` no longer exist.** They were merged into `mesa`.
+> Older guides still list them and the command now fails with `target not found`.
 
 ### Vulkan Support (Gaming)
 
@@ -169,7 +170,7 @@ sudo pacman -S xf86-video-amdgpu  # Optional, kernel driver usually sufficient
 ### All AMD Packages
 
 ```bash
-sudo pacman -S mesa libva-mesa-driver vulkan-radeon
+sudo pacman -S mesa vulkan-radeon opencl-mesa
 ```
 
 ### OpenCL Support (Compute)
@@ -194,9 +195,18 @@ sudo pacman -S nvidia-open nvidia-utils nvidia-settings
 ```
 
 **For older cards (GTX 1000 series and below):**
+
+The proprietary `nvidia` package has been **removed from the official repositories**. Pre-Turing
+cards now need a legacy maintenance branch from the AUR:
+
 ```bash
-sudo pacman -S nvidia nvidia-utils nvidia-settings
+yay -S nvidia-580xx-dkms nvidia-580xx-utils
 ```
+
+Check which branch covers your card on the
+[NVIDIA legacy driver list](https://www.nvidia.com/en-us/drivers/unix/legacy-gpu/) first — the
+number in the package name is the driver series, not the card. Until then the open-source
+`nouveau` driver in `mesa` will get you to a desktop.
 
 ### For LTS Kernel Users
 
@@ -205,10 +215,8 @@ sudo pacman -S nvidia nvidia-utils nvidia-settings
 sudo pacman -S nvidia-open-lts nvidia-utils nvidia-settings
 ```
 
-**Older cards:**
-```bash
-sudo pacman -S nvidia-lts nvidia-utils nvidia-settings
-```
+**Older cards:** use the AUR legacy branch above — it is DKMS, so it builds against whichever
+kernels you have installed, LTS included. Make sure `linux-lts-headers` is installed.
 
 ### NVIDIA Package Options
 
@@ -216,9 +224,8 @@ sudo pacman -S nvidia-lts nvidia-utils nvidia-settings
 |---------|-------------|-----------------|
 | `nvidia-open` | Open-source kernel modules | RTX 2000+ ⭐ |
 | `nvidia-open-lts` | Open-source for LTS kernel | RTX 2000+ with LTS |
-| `nvidia` | Proprietary driver for current kernel | GTX 1000 and older |
-| `nvidia-lts` | Proprietary driver for LTS kernel | GTX 1000 and older with LTS |
-| `nvidia-dkms` | DKMS version (compiles for any kernel) | Custom kernels |
+| `nvidia-open-dkms` | DKMS build of the open modules | Custom/multiple kernels |
+| `nvidia-580xx-dkms` (AUR) | Legacy proprietary branch | GTX 1000 and older |
 | `nvidia-utils` | Utilities and libraries | All (required) |
 | `nvidia-settings` | GUI settings application | All (recommended) |
 
@@ -233,10 +240,11 @@ sudo pacman -S nvidia-lts nvidia-utils nvidia-settings
 ### For Any Kernel (DKMS)
 
 ```bash
-sudo pacman -S nvidia-dkms nvidia-utils nvidia-settings
+sudo pacman -S nvidia-open-dkms nvidia-utils nvidia-settings
 ```
 
-> 💡 `nvidia-dkms` automatically compiles for your kernel, useful for custom kernels.
+> 💡 `nvidia-open-dkms` recompiles itself for whatever kernel you have — useful if you run a
+> custom kernel, or more than two. Requires the matching `*-headers` package for each kernel.
 
 ### Configure NVIDIA
 
@@ -252,7 +260,7 @@ For Wayland compositors (like Hyprland):
 
 ```bash
 # Edit environment variables
-sudo nvim /etc/environment
+sudo vim /etc/environment
 ```
 
 Add:
@@ -266,7 +274,7 @@ WLR_NO_HARDWARE_CURSORS=1
 ### Enable DRM Kernel Mode Setting
 
 ```bash
-sudo nvim /etc/default/grub
+sudo vim /etc/default/grub
 ```
 
 Add to `GRUB_CMDLINE_LINUX_DEFAULT`:
@@ -291,7 +299,7 @@ Run specific applications on NVIDIA:
 
 ```bash
 # Install both drivers
-sudo pacman -S mesa nvidia nvidia-utils nvidia-prime
+sudo pacman -S mesa nvidia-open nvidia-open-lts nvidia-utils nvidia-prime
 
 # Run application on NVIDIA
 prime-run application_name
@@ -309,10 +317,13 @@ yay -S optimus-manager optimus-manager-qt
 ### Option 3: Bumblebee (Older method)
 
 ```bash
-sudo pacman -S bumblebee mesa nvidia
+sudo pacman -S bumblebee mesa nvidia-open
 sudo systemctl enable bumblebeed
 sudo gpasswd -a username bumblebee
 ```
+
+> ⚠️ Bumblebee is effectively unmaintained. Use PRIME render offload unless you have a specific
+> reason not to.
 
 ---
 
@@ -372,8 +383,9 @@ Should show a window with spinning gears at high FPS.
 |-----|----------------|----------------|-------------|
 | Intel (new) | `mesa` | `vulkan-intel` | `intel-media-driver` |
 | Intel (old) | `mesa` | `vulkan-intel` | `libva-intel-driver` |
-| AMD | `mesa` | `vulkan-radeon` | `libva-mesa-driver` |
-| NVIDIA | `nvidia`/`nvidia-lts` | included | included |
+| AMD | `mesa` | `vulkan-radeon` | included in `mesa` |
+| NVIDIA (RTX 20xx+) | `nvidia-open`/`nvidia-open-lts` | included | included |
+| NVIDIA (GTX 10xx and older) | AUR legacy branch | included | included |
 
 ---
 
@@ -386,12 +398,12 @@ sudo pacman -S mesa intel-media-driver vulkan-intel
 
 ### AMD
 ```bash
-sudo pacman -S mesa libva-mesa-driver vulkan-radeon
+sudo pacman -S mesa vulkan-radeon opencl-mesa
 ```
 
-### NVIDIA
+### NVIDIA (RTX 20xx and newer)
 ```bash
-sudo pacman -S nvidia nvidia-lts nvidia-utils nvidia-settings
+sudo pacman -S nvidia-open nvidia-open-lts nvidia-utils nvidia-settings
 sudo mkinitcpio -P
 ```
 

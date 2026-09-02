@@ -2,8 +2,6 @@
 
 Complete guide for protecting your Arch Linux system.
 
-![Security](../../images/security.png)
-
 ## Table of Contents
 
 - [Security Overview](#security-overview)
@@ -216,7 +214,7 @@ sudo pacman -S nftables
 ### Basic Configuration
 
 ```bash
-sudo nvim /etc/nftables.conf
+sudo vim /etc/nftables.conf
 ```
 
 ```bash
@@ -266,7 +264,7 @@ ssh-copy-id -i ~/.ssh/id_ed25519.pub user@server
 ### Harden SSH Server
 
 ```bash
-sudo nvim /etc/ssh/sshd_config
+sudo vim /etc/ssh/sshd_config
 ```
 
 **Recommended settings:**
@@ -298,7 +296,7 @@ Fail2ban bans IPs that show malicious signs.
 ```bash
 sudo pacman -S fail2ban
 sudo cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
-sudo nvim /etc/fail2ban/jail.local
+sudo vim /etc/fail2ban/jail.local
 ```
 
 **Recommended settings:**
@@ -338,14 +336,14 @@ AppArmor provides Mandatory Access Control for applications.
 ### Install AppArmor
 
 ```bash
-sudo pacman -S apparmor apparmor-profiles
+sudo pacman -S apparmor
 ```
 
 ### Enable in Kernel
 
 Add to GRUB:
 ```bash
-sudo nvim /etc/default/grub
+sudo vim /etc/default/grub
 # Add to GRUB_CMDLINE_LINUX_DEFAULT:
 # apparmor=1 security=apparmor
 
@@ -421,7 +419,7 @@ sudo systemctl enable --now paccache.timer
 ### Sysctl Security Settings
 
 ```bash
-sudo nvim /etc/sysctl.d/99-security.conf
+sudo vim /etc/sysctl.d/99-security.conf
 ```
 
 ```ini

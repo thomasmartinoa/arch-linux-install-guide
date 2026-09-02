@@ -1,5 +1,11 @@
 # Martin's Personal Package List
 # My Arch Linux + Hyprland setup
+#
+# Install with:
+#   sudo pacman -S --needed - < <(grep -vE '^\s*#|^\s*$' my-packages.txt)
+#
+# (The redirect strips comments and blank lines. `pacman -S $(cat ...)` does NOT work —
+#  it passes every comment word to pacman as a package name.)
 
 # ============================================
 # AUDIO & BLUETOOTH
@@ -23,7 +29,7 @@ vulkan-intel
 
 # AMD
 # mesa
-# libva-mesa-driver
+# (VA-API video acceleration is included in mesa)
 # vulkan-radeon
 
 # NVIDIA
@@ -101,7 +107,7 @@ spotify-launcher
 # ============================================
 unzip
 zip
-p7zip
+7zip
 unrar
 wget
 curl

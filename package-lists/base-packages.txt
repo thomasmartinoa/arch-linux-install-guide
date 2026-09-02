@@ -1,5 +1,16 @@
-# Base Installation Packages
-# Install with: pacman -S --needed $(cat base-packages.txt)
+# Base Installation Packages — reference superset
+#
+# Install with:
+#   sudo pacman -S --needed - < <(grep -vE '^\s*#|^\s*$' base-packages.txt)
+#
+# (The redirect strips comments and blank lines. `pacman -S $(cat ...)` does NOT work —
+#  it passes every comment word to pacman as a package name.)
+#
+# NOTE: this is a superset covering every install path. Following the guide you install
+# only what your path needs — see docs/03-base-installation/base-install-common.md Step 6.2.
+#   Standard    : no extras        LVM         : lvm2
+#   LUKS + LVM  : lvm2 cryptsetup  Btrfs       : btrfs-progs
+#   Btrfs + LUKS: btrfs-progs cryptsetup
 
 # Core System
 base

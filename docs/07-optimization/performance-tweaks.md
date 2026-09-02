@@ -7,7 +7,7 @@
 ### Enable Parallel Downloads
 
 ```bash
-sudo nvim /etc/pacman.conf
+sudo vim /etc/pacman.conf
 ```
 
 Uncomment:
@@ -55,7 +55,7 @@ echo "vm.swappiness=10" | sudo tee /etc/sysctl.d/99-swappiness.conf
 ```bash
 sudo pacman -S zram-generator
 
-sudo nvim /etc/systemd/zram-generator.conf
+sudo vim /etc/systemd/zram-generator.conf
 ```
 
 Add:
@@ -100,7 +100,7 @@ sudo systemctl status preload
 
 **Configuration (optional):**
 ```bash
-sudo nvim /etc/preload.conf
+sudo vim /etc/preload.conf
 ```
 
 Key settings:
@@ -162,7 +162,7 @@ sudo auto-cpufreq --monitor
 #### Configuration (optional)
 
 ```bash
-sudo nvim /etc/auto-cpufreq.conf
+sudo vim /etc/auto-cpufreq.conf
 ```
 
 Example config:
@@ -195,7 +195,7 @@ Automatically enable NumLock during boot (useful for desktop users).
 yay -S mkinitcpio-numlock
 
 # Edit mkinitcpio config
-sudo nvim /etc/mkinitcpio.conf
+sudo vim /etc/mkinitcpio.conf
 ```
 
 Find the `HOOKS` line and add `numlock` before `filesystems`:
@@ -324,7 +324,7 @@ sudo filefrag -v /swapfile | head -n 5
 #### 2. Edit GRUB Configuration
 
 ```bash
-sudo nvim /etc/default/grub
+sudo vim /etc/default/grub
 ```
 
 **For swap partition:**
@@ -357,7 +357,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 #### 4. Configure mkinitcpio
 
 ```bash
-sudo nvim /etc/mkinitcpio.conf
+sudo vim /etc/mkinitcpio.conf
 ```
 
 Find the `HOOKS` line and add `resume` **after** `filesystems`:
@@ -382,7 +382,7 @@ sudo mkinitcpio -P
 Edit your boot entry:
 
 ```bash
-sudo nvim /boot/loader/entries/arch.conf
+sudo vim /boot/loader/entries/arch.conf
 ```
 
 Add resume parameters to the `options` line:
@@ -495,7 +495,7 @@ The guide covers:
 For 32-bit game support (Steam, Wine):
 
 ```bash
-sudo nvim /etc/pacman.conf
+sudo vim /etc/pacman.conf
 ```
 
 Uncomment these lines:
@@ -506,7 +506,7 @@ Include = /etc/pacman.d/mirrorlist
 
 **Update package database:**
 ```bash
-sudo pacman -Sy
+sudo pacman -Syu
 ```
 
 **What multilib enables:**

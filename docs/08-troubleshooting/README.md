@@ -57,12 +57,28 @@ mount /dev/sdX1 /mnt/boot
 mount /dev/mapper/volgroup0-lv_home /mnt/home
 
 # For Encrypted LVM
-cryptsetup open /dev/nvme0n1p3 lvm
+cryptsetup open /dev/nvme0n1p3 cryptlvm
+vgchange -ay
 mount /dev/mapper/volgroup0-lv_root /mnt
 mount /dev/nvme0n1p2 /mnt/boot
-mount /dev/nvme0n1p1 /mnt/boot/EFI
+mount /dev/nvme0n1p1 /mnt/efi
 mount /dev/mapper/volgroup0-lv_home /mnt/home
+
+# For Btrfs (subvolumes — note the subvol= options)
+mount -o noatime,compress=zstd,subvol=@     /dev/sdX2 /mnt
+mount -o noatime,compress=zstd,subvol=@home /dev/sdX2 /mnt/home
+mount /dev/sdX1 /mnt/boot
+
+# For Btrfs + LUKS
+cryptsetup open /dev/sdX2 cryptroot
+mount -o noatime,compress=zstd,subvol=@     /dev/mapper/cryptroot /mnt
+mount -o noatime,compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home
+mount /dev/sdX1 /mnt/boot
 ```
+
+> **Btrfs users:** you must pass `subvol=@` or you mount the top level of the filesystem
+> instead of your root subvolume — `arch-chroot` will then fail with `chroot: failed to run
+> command '/bin/bash'`, because from there your system lives under `@/`, not `/`.
 
 ### 3. Chroot Into System
 
@@ -79,6 +95,7 @@ Follow the specific guide for your issue.
 ```bash
 exit
 umount -R /mnt
+swapoff -a
 reboot
 ```
 

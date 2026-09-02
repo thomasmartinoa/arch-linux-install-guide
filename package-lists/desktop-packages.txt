@@ -1,5 +1,11 @@
 # Desktop Environment Packages
 # Choose based on your preferred DE
+#
+# Install with:
+#   sudo pacman -S --needed - < <(grep -vE '^\s*#|^\s*$' desktop-packages.txt)
+#
+# (The redirect strips comments and blank lines. `pacman -S $(cat ...)` does NOT work —
+#  it passes every comment word to pacman as a package name.)
 
 # ============================================
 # HYPRLAND (Wayland Compositor)
