@@ -51,8 +51,10 @@ lsblk -f
 install_base "btrfs-progs"             # Step 6.2: btrfs-progs
 gen_fstab
 configure_system
+install_kernels_and_gpu
 set_hooks "base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck"
 install_grub /boot
+assert_grub_entries
 arch-chroot /mnt grep -q 'rootflags=subvol=@' /boot/grub/grub.cfg \
     || die "grub.cfg is missing rootflags=subvol=@ — root would not mount"
 finish

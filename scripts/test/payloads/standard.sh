@@ -36,6 +36,8 @@ lsblk -f
 install_base ""                        # Step 6.2: no extras
 gen_fstab
 configure_system
+install_kernels_and_gpu
 set_hooks "base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck"
 install_grub /boot
+assert_grub_entries
 finish

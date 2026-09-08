@@ -45,8 +45,10 @@ lsblk -f
 install_base "lvm2"                    # Step 6.2: lvm2
 gen_fstab
 configure_system
+install_kernels_and_gpu
 set_hooks "base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck"
 install_grub /boot
+assert_grub_entries
 arch-chroot /mnt grep -q 'root=/dev/mapper/volgroup0-lv_root' /boot/grub/grub.cfg \
     || die "grub.cfg does not reference the LVM root volume"
 finish

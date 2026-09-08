@@ -60,9 +60,11 @@ lsblk -f
 install_base "btrfs-progs cryptsetup"  # Step 6.2: btrfs-progs AND cryptsetup
 gen_fstab
 configure_system
+install_kernels_and_gpu
 set_hooks "base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck"
 assert_cryptsetup_in_initramfs
 install_grub /boot "" "cryptdevice=UUID=${LUKS_UUID}:cryptroot"
+assert_grub_entries
 arch-chroot /mnt grep -q "cryptdevice=UUID=${LUKS_UUID}:cryptroot" /boot/grub/grub.cfg \
     || die "cryptdevice missing from grub.cfg"
 arch-chroot /mnt grep -q 'rootflags=subvol=@' /boot/grub/grub.cfg \

@@ -56,9 +56,11 @@ lsblk -f
 install_base "lvm2 cryptsetup"         # Step 6.2: lvm2 AND cryptsetup
 gen_fstab
 configure_system
+install_kernels_and_gpu
 set_hooks "base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck"
 assert_cryptsetup_in_initramfs
 install_grub /efi "--boot-directory=/boot" "cryptdevice=UUID=${LUKS_UUID}:cryptlvm"
+assert_grub_entries
 arch-chroot /mnt grep -q "cryptdevice=UUID=${LUKS_UUID}:cryptlvm" /boot/grub/grub.cfg \
     || die "cryptdevice missing from grub.cfg"
 finish

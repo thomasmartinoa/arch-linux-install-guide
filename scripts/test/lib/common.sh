@@ -76,6 +76,39 @@ systemctl enable sshd
 CHROOT
 }
 
+# Step 7 + 8 — second kernel, microcode, GPU.
+# Installing linux-lts triggers another mkinitcpio run and forces GRUB to generate a second
+# set of entries, so this is load-bearing on every flow, not cosmetic.
+install_kernels_and_gpu() {
+    log "Step 7: LTS kernel + headers"
+    arch-chroot /mnt pacman -S --noconfirm --needed linux-headers linux-lts linux-lts-headers \
+        || die "kernel/header install failed"
+
+    local uc=amd-ucode
+    grep -q GenuineIntel /proc/cpuinfo && uc=intel-ucode
+    log "Step 7: microcode ($uc)"
+    arch-chroot /mnt pacman -S --noconfirm --needed "$uc" || die "microcode install failed"
+
+    # Step 8. The guest has virtio-gpu, so mesa is the honest analogue here.
+    # NVIDIA cannot be meaningfully exercised in QEMU — that needs real hardware.
+    log "Step 8: mesa"
+    arch-chroot /mnt pacman -S --noconfirm --needed mesa || die "mesa install failed"
+
+    [ -f /mnt/boot/initramfs-linux-lts.img ] \
+        || die "no LTS initramfs — the second kernel did not generate one"
+    log "LTS initramfs present"
+}
+
+# Assert GRUB generated entries for BOTH kernels and is loading CPU microcode.
+assert_grub_entries() {
+    log "verifying GRUB entries"
+    arch-chroot /mnt grep -q 'vmlinuz-linux-lts' /boot/grub/grub.cfg \
+        || die "grub.cfg has no LTS kernel entry"
+    arch-chroot /mnt grep -qE '(intel|amd)-ucode\.img' /boot/grub/grub.cfg \
+        || die "grub.cfg does not load CPU microcode"
+    log "GRUB has both kernels and microcode"
+}
+
 # base-install-*.md Step 9 — set HOOKS, then rebuild.
 # $1 = the full HOOKS value for this path.
 set_hooks() {
