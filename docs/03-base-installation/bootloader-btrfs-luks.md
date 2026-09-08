@@ -1,6 +1,6 @@
-# GRUB Bootloader — LUKS + LVM
+# GRUB Bootloader — Btrfs + LUKS
 
-> The final step for **LUKS encryption with LVM inside it**.
+> The final step for **Btrfs subvolumes inside a LUKS container**.
 
 ![GRUB Bootloader](../../images/grub-bootloader.png)
 
@@ -27,7 +27,7 @@ Power on → UEFI firmware → GRUB → Linux kernel → initramfs unlocks LUKS 
 ## Prerequisites
 
 You should have just finished
-**[Base Installation — LUKS + LVM](base-install-encrypted.md)**, and still be inside the chroot.
+**[Base Installation — Btrfs + LUKS](base-install-btrfs-luks.md)**, and still be inside the chroot.
 
 ```bash
 pacman -Q grub efibootmgr cryptsetup
@@ -41,35 +41,31 @@ If that errors, you are either outside the chroot or missed Step 6. Re-enter wit
 ## Step 1: Check Your Mounts
 
 ```bash
-findmnt /efi
 findmnt /boot
+
 ```
 
-On this path there are **two** separate unencrypted areas, and they do different jobs:
+Your ESP is mounted at `/boot`, so it holds the bootloader **and** your kernels.
 
-| Mount | Filesystem | Holds |
-|-------|------------|-------|
-| `/efi` | FAT32 | The EFI binary the firmware loads |
-| `/boot` | ext4 | Your kernels, initramfs images and GRUB's modules |
+```bash
+ls /boot
+```
 
-> **Why `/efi` and not `/boot/EFI`?** GRUB creates a directory literally named `EFI` inside the
-> ESP. Mounting the ESP *at* `/boot/EFI` gives you `/boot/EFI/EFI/GRUB/` — a confusing double
-> `EFI` that makes every recovery instruction harder to follow.
+You should see `vmlinuz-linux`, `vmlinuz-linux-lts` and their `initramfs-*.img` files. If `/boot`
+is empty, it is not mounted — mount it before continuing or GRUB will install into thin air.
 
 ---
 
 ## Step 2: Install GRUB
 
 ```bash
-grub-install --target=x86_64-efi --efi-directory=/efi --boot-directory=/boot \
-             --bootloader-id=GRUB --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 ```
 
 | Flag | Meaning |
 |------|---------|
 | `--target=x86_64-efi` | Build for 64-bit UEFI |
-| `--efi-directory=/efi` | Where your ESP is mounted — the `.efi` file goes here |
-| `--boot-directory=/boot` | Where GRUB's modules and config go. Needed because it differs from the ESP |
+| `--efi-directory=/boot` | Where your ESP is mounted — the `.efi` file goes here |
 | `--bootloader-id=GRUB` | The name your firmware shows in its boot menu |
 | `--recheck` | Rebuild the device map instead of trusting a stale one |
 
@@ -108,17 +104,17 @@ vim /etc/default/grub
 Find the `GRUB_CMDLINE_LINUX=` line and set it:
 
 ```bash
-GRUB_CMDLINE_LINUX="cryptdevice=UUID=<your-uuid>:cryptlvm"
+GRUB_CMDLINE_LINUX="cryptdevice=UUID=<your-uuid>:cryptroot"
 ```
 
 | Part | Meaning |
 |------|---------|
 | `cryptdevice=` | The parameter the `encrypt` hook reads |
-| `UUID=…` | Which device to unlock. Use the UUID — `/dev/nvme0n1p3` changes the moment you add a drive |
-| `:cryptlvm` | The name it gets once unlocked, i.e. `/dev/mapper/cryptlvm` |
+| `UUID=…` | Which device to unlock. Use the UUID — `/dev/sda2` changes the moment you add a drive |
+| `:cryptroot` | The name it gets once unlocked, i.e. `/dev/mapper/cryptroot` |
 
 The name after the colon **must match** what you used with `cryptsetup open` during
-partitioning. If you followed that guide, it is `cryptlvm`.
+partitioning. If you followed that guide, it is `cryptroot`.
 
 > ### ⚠️ `GRUB_CMDLINE_LINUX`, not `GRUB_CMDLINE_LINUX_DEFAULT`
 >
@@ -175,7 +171,7 @@ grep -c 'vmlinuz-linux' /boot/grub/grub.cfg          # 2 or more
 grep -cE '(intel|amd)-ucode\.img' /boot/grub/grub.cfg   # 1 or more
 
 # The EFI binary exists where the firmware will look
-ls /efi/EFI/GRUB/grubx64.efi
+ls /boot/EFI/GRUB/grubx64.efi
 ```
 
 ```bash
@@ -192,6 +188,18 @@ If that last one prints `0`, your initramfs cannot unlock the disk:
 pacman -S cryptsetup
 mkinitcpio -P
 ```
+### Confirm GRUB knows about your subvolume
+
+```bash
+grep -o 'rootflags=[^ ]*' /boot/grub/grub.cfg | head -1
+```
+
+It must print `rootflags=subvol=@`. `grub-mkconfig` writes this from your mounted layout — you do
+not add it by hand. If it is missing, your `@` subvolume was not mounted when you ran the
+command; remount it and run `grub-mkconfig` again.
+
+Without it the kernel mounts the top level of the filesystem rather than your root subvolume, and
+you land in an emergency shell **after** typing your passphrase.
 
 ---
 
@@ -212,8 +220,8 @@ reboot
 2. A passphrase prompt:
 
 ```
-A password is required to access the cryptlvm volume:
-Enter passphrase for /dev/nvme0n1p3:
+A password is required to access the cryptroot volume:
+Enter passphrase for /dev/sda2:
 ```
 
 3. Type your **LUKS passphrase** — nothing appears as you type
@@ -233,12 +241,10 @@ Two different passwords, in that order. Mixing them up is the most common first-
 Every fix starts the same way: boot the live USB and re-enter your system.
 
 ```bash
-cryptsetup open /dev/nvme0n1p3 cryptlvm
-vgchange -ay
-mount /dev/volgroup0/lv_root /mnt
-mount /dev/nvme0n1p2 /mnt/boot
-mount /dev/nvme0n1p1 /mnt/efi
-mount /dev/volgroup0/lv_home /mnt/home
+cryptsetup open /dev/sda2 cryptroot
+mount -o noatime,compress=zstd,subvol=@ /dev/mapper/cryptroot /mnt
+mount -o noatime,compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home
+mount /dev/sda1 /mnt/boot
 arch-chroot /mnt
 ```
 
@@ -261,7 +267,8 @@ grub-mkconfig -o /boot/grub/grub.cfg     # if you changed /etc/default/grub
 | `ERROR: file not found: 'cryptsetup'` | `cryptsetup` not installed | `pacman -S cryptsetup && mkinitcpio -P` |
 | `device not found` before any prompt | wrong `cryptdevice=` UUID | Recheck `blkid -t TYPE=crypto_LUKS -o value -s UUID` |
 | `No key available with this passphrase` | wrong passphrase, Caps Lock, or a non-US keymap | See below |
-| Unlocks, then hangs or says `Volume group not found` | `lvm2` missing, or placed before `encrypt` | order must be `block encrypt lvm2 filesystems`, then `mkinitcpio -P` |
+| Unlocks, then drops to an emergency shell with an empty root | `rootflags=subvol=@` missing | mount `@` at `/mnt`, re-run `grub-mkconfig -o /boot/grub/grub.cfg` |
+| Unlocks, then cannot mount root | `btrfs-progs` was never installed | `pacman -S btrfs-progs && mkinitcpio -P` |
 
 ### Passphrase rejected but you are certain it is right
 
@@ -272,7 +279,7 @@ passphrase was *created* under the live ISO's US layout.
 Test the container directly from the live USB, where you control the layout:
 
 ```bash
-cryptsetup open --test-passphrase /dev/nvme0n1p3 && echo "passphrase is correct"
+cryptsetup open --test-passphrase /dev/sda2 && echo "passphrase is correct"
 ```
 
 If that succeeds, the passphrase is fine and the keymap is the problem. Make sure `keyboard` and
@@ -284,11 +291,17 @@ Do this once you are booted. The header holds the encrypted master key — if it
 disk is unrecoverable **even with the correct passphrase**.
 
 ```bash
-sudo cryptsetup luksHeaderBackup /dev/nvme0n1p3 --header-backup-file luks-header.img
-sudo cryptsetup luksAddKey /dev/nvme0n1p3     # a second passphrase, so one typo isn't fatal
+sudo cryptsetup luksHeaderBackup /dev/sda2 --header-backup-file luks-header.img
+sudo cryptsetup luksAddKey /dev/sda2     # a second passphrase, so one typo isn't fatal
 ```
 
 Store the header off the machine, and treat it as sensitive as the disk itself.
+## After You Reboot: Snapshots
+
+Snapper setup is identical to the unencrypted Btrfs path — encryption sits entirely below Btrfs,
+so snapshots neither know nor care that the disk is encrypted.
+
+→ [Setting up Snapper](../02-partitioning/btrfs-setup.md#snapshots)
 
 ---
 
@@ -302,6 +315,6 @@ You have a booting Arch system. Now make it usable — users, networking, mirror
 
 <div align="center">
 
-[← Base Installation — LUKS + LVM](base-install-encrypted.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
+[← Base Installation — Btrfs + LUKS](base-install-btrfs-luks.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
 
 </div>

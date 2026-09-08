@@ -60,6 +60,7 @@ The base system is done. Here's what you might want to set up next:
 | [**Troubleshooting**](../08-troubleshooting/README.md) | Fix common problems |
 
 > 💡 **Recommended flow:** Essential Packages → AUR Helpers → Performance → Security → Troubleshooting
+
 ---
 
 <div align="center">

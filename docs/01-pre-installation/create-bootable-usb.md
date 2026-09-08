@@ -2,8 +2,6 @@
 
 > Multiple ways to create an Arch Linux installation USB.
 
-![Bootable USB](../../images/bootable-usb.png)
-
 ## Table of Contents
 
 - [Download Arch Linux ISO](#download-arch-linux-iso)

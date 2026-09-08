@@ -2,8 +2,6 @@
 
 > Separate partitions for root, home, and swap - recommended for regular desktop use.
 
-![Advanced Partitioning](../../images/advanced-partition.png)
-
 ## Table of Contents
 
 - [Overview](#overview)
@@ -24,7 +22,7 @@ This setup separates your personal files (`/home`) from the system:
 │                          DISK                               │
 ├─────────┬───────────┬───────────────────────────┬───────────┤
 │   EFI   │   ROOT    │          HOME             │   SWAP    │
-│  512MB  │   50GB    │       (remaining)         │   8GB     │
+│   1GB   │   50GB    │       (remaining)         │   8GB     │
 │  FAT32  │   ext4    │          ext4             │   swap    │
 └─────────┴───────────┴───────────────────────────┴───────────┘
 ```
@@ -46,7 +44,7 @@ For a **500GB disk**:
 
 | # | Mount Point | Size | Filesystem | Purpose |
 |---|-------------|------|------------|---------|
-| 1 | /boot | 512MB | FAT32 | EFI boot files |
+| 1 | /boot | 1GB | FAT32 | ESP — bootloader + kernels |
 | 2 | / | 50GB | ext4 | Operating system |
 | 3 | /home | ~442GB | ext4 | Personal files |
 | 4 | [SWAP] | 8GB | swap | Virtual memory |
@@ -55,7 +53,7 @@ For a **500GB disk**:
 
 | Partition | Minimum | Recommended | Notes |
 |-----------|---------|-------------|-------|
-| EFI | 256MB | 512MB | Holds kernels and bootloader |
+| ESP | 512MB | 1GB | Holds the bootloader and all your kernels |
 | Root (/) | 20GB | 50-100GB | System + programs |
 | Home (/home) | 10GB | Remaining | Personal files |
 | Swap | 2GB | RAM size | For hibernation: 1.5x RAM |
@@ -76,7 +74,7 @@ If prompted for label type, select **gpt**.
 
 | Step | Action | Size | Type |
 |------|--------|------|------|
-| 1 | New → | `512M` | EFI System |
+| 1 | New → | `1G` | EFI System |
 | 2 | New → | `50G` | Linux filesystem |
 | 3 | New → | `-8G` (remaining minus 8G) | Linux filesystem |
 | 4 | New → | (remaining) | Linux swap |
@@ -84,7 +82,7 @@ If prompted for label type, select **gpt**.
 **Final layout:**
 ```
 Device         Size     Type
-/dev/sda1      512M     EFI System
+/dev/sda1        1G     EFI System
 /dev/sda2       50G     Linux filesystem
 /dev/sda3    441.5G     Linux filesystem  
 /dev/sda4        8G     Linux swap
@@ -108,7 +106,7 @@ Command: g
 Command: n
 Partition number: 1
 First sector: [Enter]
-Last sector: +512M
+Last sector: +1G
 Command: t
 Type: 1
 
@@ -261,7 +259,7 @@ lsblk
 ```
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
 sda      8:0    0   500G  0 disk
-├─sda1   8:1    0   512M  0 part /mnt/boot
+├─sda1   8:1    0     1G  0 part /mnt/boot
 ├─sda2   8:2    0    50G  0 part /mnt
 ├─sda3   8:3    0 441.5G  0 part /mnt/home
 └─sda4   8:4    0     8G  0 part [SWAP]
@@ -322,7 +320,7 @@ swapon -L SWAP
 Labels appear in `lsblk -f`:
 ```
 NAME   FSTYPE LABEL SIZE MOUNTPOINT
-sda1   vfat   EFI   512M /mnt/boot
+sda1   vfat   ESP     1G /mnt/boot
 sda2   ext4   ROOT   50G /mnt
 sda3   ext4   HOME  441G /mnt/home
 sda4   swap   SWAP    8G [SWAP]
@@ -332,14 +330,17 @@ sda4   swap   SWAP    8G [SWAP]
 
 ## Next Steps
 
-Your disk is now partitioned and ready!
+Your disk is ready. Next you install Arch onto it.
 
-→ [Standard Base Installation](../03-base-installation/base-install-standard.md)
+→ **[Base Installation — Standard](../03-base-installation/base-install-standard.md)**
+
+That guide is written specifically for the **Standard (ext4)** layout you just created — follow it
+straight through, there is nothing to pick or choose.
 
 ---
 
 <div align="center">
 
-[← Basic Partitioning](basic-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-standard.md)
+[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation — Standard →](../03-base-installation/base-install-standard.md)
 
 </div>

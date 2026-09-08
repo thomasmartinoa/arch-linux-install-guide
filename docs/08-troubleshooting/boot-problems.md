@@ -2,8 +2,6 @@
 
 > Solutions for boot failures, GRUB errors, black screens, and kernel panics.
 
-![Boot Problems](../../images/boot-problems.png)
-
 ## Table of Contents
 
 - [No Bootable Device](#no-bootable-device)
@@ -50,7 +48,7 @@ mount /dev/sdX1 /mnt/boot   # EFI partition
 arch-chroot /mnt
 
 # Reinstall GRUB
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 
 # Regenerate config
 grub-mkconfig -o /boot/grub/grub.cfg
@@ -68,7 +66,7 @@ reboot
 efibootmgr
 
 # Add new entry manually
-efibootmgr --create --disk /dev/sda --part 1 --loader /EFI/grub_uefi/grubx64.efi --label "Arch Linux"
+efibootmgr --create --disk /dev/sda --part 1 --loader /EFI/GRUB/grubx64.efi --label "Arch Linux"
 ```
 
 ---
@@ -112,7 +110,7 @@ mount /dev/sdX1 /mnt/boot
 
 # Chroot and reinstall
 arch-chroot /mnt
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 grub-mkconfig -o /boot/grub/grub.cfg
 exit
 reboot
@@ -147,7 +145,7 @@ After booting with nomodeset:
 
 ```bash
 # For NVIDIA, install proper drivers
-sudo pacman -S nvidia nvidia-utils
+sudo pacman -S nvidia-open nvidia-utils
 
 # Regenerate initramfs
 sudo mkinitcpio -P
@@ -202,8 +200,8 @@ arch-chroot /mnt
 mkinitcpio -P
 
 # If LVM, check hooks
-nvim /etc/mkinitcpio.conf
-# Ensure: HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
+vim /etc/mkinitcpio.conf
+# Ensure: HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
 
 # Regenerate again
 mkinitcpio -P
@@ -237,14 +235,14 @@ genfstab -U /mnt >> /mnt/etc/fstab
 sudo pacman -S os-prober
 
 # Enable os-prober in GRUB config
-sudo nvim /etc/default/grub
+sudo vim /etc/default/grub
 # Add: GRUB_DISABLE_OS_PROBER=false
 
 # Regenerate GRUB config
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 # Set default boot entry
-sudo nvim /etc/default/grub
+sudo vim /etc/default/grub
 # Change: GRUB_DEFAULT=0  (0 = first entry)
 ```
 
@@ -253,7 +251,7 @@ sudo nvim /etc/default/grub
 Windows updates sometimes change UEFI boot order:
 
 1. Enter BIOS
-2. Set "grub_uefi" or "Arch Linux" as first boot option
+2. Set "GRUB" or "Arch Linux" as first boot option
 
 ---
 
@@ -270,16 +268,16 @@ The `keyboard` hook must come BEFORE `encrypt`:
 
 ```bash
 # Boot Live USB
-cryptsetup open /dev/nvme0n1p3 lvm
+cryptsetup open /dev/nvme0n1p3 cryptlvm
 mount /dev/mapper/volgroup0-lv_root /mnt
 mount /dev/nvme0n1p2 /mnt/boot
 arch-chroot /mnt
 
 # Edit mkinitcpio
-nvim /etc/mkinitcpio.conf
+vim /etc/mkinitcpio.conf
 
 # Correct order:
-HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)
 
 # Regenerate
 mkinitcpio -P
@@ -291,7 +289,7 @@ reboot
 
 ```bash
 # Check GRUB config
-nvim /etc/default/grub
+vim /etc/default/grub
 
 # Ensure cryptdevice is correct
 GRUB_CMDLINE_LINUX="cryptdevice=/dev/nvme0n1p3:lvm"
@@ -326,10 +324,10 @@ mount /dev/mapper/volgroup0-lv_root /mnt
 mount /dev/sdX1 /mnt/boot
 
 # Encrypted:
-cryptsetup open /dev/nvme0n1p3 lvm
+cryptsetup open /dev/nvme0n1p3 cryptlvm
 mount /dev/mapper/volgroup0-lv_root /mnt
 mount /dev/nvme0n1p2 /mnt/boot
-mount /dev/nvme0n1p1 /mnt/boot/EFI
+mount /dev/nvme0n1p1 /mnt/efi
 
 # Chroot
 arch-chroot /mnt
@@ -339,10 +337,10 @@ pacman -S grub efibootmgr
 
 # Install GRUB
 # For standard/LVM (EFI at /boot):
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 
-# For encrypted (EFI at /boot/EFI):
-grub-install --target=x86_64-efi --efi-directory=/boot/EFI --bootloader-id=grub_uefi --recheck
+# For LUKS + LVM (ESP at /efi, separate /boot):
+grub-install --target=x86_64-efi --efi-directory=/efi --boot-directory=/boot --bootloader-id=GRUB --recheck
 
 # Copy locale
 cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo

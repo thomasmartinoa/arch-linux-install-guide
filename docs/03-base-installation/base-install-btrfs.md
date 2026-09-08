@@ -1,6 +1,6 @@
-# Base Installation — LVM
+# Base Installation — Btrfs
 
-> For **LVM without encryption**.
+> For **Btrfs with subvolumes** (no encryption).
 
 This guide is complete on its own. Follow it top to bottom — every command here applies to
 your setup, and there is nothing to pick or skip.
@@ -25,7 +25,7 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[LVM Setup](../02-partitioning/lvm-setup.md)**.
+You should have just finished **[Btrfs Setup](../02-partitioning/btrfs-setup.md)**.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -44,23 +44,25 @@ Everything below needs to download packages.
 ## Step 1: Verify Your Mounts
 
 ```bash
-lsblk
+lsblk -f
 ```
 
 **You should see something like this:**
 
 ```
-NAME                   SIZE TYPE MOUNTPOINT
-sda                    500G disk
-├─sda1                   1G part /mnt/boot
-└─sda2                 499G part
-  ├─volgroup0-lv_root   50G lvm  /mnt
-  ├─volgroup0-lv_swap    8G lvm  [SWAP]
-  └─volgroup0-lv_home  441G lvm  /mnt/home
+NAME   FSTYPE LABEL MOUNTPOINTS
+sda
+├─sda1 vfat         /mnt/boot
+└─sda2 btrfs  arch  /mnt/swap
+                    /mnt/var/cache
+                    /mnt/var/log
+                    /mnt/.snapshots
+                    /mnt/home
+                    /mnt
 ```
 
-`TYPE` must read `lvm` for your three volumes. If it does not, the volume group is not
-active — run `vgchange -ay` and check again.
+One partition carrying many mount points is exactly right — those are your subvolumes.
+Use `lsblk -f` (with `-f`) to see this view.
 
 > ⚠️ **Do not continue until this looks right.** Every step below writes into `/mnt`. A wrong
 > mount here means reinstalling later, and it is far cheaper to fix now.
@@ -114,20 +116,23 @@ cat /mnt/etc/fstab
 ```
 
 ```
-# /dev/mapper/volgroup0-lv_root
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /       ext4  rw,relatime  0 1
+# /dev/sda2 LABEL=arch
+UUID=xxxx  /            btrfs  rw,noatime,compress=zstd,subvol=/@           0 0
+UUID=xxxx  /home        btrfs  rw,noatime,compress=zstd,subvol=/@home       0 0
+UUID=xxxx  /.snapshots  btrfs  rw,noatime,compress=zstd,subvol=/@snapshots  0 0
+UUID=xxxx  /var/log     btrfs  rw,noatime,compress=zstd,subvol=/@var_log    0 0
+UUID=xxxx  /var/cache   btrfs  rw,noatime,compress=zstd,subvol=/@var_cache  0 0
+UUID=xxxx  /swap        btrfs  rw,noatime,subvol=/@swap                     0 0
 
 # /dev/sda1
-UUID=XXXX-XXXX                             /boot   vfat  rw,relatime  0 2
+UUID=XXXX-XXXX  /boot   vfat   rw,relatime  0 2
 
-# /dev/mapper/volgroup0-lv_home
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /home   ext4  rw,relatime  0 2
-
-# /dev/mapper/volgroup0-lv_swap
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  none    swap  defaults     0 0
+# swap file
+/swap/swapfile  none    swap   defaults     0 0
 ```
 
-
+> Every Btrfs line must carry a `subvol=` option, and `/swap` must **not** have `compress`.
+> If either is wrong, fix it now — this file is what mounts your system at every boot.
 
 If a filesystem is missing, mount it and re-run `genfstab` — but delete the duplicate lines
 afterwards.
@@ -271,18 +276,17 @@ pacman -S base-devel grub efibootmgr dosfstools mtools \
 ### 6.2 Packages this setup requires
 
 ```bash
-pacman -S lvm2
+pacman -S btrfs-progs
 ```
 
 | Package | Why you need it |
 |---------|-----------------|
-| `lvm2` | The LVM tools **and** the `lvm2` initramfs hook that activates your volume group at boot |
+| `btrfs-progs` | Btrfs tools — `mkfs`, `scrub`, `subvolume`, and the fsck helper the boot process calls |
 
-> ### 🔴 `lvm2` is mandatory
+> ### 🔴 `btrfs-progs` is mandatory
 >
-> Your root filesystem is a logical volume. Without the `lvm2` hook the initramfs never
-> activates the volume group, and boot stops with
-> `device /dev/mapper/volgroup0-lv_root not found`. You add the hook itself in Step 9.
+> Your root filesystem **is** Btrfs. Without these tools the installed system cannot check or
+> mount its own root. Nothing warns you at install time — it simply fails to boot.
 
 ### 6.3 Enable sudo
 
@@ -398,7 +402,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 **Replace that entire line with:**
 
 ```
-HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 ```
 
 > ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
@@ -407,22 +411,13 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 
 ### Why
 
-**`udev` instead of `systemd`.** Arch now ships a *systemd-based* initramfs by default. This
-guide uses the classic udev-based one, because the `lvm2` hook below is the udev-style hook.
-Swapping `systemd` for `udev` also means `sd-vconsole` is replaced by its two udev equivalents,
-`keymap` and `consolefont`.
+Arch now ships a *systemd-based* initramfs by default. This guide uses the classic udev-based
+one across every path, so that all six flows share the same initramfs configuration and the same
+troubleshooting steps. Swapping `systemd` for `udev` also means `sd-vconsole` is replaced by its
+two udev equivalents, `keymap` and `consolefont`.
 
-**`lvm2` after `block`.** Hooks run left to right:
-
-```
-block  →  lvm2  →  filesystems
-  │         │           │
-disks    finds the   mounts
-appear   volume      root
-         group
-```
-
-Place `lvm2` before `block` and there are no disks to scan yet, so it finds nothing.
+Nothing else on this path needs a special hook — the standard `filesystems` hook mounts your
+root filesystem on its own.
 
 ### Build it
 
@@ -490,14 +485,14 @@ passwd username
 
 # Packages
 pacman -S base-devel grub efibootmgr dosfstools mtools networkmanager openssh sudo os-prober
-pacman -S lvm2
+pacman -S btrfs-progs
 pacman -S linux-headers linux-lts linux-lts-headers
 pacman -S intel-ucode                              # or amd-ucode
 pacman -S mesa vulkan-intel intel-media-driver     # or your GPU's packages
 EDITOR=vim visudo                                  # uncomment %wheel
 
 # initramfs
-vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
+vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 mkinitcpio -P
 
 # Services
@@ -512,12 +507,12 @@ systemctl enable sshd
 Your system is installed but cannot boot yet — nothing knows how to start it. That is the
 bootloader's job, and it is the last step before you reboot.
 
-→ **[GRUB Bootloader for LVM](bootloader-lvm.md)**
+→ **[GRUB Bootloader for Btrfs](bootloader-btrfs.md)**
 
 ---
 
 <div align="center">
 
-[← LVM Setup](../02-partitioning/lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader for LVM →](bootloader-lvm.md)
+[← Btrfs Setup](../02-partitioning/btrfs-setup.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader for Btrfs →](bootloader-btrfs.md)
 
 </div>

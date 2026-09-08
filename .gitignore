@@ -23,3 +23,13 @@ personal/
 
 # Image sources (keep only optimized versions)
 images/raw/
+
+# VM test harness artifacts
+scripts/test/.work/
+scripts/test/.cache/
+*.qcow2
+*-VARS.fd
+
+# Python bytecode
+__pycache__/
+*.pyc

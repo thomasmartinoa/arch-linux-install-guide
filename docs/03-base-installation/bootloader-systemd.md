@@ -2,8 +2,6 @@
 
 > A simple, fast bootloader alternative to GRUB for UEFI systems.
 
-![systemd-boot](../../images/systemd-boot.png)
-
 ## Table of Contents
 
 - [Why systemd-boot?](#why-systemd-boot)
@@ -98,7 +96,7 @@ bootctl status
 ### Loader Configuration
 
 ```bash
-nvim /boot/loader/loader.conf
+vim /boot/loader/loader.conf
 ```
 
 **Recommended configuration:**
@@ -127,7 +125,7 @@ editor   no
 ### Step 3: Create Arch Linux Entry
 
 ```bash
-nvim /boot/loader/entries/arch.conf
+vim /boot/loader/entries/arch.conf
 ```
 
 **For Standard Installation:**
@@ -184,7 +182,7 @@ blkid -s UUID -o value /dev/sdX2
 ### Step 4: Create Fallback Entry
 
 ```bash
-nvim /boot/loader/entries/arch-fallback.conf
+vim /boot/loader/entries/arch-fallback.conf
 ```
 
 ```ini
@@ -200,7 +198,7 @@ options root=PARTUUID=xxxx-xxxx rw
 If you installed `linux-lts`:
 
 ```bash
-nvim /boot/loader/entries/arch-lts.conf
+vim /boot/loader/entries/arch-lts.conf
 ```
 
 ```ini
@@ -218,7 +216,7 @@ options root=PARTUUID=xxxx-xxxx rw
 For LVM installations (without encryption):
 
 ```bash
-nvim /boot/loader/entries/arch.conf
+vim /boot/loader/entries/arch.conf
 ```
 
 ```ini
@@ -246,7 +244,7 @@ bootctl list
 
 **Manual Windows Entry (if not auto-detected):**
 ```bash
-nvim /boot/loader/entries/windows.conf
+vim /boot/loader/entries/windows.conf
 ```
 
 ```ini
@@ -257,7 +255,7 @@ efi     /EFI/Microsoft/Boot/bootmgfw.efi
 ### Other Linux Distributions
 
 ```bash
-nvim /boot/loader/entries/other-linux.conf
+vim /boot/loader/entries/other-linux.conf
 ```
 
 ```ini
@@ -277,7 +275,7 @@ Create a hook to update systemd-boot when systemd is upgraded:
 
 ```bash
 sudo mkdir -p /etc/pacman.d/hooks
-sudo nvim /etc/pacman.d/hooks/95-systemd-boot.hook
+sudo vim /etc/pacman.d/hooks/95-systemd-boot.hook
 ```
 
 ```ini
@@ -426,10 +424,10 @@ bootctl --esp-path=/mnt install
 bootctl install
 
 # Configure loader
-nvim /boot/loader/loader.conf
+vim /boot/loader/loader.conf
 
 # Create boot entry
-nvim /boot/loader/entries/arch.conf
+vim /boot/loader/entries/arch.conf
 
 # Verify
 bootctl status
@@ -453,8 +451,8 @@ If you're switching from GRUB:
 bootctl install
 
 # Create entries (see above)
-nvim /boot/loader/loader.conf
-nvim /boot/loader/entries/arch.conf
+vim /boot/loader/loader.conf
+vim /boot/loader/entries/arch.conf
 
 # Remove GRUB (optional)
 sudo pacman -Rns grub
@@ -478,6 +476,6 @@ After bootloader setup:
 
 <div align="center">
 
-[← Base Installation](base-install-standard.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
+[← Base Installation](README.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
 
 </div>

@@ -40,9 +40,17 @@ Login with your user account (not root).
 
 ---
 
-## Configure Sudo
+## Check Sudo
 
-Sudo allows your user to run commands as root.
+You already enabled sudo during installation
+([Step 6.3](../03-base-installation/README.md)). Verify it:
+
+```bash
+sudo pacman -Syu
+```
+
+If that works, skip to the next section. If you get `username is not in the sudoers file`,
+finish the setup below.
 
 ### Edit Sudoers File
 
@@ -51,10 +59,12 @@ Sudo allows your user to run commands as root.
 su -
 
 # Edit sudoers (MUST use visudo)
-EDITOR=nvim visudo
+EDITOR=vim visudo
 ```
 
-> **NEVER** edit `/etc/sudoers` directly! Always use `visudo`.
+> **NEVER** edit `/etc/sudoers` directly! Always use `visudo` — it syntax-checks before saving.
+> A malformed sudoers file locks out sudo entirely, and repairing it needs a root shell you may
+> not be able to get.
 
 ### Enable Wheel Group
 
@@ -79,7 +89,7 @@ Find and uncomment this line:
 
 ### Save and Exit
 
-In nvim: Press `Esc`, type `:wq`, press `Enter`.
+In vim: Press `Esc`, type `:wq`, press `Enter`.
 
 ### Verify Sudo Works
 
@@ -88,10 +98,15 @@ In nvim: Press `Esc`, type `:wq`, press `Enter`.
 exit
 
 # Test sudo (as your user)
-sudo pacman -Sy
+sudo pacman -Syu
 ```
 
 Enter your password when prompted.
+
+> **Why `-Syu` and never bare `-Sy`?** `-Sy` refreshes the package database without upgrading
+> anything. Install a package after that and it gets built against newer dependencies than the
+> ones on your system — a partial upgrade, and the most common way to break an Arch install.
+> Always sync and upgrade together.
 
 ### Alternative: Create Vim Symlink
 
@@ -141,8 +156,6 @@ Navigate with arrow keys:
 3. Enter password if WiFi
 4. Press **Back** then **Quit**
 
-![nmtui](../../images/nmtui.png)
-
 #### Using nmcli (Command Line)
 
 **List WiFi networks:**
@@ -182,7 +195,7 @@ ping -c 3 archlinux.org
 ### Sync Package Database
 
 ```bash
-sudo pacman -Sy
+sudo pacman -Syu
 ```
 
 ### Full System Update
@@ -230,7 +243,7 @@ sudo reflector --verbose --latest 10 --protocol https --sort rate --save /etc/pa
 ### Update Package Database
 
 ```bash
-sudo pacman -Sy
+sudo pacman -Syu
 ```
 
 You should notice faster download speeds!
@@ -247,7 +260,7 @@ sudo systemctl start reflector.timer
 Configure reflector settings:
 
 ```bash
-sudo nvim /etc/xdg/reflector/reflector.conf
+sudo vim /etc/xdg/reflector/reflector.conf
 ```
 
 Recommended configuration:
@@ -399,7 +412,7 @@ systemctl status systemd-timesyncd
 ```bash
 # Configure sudo
 su -
-EDITOR=nvim visudo
+EDITOR=vim visudo
 # Uncomment: %wheel ALL=(ALL:ALL) ALL
 exit
 
@@ -437,6 +450,6 @@ Your base system is configured! Continue with:
 
 <div align="center">
 
-[← Bootloader](../03-base-installation/bootloader.md) | [Back to Main Guide](../../README.md) | [Next: Drivers →](drivers.md)
+[← Bootloader](../03-base-installation/README.md) | [Back to Main Guide](../../README.md) | [Next: Drivers →](drivers.md)
 
 </div>

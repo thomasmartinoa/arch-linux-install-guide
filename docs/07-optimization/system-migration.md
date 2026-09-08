@@ -154,7 +154,7 @@ mkdir -p ~/backup/dotfiles
 cp ~/.bashrc ~/backup/dotfiles/
 cp ~/.zshrc ~/backup/dotfiles/
 cp ~/.vimrc ~/backup/dotfiles/
-cp -r ~/.config/nvim ~/backup/dotfiles/
+cp -r ~/.config/vim ~/backup/dotfiles/
 cp -r ~/.config/kitty ~/backup/dotfiles/
 cp -r ~/.config/alacritty ~/backup/dotfiles/
 cp -r ~/.config/hypr ~/backup/dotfiles/
@@ -195,9 +195,9 @@ Each app gets its own folder. The folder structure mirrors where files go in you
 ├── zsh/
 │   ├── .zshrc
 │   └── .zprofile
-├── nvim/
+├── vim/
 │   └── .config/
-│       └── nvim/
+│       └── vim/
 │           ├── init.lua
 │           └── lua/
 ├── kitty/
@@ -220,9 +220,9 @@ Each app gets its own folder. The folder structure mirrors where files go in you
 mkdir -p ~/dotfiles/zsh
 mv ~/.zshrc ~/dotfiles/zsh/
 
-# Example: Move nvim config
-mkdir -p ~/dotfiles/nvim/.config
-mv ~/.config/nvim ~/dotfiles/nvim/.config/
+# Example: Move vim config
+mkdir -p ~/dotfiles/vim/.config
+mv ~/.config/vim ~/dotfiles/vim/.config/
 ```
 
 ### Deploy with Stow
@@ -235,7 +235,7 @@ cd ~/dotfiles
 # Stow specific apps
 stow bash
 stow zsh
-stow nvim
+stow vim
 stow kitty
 
 # Or just stow everything
@@ -244,7 +244,7 @@ stow */
 
 Now you've got symlinks:
 - `~/dotfiles/zsh/.zshrc` → `~/.zshrc`
-- `~/dotfiles/nvim/.config/nvim` → `~/.config/nvim`
+- `~/dotfiles/vim/.config/vim` → `~/.config/vim`
 
 ### Unstow (Remove Symlinks)
 
@@ -302,8 +302,8 @@ echo "alias dotfiles='/usr/bin/git --git-dir=\"\$HOME/.dotfiles/\" --work-tree=\
 
 ```bash
 dotfiles add ~/.zshrc
-dotfiles add ~/.config/nvim
-dotfiles commit -m "Add zsh and nvim configs"
+dotfiles add ~/.config/vim
+dotfiles commit -m "Add zsh and vim configs"
 dotfiles remote add origin git@github.com:username/dotfiles.git
 dotfiles push -u origin main
 ```

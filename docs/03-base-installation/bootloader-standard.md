@@ -1,154 +1,93 @@
-# Standard Bootloader Installation
+# GRUB Bootloader — Standard (ext4)
 
-> GRUB setup for **Basic** or **Advanced** partitioning (no LVM, no encryption).
+> The final step for the **Basic** or **Advanced** ext4 layouts.
 
 ![GRUB Bootloader](../../images/grub-bootloader.png)
+
+A bootloader is the first thing that runs when you power on. It finds your kernel, loads it, and
+hands control over. Without one, your installed system cannot start.
+
+```
+Power on → UEFI firmware → GRUB → Linux kernel → your system
+```
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Step 1: Verify Boot/EFI Partition](#step-1-verify-bootefi-partition)
+- [Step 1: Check Your Mounts](#step-1-check-your-mounts)
 - [Step 2: Install GRUB](#step-2-install-grub)
-- [Step 3: Configure GRUB](#step-3-configure-grub)
-- [Step 4: Generate Configuration](#step-4-generate-configuration)
-- [Step 5: Dual Boot (Optional)](#step-5-dual-boot-optional)
-- [Step 6: Final Steps](#step-6-final-steps)
+- [Step 3: Generate the Config](#step-3-generate-the-config)
+- [Step 4: Verify Before Rebooting](#step-4-verify-before-rebooting)
+- [Step 5: Reboot](#step-5-reboot)
 - [Troubleshooting](#troubleshooting)
 
 ---
 
 ## Prerequisites
 
-Ensure you have completed:
+You should have just finished
+**[Base Installation — Standard](base-install-standard.md)**, and still be inside the chroot.
 
-- [ ] [Standard Base Installation](base-install-standard.md)
-- [ ] Still in chroot environment
-
-**Verify packages are installed:**
 ```bash
 pacman -Q grub efibootmgr
 ```
 
----
-
-## What is a Bootloader?
-
-A bootloader is the first program that runs when you turn on your computer. It loads the operating system.
-
-```
-Power On → UEFI → GRUB → Linux Kernel → System
-```
+If that errors, you are either outside the chroot or missed Step 6. Re-enter with
+`arch-chroot /mnt` from the live environment.
 
 ---
 
-## Step 1: Verify Boot/EFI Partition
+## Step 1: Check Your Mounts
 
-### Check if Already Mounted
+```bash
+findmnt /boot
+
+```
+
+Your ESP is mounted at `/boot`, so it holds the bootloader **and** your kernels.
 
 ```bash
 ls /boot
 ```
 
-If you see `vmlinuz-linux` and other boot files, the boot partition is already mounted.
-
-> **Note:** In Basic/Advanced partitioning, the EFI partition is mounted directly at `/boot`, so it serves as BOTH the boot directory AND the EFI System Partition.
-
-### Mount Boot Partition (if not mounted)
-
-```bash
-mount /dev/sda1 /boot
-```
-
-> Replace `/dev/sda1` with your EFI/boot partition
+You should see `vmlinuz-linux`, `vmlinuz-linux-lts` and their `initramfs-*.img` files. If `/boot`
+is empty, it is not mounted — mount it before continuing or GRUB will install into thin air.
 
 ---
 
 ## Step 2: Install GRUB
 
-### Reload systemd
-
 ```bash
-systemctl daemon-reload
+grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB --recheck
 ```
 
-### Install GRUB to EFI
-
-```bash
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
-```
-
-**Command breakdown:**
-| Part | Meaning |
+| Flag | Meaning |
 |------|---------|
-| `grub-install` | GRUB installation command |
-| `--target=x86_64-efi` | 64-bit UEFI target |
-| `--efi-directory=/boot` | Path to EFI System Partition |
-| `--bootloader-id=grub_uefi` | Name in UEFI boot menu |
-| `--recheck` | Recheck device map |
+| `--target=x86_64-efi` | Build for 64-bit UEFI |
+| `--efi-directory=/boot` | Where your ESP is mounted — the `.efi` file goes here |
+| `--bootloader-id=GRUB` | The name your firmware shows in its boot menu |
+| `--recheck` | Rebuild the device map instead of trusting a stale one |
 
-**Expected output:**
+Expect exactly this:
+
 ```
 Installing for x86_64-efi platform.
 Installation finished. No error reported.
 ```
 
-### Copy Locale File
-
-```bash
-cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
-```
+> Anything else — stop and fix it. A half-installed GRUB gives you a machine that will not boot
+> and no obvious explanation why.
 
 ---
 
-## Step 3: Configure GRUB
-
-### Edit GRUB Defaults
-
-```bash
-nvim /etc/default/grub
-```
-
-### Recommended Settings
-
-```bash
-# Default menu entry (0 = first)
-GRUB_DEFAULT=0
-
-# Boot timeout in seconds
-GRUB_TIMEOUT=5
-
-# Kernel parameters
-GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 quiet"
-
-# Additional parameters (leave empty for standard install)
-GRUB_CMDLINE_LINUX=""
-
-# Disable submenu
-GRUB_DISABLE_SUBMENU=y
-
-# Enable os-prober (for dual boot)
-GRUB_DISABLE_OS_PROBER=false
-```
-
-**Parameter descriptions:**
-| Parameter | Description |
-|-----------|-------------|
-| `loglevel=3` | Only show errors during boot |
-| `quiet` | Suppress boot messages |
-
-### Save and Exit
-
-In nvim: Press `Esc`, type `:wq`, press `Enter`
-
----
-
-## Step 4: Generate Configuration
+## Step 3: Generate the Config
 
 ```bash
 grub-mkconfig -o /boot/grub/grub.cfg
 ```
 
-**Expected output:**
+This scans `/boot`, finds your kernels, and writes the menu.
+
 ```
 Generating grub configuration file ...
 Found linux image: /boot/vmlinuz-linux
@@ -156,163 +95,110 @@ Found initrd image: /boot/initramfs-linux.img
 Found fallback initrd image: /boot/initramfs-linux-fallback.img
 Found linux image: /boot/vmlinuz-linux-lts
 Found initrd image: /boot/initramfs-linux-lts.img
-Found fallback initrd image: /boot/initramfs-linux-lts-fallback.img
+...
 done
 ```
 
+> If **no** kernel images are found, `/boot` is not mounted, or Step 2 of the previous guide
+> never completed. Do not reboot — fix it now.
+
+
+
 ---
 
-## Step 5: Dual Boot (Optional)
+## Step 4: Verify Before Rebooting
 
-If you have Windows installed on another partition:
-
-### Enable os-prober
-
-Make sure this is set in `/etc/default/grub`:
-```bash
-GRUB_DISABLE_OS_PROBER=false
-```
-
-### Run os-prober
+You still have a working shell. This is the cheapest possible moment to catch a mistake — after
+you reboot, every fix below needs a live USB.
 
 ```bash
-os-prober
-```
+# Both kernels are in the menu
+grep -c 'vmlinuz-linux' /boot/grub/grub.cfg          # 2 or more
 
-**Expected output:**
-```
-/dev/sda1@/EFI/Microsoft/Boot/bootmgfw.efi:Windows Boot Manager:Windows:efi
-```
+# Microcode is being loaded
+grep -cE '(intel|amd)-ucode\.img' /boot/grub/grub.cfg   # 1 or more
 
-### Regenerate GRUB Config
-
-```bash
-grub-mkconfig -o /boot/grub/grub.cfg
-```
-
-Look for:
-```
-Found Windows Boot Manager on /dev/sda1@/EFI/Microsoft/Boot/bootmgfw.efi
-```
-
-### Fix Time Issues (Windows Dual Boot)
-
-Windows uses local time, Linux uses UTC. To fix:
-
-**Option 1: Tell Linux to use local time**
-```bash
-timedatectl set-local-rtc 1
-```
-
-**Option 2: Tell Windows to use UTC (recommended)**
-In Windows, run as Administrator:
-```cmd
-reg add "HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\TimeZoneInformation" /v RealTimeIsUniversal /d 1 /t REG_DWORD /f
+# The EFI binary exists where the firmware will look
+ls /boot/EFI/GRUB/grubx64.efi
 ```
 
 ---
 
-## Step 6: Final Steps
-
-### Exit Chroot
+## Step 5: Reboot
 
 ```bash
-exit
-```
-
-### Unmount All Partitions
-
-```bash
-umount -a
-```
-
-> ⚠️ You may see "target is busy" warnings - that's normal.
-
-### Reboot
-
-```bash
+exit                # leave the chroot
+umount -R /mnt
+swapoff -a
 reboot
 ```
 
-> 💡 **Remove the USB drive when the system restarts!**
+> 💡 **Remove the USB drive** as the machine restarts, or it will boot the installer again.
 
----
+### What you should see
 
-## Quick Reference Summary
+1. The GRUB menu, with entries for both `linux` and `linux-lts`
+2. A few seconds of boot messages
+3. A text login prompt: `archpc login:`
 
-```bash
-# Mount boot partition (if needed)
-mount /dev/sda1 /boot
+Log in with the username and password you created in Step 5.7.
 
-# Install GRUB
-systemctl daemon-reload
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
-cp /usr/share/locale/en\@quot/LC_MESSAGES/grub.mo /boot/grub/locale/en.mo
-
-# Configure GRUB
-nvim /etc/default/grub
-grub-mkconfig -o /boot/grub/grub.cfg
-
-# Exit and reboot
-exit
-umount -a
-reboot
-```
+> **Seeing a text login rather than a desktop is correct.** You have not installed a desktop
+> environment yet — that comes after first boot.
 
 ---
 
 ## Troubleshooting
 
-### GRUB Not Found in UEFI
+### Getting back in
+
+Every fix starts the same way: boot the live USB and re-enter your system.
 
 ```bash
-# Reinstall GRUB
-grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=grub_uefi --recheck
-
-# Check EFI partition
-ls /boot/EFI/grub_uefi/
+mount /dev/sda2 /mnt
+mount /dev/sda1 /mnt/boot
+arch-chroot /mnt
 ```
 
-### "error: no such device" at Boot
-
-- Check device paths in GRUB config
-- Verify fstab has correct UUIDs
-- Regenerate GRUB config
-
-### System Boots Directly to Windows
-
-1. Enter UEFI setup (usually F2/F12/Del at boot)
-2. Find Boot Order settings
-3. Move `grub_uefi` to first position
-4. Disable Windows Fast Startup
-
-### No Windows Entry in GRUB
+Make your fix, then rebuild whatever you changed before rebooting:
 
 ```bash
-# Install os-prober
-pacman -S os-prober
-
-# Enable it
-nvim /etc/default/grub
-# Set: GRUB_DISABLE_OS_PROBER=false
-
-# Regenerate config
-os-prober
-grub-mkconfig -o /boot/grub/grub.cfg
+mkinitcpio -P                            # if you changed HOOKS or packages
+grub-mkconfig -o /boot/grub/grub.cfg     # if you changed /etc/default/grub
 ```
+
+### Common failures
+
+| What you see | Cause | Fix |
+|--------------|-------|-----|
+| Firmware goes straight to another OS or shows no Arch entry | UEFI boot entry not written | Re-run Step 2, then check `efibootmgr -v` |
+| `error: no such device` | fstab or GRUB references a stale UUID | Re-run `grub-mkconfig`; check `blkid` matches fstab |
+| Boots to a `grub>` prompt | `grub.cfg` missing or `/boot` was not mounted | Mount `/boot`, re-run Step 3 |
+| Kernel panic, `unable to mount root` | initramfs cannot reach root | Rebuild with `mkinitcpio -P` and re-check HOOKS |
 
 ---
 
-## Next Steps
+## Alternative: systemd-boot
 
-After rebooting successfully:
+GRUB is recommended here because it handles every layout in this guide. If you prefer something
+smaller and faster, and you are not using encryption, systemd-boot is a fine choice.
 
-→ [First Boot](../04-post-installation/first-boot.md)
+→ [systemd-boot](bootloader-systemd.md)
+
+Use one or the other, not both.
+
+---
+
+## Next Step
+
+You have a booting Arch system. Now make it usable — users, networking, mirrors and updates.
+
+→ **[First Boot](../04-post-installation/first-boot.md)**
 
 ---
 
 <div align="center">
 
-[← Base Installation](base-install-standard.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
+[← Base Installation — Standard](base-install-standard.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
 
 </div>

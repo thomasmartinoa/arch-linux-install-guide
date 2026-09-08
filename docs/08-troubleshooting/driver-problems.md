@@ -2,8 +2,6 @@
 
 Solutions for GPU issues, display problems, and hardware driver troubleshooting.
 
-![Driver Problems](../../images/driver-problems.png)
-
 ## Table of Contents
 
 - [No Display Output](#no-display-output)
@@ -50,12 +48,12 @@ sudo pacman -S mesa intel-media-driver vulkan-intel
 
 **AMD:**
 ```bash
-sudo pacman -S mesa libva-mesa-driver vulkan-radeon
+sudo pacman -S mesa vulkan-radeon
 ```
 
 **NVIDIA:**
 ```bash
-sudo pacman -S nvidia nvidia-utils nvidia-settings
+sudo pacman -S nvidia-open nvidia-utils nvidia-settings
 sudo mkinitcpio -P
 sudo reboot
 ```
@@ -115,7 +113,7 @@ xrandr --output HDMI-1 --mode "1920x1080_60.00"
 ### Intel: Enable TearFree
 
 ```bash
-sudo nvim /etc/X11/xorg.conf.d/20-intel.conf
+sudo vim /etc/X11/xorg.conf.d/20-intel.conf
 ```
 
 ```
@@ -129,7 +127,7 @@ EndSection
 ### AMD: Enable TearFree
 
 ```bash
-sudo nvim /etc/X11/xorg.conf.d/20-amdgpu.conf
+sudo vim /etc/X11/xorg.conf.d/20-amdgpu.conf
 ```
 
 ```
@@ -167,7 +165,7 @@ picom --vsync &
 lsmod | grep nouveau
 
 # Blacklist nouveau
-sudo nvim /etc/modprobe.d/blacklist-nouveau.conf
+sudo vim /etc/modprobe.d/blacklist-nouveau.conf
 ```
 
 Add:
@@ -186,7 +184,7 @@ sudo reboot
 
 Add environment variables:
 ```bash
-sudo nvim /etc/environment
+sudo vim /etc/environment
 ```
 
 ```bash
@@ -198,7 +196,7 @@ WLR_NO_HARDWARE_CURSORS=1
 
 Enable DRM:
 ```bash
-sudo nvim /etc/default/grub
+sudo vim /etc/default/grub
 # Add nvidia-drm.modeset=1 to GRUB_CMDLINE_LINUX_DEFAULT
 
 sudo grub-mkconfig -o /boot/grub/grub.cfg
@@ -245,7 +243,7 @@ lsmod | grep radeon
 
 Blacklist radeon:
 ```bash
-sudo nvim /etc/modprobe.d/blacklist-radeon.conf
+sudo vim /etc/modprobe.d/blacklist-radeon.conf
 ```
 
 ```
@@ -254,7 +252,7 @@ blacklist radeon
 
 Force AMDGPU:
 ```bash
-sudo nvim /etc/modprobe.d/amdgpu.conf
+sudo vim /etc/modprobe.d/amdgpu.conf
 ```
 
 ```
@@ -276,10 +274,10 @@ echo "high" | sudo tee /sys/class/drm/card0/device/power_dpm_force_performance_l
 vainfo
 
 # Install if missing
-sudo pacman -S libva-mesa-driver
+sudo pacman -S mesa
 
 # For VDPAU
-sudo pacman -S mesa-vdpau
+sudo pacman -S mesa
 ```
 
 ---
@@ -333,7 +331,7 @@ libinput list-devices
 sudo pacman -S xf86-input-libinput
 
 # Enable tap to click
-sudo nvim /etc/X11/xorg.conf.d/30-touchpad.conf
+sudo vim /etc/X11/xorg.conf.d/30-touchpad.conf
 ```
 
 ```
@@ -372,7 +370,7 @@ acpi_backlight=native
 
 ```bash
 # Install both drivers
-sudo pacman -S mesa nvidia nvidia-prime
+sudo pacman -S mesa nvidia-open nvidia-utils nvidia-prime
 
 # Run application on NVIDIA
 prime-run application_name
@@ -392,7 +390,7 @@ sudo pacman -S fprintd
 fprintd-enroll
 
 # Enable for sudo (optional)
-sudo nvim /etc/pam.d/sudo
+sudo vim /etc/pam.d/sudo
 # Add at top: auth sufficient pam_fprintd.so
 ```
 

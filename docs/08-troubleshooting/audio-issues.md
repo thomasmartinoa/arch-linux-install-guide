@@ -2,8 +2,6 @@
 
 Solutions for no sound, wrong output devices, and audio configuration problems.
 
-![Audio Issues](../../images/audio-issues.png)
-
 ## Table of Contents
 
 - [No Sound at All](#no-sound-at-all)
@@ -119,7 +117,7 @@ Navigate to "Output Devices" tab and set your preferred device as fallback (gree
 
 ```bash
 mkdir -p ~/.config/pipewire/pipewire.conf.d/
-nvim ~/.config/pipewire/pipewire.conf.d/10-default-sink.conf
+vim ~/.config/pipewire/pipewire.conf.d/10-default-sink.conf
 ```
 
 ```

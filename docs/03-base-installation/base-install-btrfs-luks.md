@@ -1,6 +1,6 @@
-# Base Installation — LVM
+# Base Installation — Btrfs + LUKS
 
-> For **LVM without encryption**.
+> For **Btrfs subvolumes inside a LUKS container** (no LVM).
 
 This guide is complete on its own. Follow it top to bottom — every command here applies to
 your setup, and there is nothing to pick or skip.
@@ -25,7 +25,7 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[LVM Setup](../02-partitioning/lvm-setup.md)**.
+You should have just finished **[Btrfs with Encryption](../02-partitioning/btrfs-encryption.md)**.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -44,23 +44,28 @@ Everything below needs to download packages.
 ## Step 1: Verify Your Mounts
 
 ```bash
-lsblk
+lsblk -f
 ```
 
 **You should see something like this:**
 
 ```
-NAME                   SIZE TYPE MOUNTPOINT
-sda                    500G disk
-├─sda1                   1G part /mnt/boot
-└─sda2                 499G part
-  ├─volgroup0-lv_root   50G lvm  /mnt
-  ├─volgroup0-lv_swap    8G lvm  [SWAP]
-  └─volgroup0-lv_home  441G lvm  /mnt/home
+NAME          FSTYPE      LABEL MOUNTPOINTS
+sda
+├─sda1        vfat              /mnt/boot
+└─sda2        crypto_LUKS                    ← the encrypted container
+  └─cryptroot btrfs       arch  /mnt/swap
+                                /mnt/var/cache
+                                /mnt/var/log
+                                /mnt/.snapshots
+                                /mnt/home
+                                /mnt
 ```
 
-`TYPE` must read `lvm` for your three volumes. If it does not, the volume group is not
-active — run `vgchange -ay` and check again.
+Two things must be true:
+
+- `sda2` shows `crypto_LUKS` — the container exists
+- `cryptroot` shows `btrfs` — it is unlocked and formatted, with your subvolumes mounted
 
 > ⚠️ **Do not continue until this looks right.** Every step below writes into `/mnt`. A wrong
 > mount here means reinstalling later, and it is far cheaper to fix now.
@@ -114,20 +119,23 @@ cat /mnt/etc/fstab
 ```
 
 ```
-# /dev/mapper/volgroup0-lv_root
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /       ext4  rw,relatime  0 1
+# /dev/mapper/cryptroot LABEL=arch
+UUID=xxxx  /            btrfs  rw,noatime,compress=zstd,subvol=/@           0 0
+UUID=xxxx  /home        btrfs  rw,noatime,compress=zstd,subvol=/@home       0 0
+UUID=xxxx  /.snapshots  btrfs  rw,noatime,compress=zstd,subvol=/@snapshots  0 0
+UUID=xxxx  /var/log     btrfs  rw,noatime,compress=zstd,subvol=/@var_log    0 0
+UUID=xxxx  /var/cache   btrfs  rw,noatime,compress=zstd,subvol=/@var_cache  0 0
+UUID=xxxx  /swap        btrfs  rw,noatime,subvol=/@swap                     0 0
 
 # /dev/sda1
-UUID=XXXX-XXXX                             /boot   vfat  rw,relatime  0 2
+UUID=XXXX-XXXX  /boot   vfat   rw,relatime  0 2
 
-# /dev/mapper/volgroup0-lv_home
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /home   ext4  rw,relatime  0 2
-
-# /dev/mapper/volgroup0-lv_swap
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  none    swap  defaults     0 0
+# swap file
+/swap/swapfile  none    swap   defaults     0 0
 ```
 
-
+> 💡 The LUKS container is **not** in fstab — it is unlocked by the initramfs before fstab is
+> ever read. The UUIDs above are the *Btrfs* filesystem's, not the LUKS partition's.
 
 If a filesystem is missing, mount it and re-run `genfstab` — but delete the duplicate lines
 afterwards.
@@ -227,7 +235,7 @@ Change `us` to `uk`, `de`, `fr` and so on if needed.
 
 > **On console fonts:** you can also set `FONT=` here, but only if that font's package is
 > installed. Setting `FONT=ter-132n` without installing `terminus-font` makes every future
-> `mkinitcpio` run print a warning.
+> `mkinitcpio` run print a warning. On this path the font also affects the passphrase prompt at boot, so keep it simple unless you have a reason not to.
 
 ### 5.7 Create Your User
 
@@ -271,18 +279,24 @@ pacman -S base-devel grub efibootmgr dosfstools mtools \
 ### 6.2 Packages this setup requires
 
 ```bash
-pacman -S lvm2
+pacman -S btrfs-progs cryptsetup
 ```
 
 | Package | Why you need it |
 |---------|-----------------|
-| `lvm2` | The LVM tools **and** the `lvm2` initramfs hook that activates your volume group at boot |
+| `btrfs-progs` | Btrfs tools — without them the system cannot mount its own root |
+| `cryptsetup` | LUKS tools — **and the binary your initramfs needs to unlock the disk** |
 
-> ### 🔴 `lvm2` is mandatory
+> ### 🔴 Both are mandatory, and both fail silently
 >
-> Your root filesystem is a logical volume. Without the `lvm2` hook the initramfs never
-> activates the volume group, and boot stops with
-> `device /dev/mapper/volgroup0-lv_root not found`. You add the hook itself in Step 9.
+> **`cryptsetup`** — the `encrypt` hook copies this binary into your initramfs. Without the
+> package, Step 9 fails with `==> ERROR: file not found: `cryptsetup'` and the resulting
+> initramfs can never unlock your disk.
+>
+> **`btrfs-progs`** — your root filesystem is Btrfs and cannot be mounted without it.
+>
+> Note there is **no `lvm2`** on this path. Btrfs subvolumes already give you flexible sizing
+> and snapshots, so LVM would be a second volume manager doing the first one's job.
 
 ### 6.3 Enable sudo
 
@@ -398,7 +412,7 @@ HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block 
 **Replace that entire line with:**
 
 ```
-HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
 ```
 
 > ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
@@ -407,22 +421,21 @@ HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont bl
 
 ### Why
 
-**`udev` instead of `systemd`.** Arch now ships a *systemd-based* initramfs by default. This
-guide uses the classic udev-based one, because the `lvm2` hook below is the udev-style hook.
-Swapping `systemd` for `udev` also means `sd-vconsole` is replaced by its two udev equivalents,
-`keymap` and `consolefont`.
+**`udev` instead of `systemd`.** Arch now ships a *systemd-based* initramfs by default, and the
+`encrypt` hook **does not work with it** — `encrypt` is the classic udev-style hook, and a
+systemd initramfs never runs it. You would get no passphrase prompt at all and an unbootable
+system. Swapping `systemd` for `udev` also means `sd-vconsole` becomes `keymap consolefont`.
 
-**`lvm2` after `block`.** Hooks run left to right:
+**`encrypt` after `block`.** There is no `lvm2` on this path:
 
 ```
-block  →  lvm2  →  filesystems
-  │         │           │
-disks    finds the   mounts
-appear   volume      root
-         group
+keyboard  →  block  →  encrypt  →  filesystems
+   │           │          │             │
+ you can    disks      unlock        mount the
+ type       appear     LUKS          @ subvolume
 ```
 
-Place `lvm2` before `block` and there are no disks to scan yet, so it finds nothing.
+`keyboard` must come **before** `encrypt`, or you cannot type your passphrase at boot.
 
 ### Build it
 
@@ -446,6 +459,25 @@ That is just the `consolefont` hook noting you set no `FONT=` in Step 5.6. It sk
 
 **`WARNING` is fine. `ERROR` is not.** Any line starting with `==> ERROR:` means the initramfs
 is broken and the system will not boot. Fix it now, while you still have a working shell.
+
+### Verify the unlock tooling landed
+
+This is the single most important check on this path:
+
+```bash
+lsinitcpio /boot/initramfs-linux.img | grep -c 'bin/cryptsetup'
+```
+
+It must print **1**. If it prints `0`, the `cryptsetup` package was missing when `mkinitcpio`
+ran, and your initramfs has no way to unlock the disk:
+
+```bash
+pacman -S cryptsetup
+mkinitcpio -P
+```
+
+Then check again. Catching this here costs you thirty seconds; catching it after a reboot costs
+you a live-USB rescue session.
 
 ---
 
@@ -490,14 +522,14 @@ passwd username
 
 # Packages
 pacman -S base-devel grub efibootmgr dosfstools mtools networkmanager openssh sudo os-prober
-pacman -S lvm2
+pacman -S btrfs-progs cryptsetup
 pacman -S linux-headers linux-lts linux-lts-headers
 pacman -S intel-ucode                              # or amd-ucode
 pacman -S mesa vulkan-intel intel-media-driver     # or your GPU's packages
 EDITOR=vim visudo                                  # uncomment %wheel
 
 # initramfs
-vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
+vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
 mkinitcpio -P
 
 # Services
@@ -512,12 +544,12 @@ systemctl enable sshd
 Your system is installed but cannot boot yet — nothing knows how to start it. That is the
 bootloader's job, and it is the last step before you reboot.
 
-→ **[GRUB Bootloader for LVM](bootloader-lvm.md)**
+→ **[GRUB Bootloader for Btrfs + LUKS](bootloader-btrfs-luks.md)**
 
 ---
 
 <div align="center">
 
-[← LVM Setup](../02-partitioning/lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader for LVM →](bootloader-lvm.md)
+[← Btrfs with Encryption](../02-partitioning/btrfs-encryption.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader for Btrfs + LUKS →](bootloader-btrfs-luks.md)
 
 </div>

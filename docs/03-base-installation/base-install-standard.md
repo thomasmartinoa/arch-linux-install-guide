@@ -1,502 +1,494 @@
-# Standard Base Installation
+# Base Installation — Standard (ext4)
 
-> For users with **Basic** or **Advanced** partitioning (no LVM, no encryption).
+> For the **Basic** or **Advanced** ext4 partition layouts.
 
-![Base Installation](../../images/base-install.png)
+This guide is complete on its own. Follow it top to bottom — every command here applies to
+your setup, and there is nothing to pick or skip.
 
 ## Table of Contents
 
 - [Prerequisites](#prerequisites)
-- [Step 1: Verify Mounts](#step-1-verify-mounts)
-- [Step 2: Install Base System](#step-2-install-base-system)
+- [Step 1: Verify Your Mounts](#step-1-verify-your-mounts)
+- [Step 2: Install the Base System](#step-2-install-the-base-system)
 - [Step 3: Generate fstab](#step-3-generate-fstab)
-- [Step 4: Enter Chroot](#step-4-enter-chroot)
-- [Step 5: System Configuration](#step-5-system-configuration)
+- [Step 4: Enter the New System](#step-4-enter-the-new-system)
+- [Step 5: Configure the System](#step-5-configure-the-system)
 - [Step 6: Install Packages](#step-6-install-packages)
-- [Step 7: Install Kernel and Microcode](#step-7-install-kernel-and-microcode)
-- [Step 8: Regenerate initramfs](#step-8-regenerate-initramfs)
-- [Step 9: GPU Drivers](#step-9-gpu-drivers)
+- [Step 7: Kernel and Microcode](#step-7-kernel-and-microcode)
+- [Step 8: GPU Drivers](#step-8-gpu-drivers)
+- [Step 9: Build the initramfs](#step-9-build-the-initramfs)
 - [Step 10: Enable Services](#step-10-enable-services)
-- [Next: Bootloader](#next-bootloader)
+- [Quick Reference](#quick-reference)
+- [Next Step](#next-step)
 
 ---
 
 ## Prerequisites
 
-Before proceeding, ensure:
+You should have just finished **[Basic Partitioning](../02-partitioning/basic-partitioning.md)**
+(or [Advanced Partitioning](../02-partitioning/advanced-partitioning.md) if you made a separate `/home`).
 
-- [ ] Partitions are created and formatted
-- [ ] Partitions are mounted at `/mnt`
-- [ ] Internet connection is working
+- [ ] Partitions created, formatted and mounted under `/mnt`
+- [ ] Internet connection working in the live environment
 
-**Quick verification:**
 ```bash
-# Check mounts
-lsblk
-
-# Check internet
-ping -c 3 archlinux.org
+lsblk                      # check your mounts
+ping -c 3 archlinux.org    # check your connection
 ```
+
+If the ping fails, go back to
+[Live Environment Setup](../01-pre-installation/live-environment.md#connecting-to-the-internet).
+Everything below needs to download packages.
 
 ---
 
-## Step 1: Verify Mounts
+## Step 1: Verify Your Mounts
 
 ```bash
 lsblk
 ```
 
-### Expected Output (Basic Partitioning)
+**You should see something like this:**
 
 ```
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-sda      8:0    0   500G  0 disk
-├─sda1   8:1    0   512M  0 part /mnt/boot
-├─sda2   8:2    0 491.5G  0 part /mnt
-└─sda3   8:3    0     8G  0 part [SWAP]
+sda    254:0    0   500G  0 disk
+├─sda1 254:1    0     1G  0 part /mnt/boot
+├─sda2 254:2    0   491G  0 part /mnt
+└─sda3 254:3    0     8G  0 part [SWAP]
 ```
 
-### Expected Output (Advanced with Separate /home)
+If you followed the Advanced guide you will also see `/mnt/home` on its own partition.
+That is fine — `genfstab` picks it up automatically in Step 3.
 
-```
-NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-sda      8:0    0   500G  0 disk
-├─sda1   8:1    0   512M  0 part /mnt/boot
-├─sda2   8:2    0    50G  0 part /mnt
-├─sda3   8:3    0 441.5G  0 part /mnt/home
-└─sda4   8:4    0     8G  0 part [SWAP]
-```
-
-> If mounts don't look right, go back to [Partitioning](../02-partitioning/)
+> ⚠️ **Do not continue until this looks right.** Every step below writes into `/mnt`. A wrong
+> mount here means reinstalling later, and it is far cheaper to fix now.
 
 ---
 
-## Step 2: Install Base System
+## Step 2: Install the Base System
 
 ```bash
-pacstrap -K /mnt base
+pacstrap -K /mnt base linux linux-firmware vim
 ```
 
-**What this does:**
+**What each part does:**
+
 | Part | Meaning |
-|------|--------|
-| `pacstrap` | Install packages to new root |
-| `-K` | Initialize pacman keyring in target |
-| `/mnt` | Target mount point |
-| `base` | Base system meta-package |
+|------|---------|
+| `pacstrap` | Install packages into your new system at `/mnt` |
+| `-K` | Create a fresh pacman keyring in the target |
+| `base` | The minimal Arch base system |
+| `linux` | The kernel |
+| `linux-firmware` | Firmware for common hardware (Wi-Fi, GPU, etc.) |
+| `vim` | A text editor |
 
-**What gets installed:**
-- Core system utilities
-- Package manager (pacman)
-- Basic filesystem tools
-- System libraries
+> **Why the kernel and an editor are on this line.** The `base` package contains neither.
+> Without `linux` you would have no kernel to boot. Without an editor, the very next step —
+> editing `/etc/hosts` — fails with `command not found`. Many older guides install `base` alone
+> and leave you stuck.
 
-Wait for installation to complete (5-15 minutes depending on your internet).
+This downloads a few hundred megabytes and takes 5–15 minutes.
 
 ---
 
 ## Step 3: Generate fstab
 
-The fstab file tells Linux which partitions to mount at boot.
+`fstab` is the list of filesystems your system mounts at every boot. Generating it from what is
+currently mounted is why Step 1 mattered.
 
 ```bash
-genfstab -U -p /mnt >> /mnt/etc/fstab
+genfstab -U /mnt >> /mnt/etc/fstab
 ```
 
-**Command breakdown:**
 | Part | Meaning |
 |------|---------|
-| `genfstab` | Generate fstab entries |
-| `-U` | Use UUIDs (more reliable than device names) |
-| `-p` | Exclude pseudofs mounts |
-| `>>` | Append to file |
+| `-U` | Identify filesystems by UUID, so they still work if drive letters change |
+| `>>` | **Append.** A single `>` would wipe the file — always use two |
 
-**Verify the result:**
+**Check the result:**
+
 ```bash
 cat /mnt/etc/fstab
 ```
 
-**Expected output:**
 ```
 # /dev/sda2
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /        ext4   rw,relatime  0 1
+UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /       ext4  rw,relatime  0 1
 
 # /dev/sda1
-UUID=xxxx-xxxx                             /boot    vfat   rw,relatime  0 2
+UUID=XXXX-XXXX                             /boot   vfat  rw,relatime  0 2
 
 # /dev/sda3
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  none     swap   defaults     0 0
+UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  none    swap  defaults     0 0
 ```
+
+
+
+If a filesystem is missing, mount it and re-run `genfstab` — but delete the duplicate lines
+afterwards.
 
 ---
 
-## Step 4: Enter Chroot
-
-Chroot changes the apparent root directory to your new system.
+## Step 4: Enter the New System
 
 ```bash
 arch-chroot /mnt
 ```
 
-**What this does:**
-- Changes root to `/mnt`
-- Your prompt changes to `[root@archiso /]#`
-- You're now "inside" your new system
-
-> 💡 From this point, all commands affect your new installation, not the live USB.
+Your prompt changes to `[root@archiso /]#`. From here on you are working *inside* your new
+installation, not the live USB.
 
 ---
 
-## Step 5: System Configuration
+## Step 5: Configure the System
 
-### 5.1 Set Hostname
+### 5.1 Hostname
+
+Your computer's name on the network.
 
 ```bash
 echo "archpc" > /etc/hostname
 ```
 
-Replace `archpc` with your preferred computer name.
+Use lowercase letters, digits and hyphens. Replace `archpc` with whatever you like.
 
-**Rules for hostname:**
-- Lowercase letters, numbers, hyphens only
-- No spaces or special characters
-- Examples: `myarch`, `desktop-pc`, `arch-laptop`
-
-### 5.2 Configure Hosts File
+### 5.2 Hosts File
 
 ```bash
-nvim /etc/hosts
+vim /etc/hosts
 ```
 
-Add these lines:
+Add these three lines:
+
 ```
 127.0.0.1   localhost
 ::1         localhost
 127.0.1.1   archpc.localdomain archpc
 ```
 
-> 📝 Replace `archpc` with your hostname from step 5.1
+> Use the same name you chose in 5.1. In vim: press `i` to type, then `Esc`, then `:wq` and
+> `Enter` to save.
 
-### 5.3 Set Root Password
+### 5.3 Root Password
 
 ```bash
 passwd
 ```
 
-- Enter a strong password
-- You'll be prompted to type it twice
-- Characters won't show while typing (that's normal)
+Nothing appears as you type — that is normal, not a broken keyboard.
 
-### 5.4 Set Timezone
+### 5.4 Time Zone
 
 ```bash
 ln -sf /usr/share/zoneinfo/Region/City /etc/localtime
 hwclock --systohc
 ```
 
-**Examples:**
 ```bash
-# India
-ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
-
-# US Eastern
+# Examples
+ln -sf /usr/share/zoneinfo/Asia/Kolkata     /etc/localtime
 ln -sf /usr/share/zoneinfo/America/New_York /etc/localtime
-
-# UK
-ln -sf /usr/share/zoneinfo/Europe/London /etc/localtime
+ln -sf /usr/share/zoneinfo/Europe/London    /etc/localtime
 ```
 
-**Find your timezone:**
-```bash
-ls /usr/share/zoneinfo/
-ls /usr/share/zoneinfo/Asia/
-```
+Find yours with `ls /usr/share/zoneinfo/`, then `ls /usr/share/zoneinfo/Asia/`.
 
-### 5.5 Configure Locale
+### 5.5 Language
 
 ```bash
-nvim /etc/locale.gen
+vim /etc/locale.gen
 ```
 
-Find and uncomment (remove `#` from) your locale:
+Find your locale and delete the `#` in front of it:
+
 ```
 en_US.UTF-8 UTF-8
 ```
 
-Generate locale:
+Then generate it:
+
 ```bash
 locale-gen
-```
-
-Set system language:
-```bash
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
 ```
 
-### 5.6 Console Configuration (Optional)
-
-Configure keyboard layout and font for the virtual console (TTY):
+### 5.6 Keyboard Layout
 
 ```bash
-nvim /etc/vconsole.conf
+echo "KEYMAP=us" > /etc/vconsole.conf
 ```
 
-Add:
-```
-KEYMAP=us
-```
+Change `us` to `uk`, `de`, `fr` and so on if needed.
 
-> 💡 This sets the keyboard layout for the console before GUI loads. Change `us` to your layout if needed (e.g., `uk`, `de`, `fr`).
+> **On console fonts:** you can also set `FONT=` here, but only if that font's package is
+> installed. Setting `FONT=ter-132n` without installing `terminus-font` makes every future
+> `mkinitcpio` run print a warning.
 
 ### 5.7 Create Your User
 
+Day-to-day work should not happen as root.
+
 ```bash
-useradd -m -g users -G wheel username
+useradd -m -G wheel username
 passwd username
 ```
 
-**Command breakdown:**
 | Part | Meaning |
 |------|---------|
-| `useradd` | Create user |
-| `-m` | Create home directory |
-| `-g users` | Primary group |
-| `-G wheel` | Add to wheel group (for sudo) |
-| `username` | Your username |
+| `-m` | Create `/home/username` |
+| `-G wheel` | Add to the `wheel` group, which gets `sudo` access in Step 6 |
 
-> 📝 Replace `username` with your preferred username (lowercase, no spaces)
+> Replace `username` everywhere. Lowercase, no spaces.
 
 ---
 
 ## Step 6: Install Packages
 
-### Essential Packages
+### 6.1 Core packages
 
 ```bash
-pacman -S base-devel dosfstools grub efibootmgr mtools \
-vim neovim networkmanager openssh os-prober sudo
+pacman -S base-devel grub efibootmgr dosfstools mtools \
+          networkmanager openssh sudo os-prober
 ```
 
-**Package descriptions:**
 | Package | Purpose |
 |---------|---------|
-| `base-devel` | Development tools (gcc, make, etc.) |
-| `dosfstools` | FAT filesystem utilities |
-| `grub` | Bootloader |
-| `efibootmgr` | EFI boot manager |
-| `mtools` | DOS disk utilities |
-| `vim` / `neovim` | Text editors |
-| `networkmanager` | Network connection manager |
-| `openssh` | SSH server/client |
-| `os-prober` | Detect other operating systems |
-| `sudo` | Run commands as root |
+| `base-devel` | Compilers and build tools — needed later for AUR packages |
+| `grub` | The bootloader |
+| `efibootmgr` | Writes the UEFI boot entry |
+| `dosfstools` | FAT tools — GRUB needs these to write to the ESP |
+| `mtools` | More FAT utilities |
+| `networkmanager` | Networking after you reboot |
+| `openssh` | SSH client and server |
+| `sudo` | Run single commands as root |
+| `os-prober` | Detects other operating systems for dual boot |
 
-### Filesystem-Specific Packages
-
-**If using Btrfs:** (Required!)
-```bash
-pacman -S btrfs-progs
-```
-
-**If using LVM:** (Already covered in LVM guide)
-```bash
-pacman -S lvm2
-```
-
-> ⚠️ **Btrfs Users:** You MUST install `btrfs-progs` or your system won't boot!
-
-### Configure Sudo
+### 6.2 Enable sudo
 
 ```bash
-EDITOR=nvim visudo
+EDITOR=vim visudo
 ```
 
-Find this line:
-```
-# %wheel ALL=(ALL:ALL) ALL
-```
+Find this line and delete the leading `#`:
 
-Remove the `#` to uncomment:
 ```
 %wheel ALL=(ALL:ALL) ALL
 ```
 
-This allows users in the `wheel` group to use sudo.
+That grants `sudo` to everyone in the `wheel` group — including the user you made in 5.7.
+
+> Always use `visudo`, never a plain editor. It checks the syntax before saving. A broken
+> sudoers file disables `sudo` completely, and fixing it needs a root shell you may not have.
 
 ---
 
-## Step 7: Install Kernel and Microcode
+## Step 7: Kernel and Microcode
+
+You already have the `linux` kernel from Step 2. Adding the LTS kernel gives you a second,
+slower-moving kernel to boot from if an update ever breaks the main one.
 
 ```bash
-pacman -S linux linux-headers linux-lts linux-lts-headers linux-firmware
+pacman -S linux-headers linux-lts linux-lts-headers
 ```
 
-### Install CPU Microcode (Important!)
-
-**For Intel CPU:**
-```bash
-pacman -S intel-ucode
-```
-
-**For AMD CPU:**
-```bash
-pacman -S amd-ucode
-```
-
-> 💡 Microcode provides CPU stability and security patches. Install the one matching your CPU!
-
-**Package descriptions:**
 | Package | Purpose |
 |---------|---------|
-| `linux` | Latest kernel |
-| `linux-headers` | Kernel headers (for building modules) |
-| `linux-lts` | Long-term support kernel (backup) |
-| `linux-lts-headers` | LTS kernel headers |
-| `linux-firmware` | Firmware for common hardware |
+| `linux-headers` | Needed to build extra kernel modules (NVIDIA, VirtualBox, DKMS) |
+| `linux-lts` | Long-term-support kernel — your rescue option |
+| `linux-lts-headers` | Headers for that kernel |
 
-> 💡 Installing both kernels gives you a fallback if one has issues.
+### CPU microcode
+
+Microcode carries CPU bug fixes and security mitigations, loaded before the kernel starts.
+
+```bash
+pacman -S intel-ucode      # Intel CPUs
+pacman -S amd-ucode        # AMD CPUs
+```
+
+Not sure which you have?
+
+```bash
+lscpu | grep "Model name"
+```
+
+> Install only the one matching your CPU. GRUB picks it up automatically when you generate its
+> config in the next guide.
 
 ---
 
-## Step 8: Regenerate initramfs
+## Step 8: GPU Drivers
 
-After installing the kernel, regenerate the initial ramdisk:
+Install the set matching your graphics hardware. Check with `lspci | grep -i vga`.
+
+### Intel
+
+```bash
+pacman -S mesa vulkan-intel intel-media-driver
+```
+
+### AMD
+
+```bash
+pacman -S mesa vulkan-radeon
+```
+
+> **Note:** `libva-mesa-driver` and `mesa-vdpau` no longer exist — they were merged into `mesa`.
+> Older guides still list them and the command fails with `target not found`.
+
+### NVIDIA — RTX 20-series and newer
+
+```bash
+pacman -S nvidia-open nvidia-open-lts nvidia-utils nvidia-settings
+```
+
+`nvidia-open` matches the `linux` kernel and `nvidia-open-lts` matches `linux-lts`. Install both
+so either kernel gives you working graphics.
+
+### NVIDIA — GTX 10-series and older
+
+The old `nvidia` and `nvidia-lts` packages have been **removed from the official repositories**.
+These cards need a legacy driver from the AUR, which you cannot install until after the first
+reboot. Install `mesa` for now — the open-source `nouveau` driver will get you to a desktop —
+and add the legacy driver later from
+[Drivers](../04-post-installation/drivers.md#nvidia-graphics).
+
+```bash
+pacman -S mesa
+```
+
+---
+
+## Step 9: Build the initramfs
+
+The initramfs is a small system that runs before your real root filesystem is available. Its one
+job is to make root reachable, then hand over.
+
+```bash
+vim /etc/mkinitcpio.conf
+```
+
+Find the `HOOKS=` line. On a fresh Arch install it reads:
+
+```
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
+```
+
+**Replace that entire line with:**
+
+```
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
+```
+
+> ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
+> `base systemd`; this guide needs `base udev`. Mixing them leaves you with an initramfs that
+> silently ignores the hooks you added.
+
+### Why
+
+Arch now ships a *systemd-based* initramfs by default. This guide uses the classic udev-based
+one across every path, so that all six flows share the same initramfs configuration and the same
+troubleshooting steps. Swapping `systemd` for `udev` also means `sd-vconsole` is replaced by its
+two udev equivalents, `keymap` and `consolefont`.
+
+Nothing else on this path needs a special hook — the standard `filesystems` hook mounts your
+root filesystem on its own.
+
+### Build it
 
 ```bash
 mkinitcpio -P
 ```
 
-**Alternative (specific presets):**
-```bash
-mkinitcpio -p linux
-mkinitcpio -p linux-lts
+`-P` rebuilds the images for **every** kernel you installed — both `linux` and `linux-lts`.
+
+### Read the output
+
+It should end with `Image generation successful` for each kernel.
+
+You will almost certainly see this, and it is harmless:
+
+```
+==> WARNING: consolefont: no font found in configuration
 ```
 
-**What this does:**
-| Command | Meaning |
-|---------|---------|
-| `mkinitcpio -P` | Regenerate **all** presets (recommended) |
-| `mkinitcpio -p linux` | Regenerate only linux preset |
-| `mkinitcpio -p linux-lts` | Regenerate only linux-lts preset |
+That is just the `consolefont` hook noting you set no `FONT=` in Step 5.6. It skips itself.
 
-> 💡 Use `-P` (capital P) to regenerate all kernels at once - modern and convenient!
-
-**Expected output:**
-```
-==> Building image from preset: /etc/mkinitcpio.d/linux.preset: 'default'
-...
-==> Image generation successful
-```
-
----
-
-## Step 9: GPU Drivers
-
-### Intel GPU
-
-```bash
-pacman -S mesa intel-media-driver
-```
-
-### AMD GPU
-
-```bash
-pacman -S mesa libva-mesa-driver
-```
-
-### NVIDIA GPU
-
-```bash
-pacman -S nvidia nvidia-lts nvidia-utils
-```
-
-> 📝 For NVIDIA with both kernels, install drivers for both.
-
-### Integrated + Dedicated GPU (Hybrid)
-
-```bash
-# Intel + NVIDIA
-pacman -S mesa intel-media-driver nvidia nvidia-lts nvidia-utils
-
-# AMD + NVIDIA  
-pacman -S mesa libva-mesa-driver nvidia nvidia-lts nvidia-utils
-```
+**`WARNING` is fine. `ERROR` is not.** Any line starting with `==> ERROR:` means the initramfs
+is broken and the system will not boot. Fix it now, while you still have a working shell.
 
 ---
 
 ## Step 10: Enable Services
 
-Enable services to start at boot:
-
 ```bash
 systemctl enable NetworkManager
 systemctl enable sshd
 ```
 
-**What this does:**
 | Service | Purpose |
 |---------|---------|
-| `NetworkManager` | Automatic network connection |
-| `sshd` | SSH daemon (remote access) |
+| `NetworkManager` | Brings up networking after reboot — **without this you have no internet** |
+| `sshd` | SSH server. Skip it if you do not want remote logins |
+
+> These only take effect after you reboot. That is expected.
 
 ---
 
-## Quick Reference Summary
+## Quick Reference
+
+The whole guide, condensed:
 
 ```bash
-# Install base system
-pacstrap -K /mnt base
-
-# Generate fstab
-genfstab -U -p /mnt >> /mnt/etc/fstab
-
-# Enter chroot
+# Install the base system
+pacstrap -K /mnt base linux linux-firmware vim
+genfstab -U /mnt >> /mnt/etc/fstab
 arch-chroot /mnt
 
-# Configure system
+# Configure
 echo "archpc" > /etc/hostname
-nvim /etc/hosts
+vim /etc/hosts
 passwd
 ln -sf /usr/share/zoneinfo/Asia/Kolkata /etc/localtime
 hwclock --systohc
-nvim /etc/locale.gen
+vim /etc/locale.gen
 locale-gen
 echo "LANG=en_US.UTF-8" > /etc/locale.conf
-echo "KEYMAP=us" > /etc/vconsole.conf  # Optional: set console keymap
-
-# Create user
-useradd -m -g users -G wheel username
+echo "KEYMAP=us" > /etc/vconsole.conf
+useradd -m -G wheel username
 passwd username
 
-# Install packages
-pacman -S base-devel dosfstools grub efibootmgr mtools vim neovim networkmanager openssh os-prober sudo
-pacman -S linux linux-headers linux-lts linux-lts-headers linux-firmware
-pacman -S intel-ucode  # or amd-ucode for AMD CPUs
-pacman -S mesa intel-media-driver  # or your GPU driver
+# Packages
+pacman -S base-devel grub efibootmgr dosfstools mtools networkmanager openssh sudo os-prober
+# (no extra packages needed on this path)
+pacman -S linux-headers linux-lts linux-lts-headers
+pacman -S intel-ucode                              # or amd-ucode
+pacman -S mesa vulkan-intel intel-media-driver     # or your GPU's packages
+EDITOR=vim visudo                                  # uncomment %wheel
 
-# Configure sudo
-EDITOR=nvim visudo
-
-# Regenerate initramfs
+# initramfs
+vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 mkinitcpio -P
 
-# Enable services
+# Services
 systemctl enable NetworkManager
 systemctl enable sshd
 ```
 
 ---
 
-## Next: Bootloader
+## Next Step
 
-Continue to bootloader installation:
+Your system is installed but cannot boot yet — nothing knows how to start it. That is the
+bootloader's job, and it is the last step before you reboot.
 
-→ [Standard Bootloader Installation](bootloader-standard.md)
+→ **[GRUB Bootloader](bootloader-standard.md)**
 
 ---
 
 <div align="center">
 
-[← Partitioning](../02-partitioning/) | [Back to Main Guide](../../README.md) | [Next: Bootloader →](bootloader-standard.md)
+[← Basic Partitioning](../02-partitioning/basic-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader →](bootloader-standard.md)
 
 </div>
