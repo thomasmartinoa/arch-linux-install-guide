@@ -25,8 +25,7 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[LVM Setup](../02-partitioning/lvm-setup.md)**
-.
+You should have just finished **[LVM Setup](../02-partitioning/lvm-setup.md)**.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -52,9 +51,9 @@ lsblk
 
 ```
 NAME                   SIZE TYPE MOUNTPOINT
-vda                    500G disk
-├─vda1                   1G part /mnt/boot
-└─vda2                 499G part
+sda                    500G disk
+├─sda1                   1G part /mnt/boot
+└─sda2                 499G part
   ├─volgroup0-lv_root   50G lvm  /mnt
   ├─volgroup0-lv_swap    8G lvm  [SWAP]
   └─volgroup0-lv_home  441G lvm  /mnt/home
@@ -118,7 +117,7 @@ cat /mnt/etc/fstab
 # /dev/mapper/volgroup0-lv_root
 UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /       ext4  rw,relatime  0 1
 
-# /dev/vda1
+# /dev/sda1
 UUID=XXXX-XXXX                             /boot   vfat  rw,relatime  0 2
 
 # /dev/mapper/volgroup0-lv_home
@@ -386,33 +385,44 @@ pacman -S mesa
 The initramfs is a small system that runs before your real root filesystem is available. Its one
 job is to make root reachable, then hand over.
 
-On this path it has real work to do, so it needs extra hooks.
-
 ```bash
 vim /etc/mkinitcpio.conf
 ```
 
-Find the `HOOKS=` line. It currently reads:
+Find the `HOOKS=` line. On a fresh Arch install it reads:
 
 ```
-HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
 ```
 
-Change it to:
+**Replace that entire line with:**
 
 ```
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
 ```
 
+> ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
+> `base systemd`; this guide needs `base udev`. Mixing them leaves you with an initramfs that
+> silently ignores the hooks you added.
+
 ### Why
 
-Add **`lvm2`** immediately after `block`:
+**`udev` instead of `systemd`.** Arch now ships a *systemd-based* initramfs by default. This
+guide uses the classic udev-based one, because the `lvm2` hook below is the udev-style hook.
+Swapping `systemd` for `udev` also means `sd-vconsole` is replaced by its two udev equivalents,
+`keymap` and `consolefont`.
 
-- `block` makes the disks visible
-- `lvm2` then finds the volume group on them and activates your logical volumes
-- `filesystems` can finally mount root
+**`lvm2` after `block`.** Hooks run left to right:
 
-Put `lvm2` before `block` and there are no disks to scan yet, so it finds nothing.
+```
+block  →  lvm2  →  filesystems
+  │         │           │
+disks    finds the   mounts
+appear   volume      root
+         group
+```
+
+Place `lvm2` before `block` and there are no disks to scan yet, so it finds nothing.
 
 ### Build it
 

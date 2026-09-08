@@ -110,7 +110,7 @@ GRUB_CMDLINE_LINUX="cryptdevice=UUID=<your-uuid>:cryptroot"
 | Part | Meaning |
 |------|---------|
 | `cryptdevice=` | The parameter the `encrypt` hook reads |
-| `UUID=…` | Which device to unlock. Use the UUID — `/dev/vda2` changes the moment you add a drive |
+| `UUID=…` | Which device to unlock. Use the UUID — `/dev/sda2` changes the moment you add a drive |
 | `:cryptroot` | The name it gets once unlocked, i.e. `/dev/mapper/cryptroot` |
 
 The name after the colon **must match** what you used with `cryptsetup open` during
@@ -200,6 +200,7 @@ command; remount it and run `grub-mkconfig` again.
 
 Without it the kernel mounts the top level of the filesystem rather than your root subvolume, and
 you land in an emergency shell **after** typing your passphrase.
+
 ---
 
 ## Step 6: Reboot
@@ -220,7 +221,7 @@ reboot
 
 ```
 A password is required to access the cryptroot volume:
-Enter passphrase for /dev/vda2:
+Enter passphrase for /dev/sda2:
 ```
 
 3. Type your **LUKS passphrase** — nothing appears as you type
@@ -240,10 +241,10 @@ Two different passwords, in that order. Mixing them up is the most common first-
 Every fix starts the same way: boot the live USB and re-enter your system.
 
 ```bash
-cryptsetup open /dev/vda2 cryptroot
+cryptsetup open /dev/sda2 cryptroot
 mount -o noatime,compress=zstd,subvol=@ /dev/mapper/cryptroot /mnt
 mount -o noatime,compress=zstd,subvol=@home /dev/mapper/cryptroot /mnt/home
-mount /dev/vda1 /mnt/boot
+mount /dev/sda1 /mnt/boot
 arch-chroot /mnt
 ```
 
@@ -278,7 +279,7 @@ passphrase was *created* under the live ISO's US layout.
 Test the container directly from the live USB, where you control the layout:
 
 ```bash
-cryptsetup open --test-passphrase /dev/vda2 && echo "passphrase is correct"
+cryptsetup open --test-passphrase /dev/sda2 && echo "passphrase is correct"
 ```
 
 If that succeeds, the passphrase is fine and the keymap is the problem. Make sure `keyboard` and
@@ -290,8 +291,8 @@ Do this once you are booted. The header holds the encrypted master key — if it
 disk is unrecoverable **even with the correct passphrase**.
 
 ```bash
-sudo cryptsetup luksHeaderBackup /dev/vda2 --header-backup-file luks-header.img
-sudo cryptsetup luksAddKey /dev/vda2     # a second passphrase, so one typo isn't fatal
+sudo cryptsetup luksHeaderBackup /dev/sda2 --header-backup-file luks-header.img
+sudo cryptsetup luksAddKey /dev/sda2     # a second passphrase, so one typo isn't fatal
 ```
 
 Store the header off the machine, and treat it as sensitive as the disk itself.
@@ -301,6 +302,7 @@ Snapper setup is identical to the unencrypted Btrfs path — encryption sits ent
 so snapshots neither know nor care that the disk is encrypted.
 
 → [Setting up Snapper](../02-partitioning/btrfs-setup.md#snapshots)
+
 ---
 
 ## Next Step

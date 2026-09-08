@@ -137,6 +137,7 @@ linux /vmlinuz-linux root=/dev/mapper/volgroup0-lv_root ...
 
 If it names a plain partition instead, `grub-mkconfig` did not detect LVM — check that your
 volumes are active (`vgchange -ay`) and re-run it.
+
 ---
 
 ## Step 5: Reboot
@@ -172,7 +173,7 @@ Every fix starts the same way: boot the live USB and re-enter your system.
 ```bash
 vgchange -ay
 mount /dev/volgroup0/lv_root /mnt
-mount /dev/vda1 /mnt/boot
+mount /dev/sda1 /mnt/boot
 mount /dev/volgroup0/lv_home /mnt/home
 arch-chroot /mnt
 ```

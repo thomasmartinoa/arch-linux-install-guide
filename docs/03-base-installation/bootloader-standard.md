@@ -155,8 +155,8 @@ Log in with the username and password you created in Step 5.7.
 Every fix starts the same way: boot the live USB and re-enter your system.
 
 ```bash
-mount /dev/vda2 /mnt
-mount /dev/vda1 /mnt/boot
+mount /dev/sda2 /mnt
+mount /dev/sda1 /mnt/boot
 arch-chroot /mnt
 ```
 

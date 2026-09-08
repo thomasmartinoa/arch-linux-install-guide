@@ -25,8 +25,7 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[Btrfs Setup](../02-partitioning/btrfs-setup.md)**
-.
+You should have just finished **[Btrfs Setup](../02-partitioning/btrfs-setup.md)**.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -52,9 +51,9 @@ lsblk -f
 
 ```
 NAME   FSTYPE LABEL MOUNTPOINTS
-vda
-├─vda1 vfat         /mnt/boot
-└─vda2 btrfs  arch  /mnt/swap
+sda
+├─sda1 vfat         /mnt/boot
+└─sda2 btrfs  arch  /mnt/swap
                     /mnt/var/cache
                     /mnt/var/log
                     /mnt/.snapshots
@@ -117,7 +116,7 @@ cat /mnt/etc/fstab
 ```
 
 ```
-# /dev/vda2 LABEL=arch
+# /dev/sda2 LABEL=arch
 UUID=xxxx  /            btrfs  rw,noatime,compress=zstd,subvol=/@           0 0
 UUID=xxxx  /home        btrfs  rw,noatime,compress=zstd,subvol=/@home       0 0
 UUID=xxxx  /.snapshots  btrfs  rw,noatime,compress=zstd,subvol=/@snapshots  0 0
@@ -125,7 +124,7 @@ UUID=xxxx  /var/log     btrfs  rw,noatime,compress=zstd,subvol=/@var_log    0 0
 UUID=xxxx  /var/cache   btrfs  rw,noatime,compress=zstd,subvol=/@var_cache  0 0
 UUID=xxxx  /swap        btrfs  rw,noatime,subvol=/@swap                     0 0
 
-# /dev/vda1
+# /dev/sda1
 UUID=XXXX-XXXX  /boot   vfat   rw,relatime  0 2
 
 # swap file
@@ -390,22 +389,35 @@ pacman -S mesa
 The initramfs is a small system that runs before your real root filesystem is available. Its one
 job is to make root reachable, then hand over.
 
-On this path it needs no changes at all — the default configuration already does everything
-required.
-
 ```bash
-grep '^HOOKS' /etc/mkinitcpio.conf
+vim /etc/mkinitcpio.conf
 ```
 
-Confirm it matches:
+Find the `HOOKS=` line. On a fresh Arch install it reads:
+
+```
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
+```
+
+**Replace that entire line with:**
 
 ```
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 ```
 
-> **Why no Btrfs hook?** Unlike LVM or LUKS, Btrfs needs no special hook. The standard
-> `filesystems` hook loads the Btrfs driver on its own — as long as `btrfs-progs` is installed,
-> which you did in Step 6.
+> ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
+> `base systemd`; this guide needs `base udev`. Mixing them leaves you with an initramfs that
+> silently ignores the hooks you added.
+
+### Why
+
+Arch now ships a *systemd-based* initramfs by default. This guide uses the classic udev-based
+one across every path, so that all six flows share the same initramfs configuration and the same
+troubleshooting steps. Swapping `systemd` for `udev` also means `sd-vconsole` is replaced by its
+two udev equivalents, `keymap` and `consolefont`.
+
+Nothing else on this path needs a special hook — the standard `filesystems` hook mounts your
+root filesystem on its own.
 
 ### Build it
 
@@ -480,7 +492,7 @@ pacman -S mesa vulkan-intel intel-media-driver     # or your GPU's packages
 EDITOR=vim visudo                                  # uncomment %wheel
 
 # initramfs
-# HOOKS need no changes on this path
+vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 mkinitcpio -P
 
 # Services

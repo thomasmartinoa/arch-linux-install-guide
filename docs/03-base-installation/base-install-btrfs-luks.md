@@ -25,8 +25,7 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[Btrfs with Encryption](../02-partitioning/btrfs-encryption.md)**
-.
+You should have just finished **[Btrfs with Encryption](../02-partitioning/btrfs-encryption.md)**.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -52,9 +51,9 @@ lsblk -f
 
 ```
 NAME          FSTYPE      LABEL MOUNTPOINTS
-vda
-├─vda1        vfat              /mnt/boot
-└─vda2        crypto_LUKS                    ← the encrypted container
+sda
+├─sda1        vfat              /mnt/boot
+└─sda2        crypto_LUKS                    ← the encrypted container
   └─cryptroot btrfs       arch  /mnt/swap
                                 /mnt/var/cache
                                 /mnt/var/log
@@ -65,7 +64,7 @@ vda
 
 Two things must be true:
 
-- `vda2` shows `crypto_LUKS` — the container exists
+- `sda2` shows `crypto_LUKS` — the container exists
 - `cryptroot` shows `btrfs` — it is unlocked and formatted, with your subvolumes mounted
 
 > ⚠️ **Do not continue until this looks right.** Every step below writes into `/mnt`. A wrong
@@ -128,7 +127,7 @@ UUID=xxxx  /var/log     btrfs  rw,noatime,compress=zstd,subvol=/@var_log    0 0
 UUID=xxxx  /var/cache   btrfs  rw,noatime,compress=zstd,subvol=/@var_cache  0 0
 UUID=xxxx  /swap        btrfs  rw,noatime,subvol=/@swap                     0 0
 
-# /dev/vda1
+# /dev/sda1
 UUID=XXXX-XXXX  /boot   vfat   rw,relatime  0 2
 
 # swap file
@@ -400,27 +399,34 @@ pacman -S mesa
 The initramfs is a small system that runs before your real root filesystem is available. Its one
 job is to make root reachable, then hand over.
 
-On this path it has real work to do, so it needs extra hooks.
-
 ```bash
 vim /etc/mkinitcpio.conf
 ```
 
-Find the `HOOKS=` line. It currently reads:
+Find the `HOOKS=` line. On a fresh Arch install it reads:
 
 ```
-HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
 ```
 
-Change it to:
+**Replace that entire line with:**
 
 ```
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
 ```
 
+> ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
+> `base systemd`; this guide needs `base udev`. Mixing them leaves you with an initramfs that
+> silently ignores the hooks you added.
+
 ### Why
 
-Add **`encrypt`** after `block`. There is no `lvm2` on this path:
+**`udev` instead of `systemd`.** Arch now ships a *systemd-based* initramfs by default, and the
+`encrypt` hook **does not work with it** — `encrypt` is the classic udev-style hook, and a
+systemd initramfs never runs it. You would get no passphrase prompt at all and an unbootable
+system. Swapping `systemd` for `udev` also means `sd-vconsole` becomes `keymap consolefont`.
+
+**`encrypt` after `block`.** There is no `lvm2` on this path:
 
 ```
 keyboard  →  block  →  encrypt  →  filesystems

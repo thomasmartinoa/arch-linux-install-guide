@@ -138,6 +138,7 @@ is missing, your `@` subvolume was not mounted when you ran the command. Check w
 
 Without it the kernel mounts the *top level* of the filesystem instead of your root subvolume,
 and the boot ends in an emergency shell.
+
 ---
 
 ## Step 5: Reboot
@@ -171,9 +172,9 @@ Log in with the username and password you created in Step 5.7.
 Every fix starts the same way: boot the live USB and re-enter your system.
 
 ```bash
-mount -o noatime,compress=zstd,subvol=@ /dev/vda2 /mnt
-mount -o noatime,compress=zstd,subvol=@home /dev/vda2 /mnt/home
-mount /dev/vda1 /mnt/boot
+mount -o noatime,compress=zstd,subvol=@ /dev/sda2 /mnt
+mount -o noatime,compress=zstd,subvol=@home /dev/sda2 /mnt/home
+mount /dev/sda1 /mnt/boot
 arch-chroot /mnt
 ```
 
@@ -215,6 +216,7 @@ the first boot, not now.
 > The one thing that trips everyone up: `snapper create-config` refuses to run while anything is
 > mounted at `/.snapshots` — and yours is, from fstab. The linked section covers the exact order
 > to work around it.
+
 ---
 
 ## Next Step

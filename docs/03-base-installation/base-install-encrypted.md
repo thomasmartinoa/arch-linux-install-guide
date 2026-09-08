@@ -25,8 +25,7 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[LVM with Encryption](../02-partitioning/lvm-encryption.md)**
-.
+You should have just finished **[LVM with Encryption](../02-partitioning/lvm-encryption.md)**.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -53,7 +52,7 @@ lsblk
 ```
 NAME                      SIZE TYPE  MOUNTPOINT
 nvme0n1                     1T disk
-├─nvme0n1p1               512M part  /mnt/efi
+├─nvme0n1p1                 1G part  /mnt/efi
 ├─nvme0n1p2                 1G part  /mnt/boot
 └─nvme0n1p3               998G part
   └─cryptlvm              998G crypt              ← unlocked container
@@ -403,27 +402,34 @@ pacman -S mesa
 The initramfs is a small system that runs before your real root filesystem is available. Its one
 job is to make root reachable, then hand over.
 
-On this path it has real work to do, so it needs extra hooks.
-
 ```bash
 vim /etc/mkinitcpio.conf
 ```
 
-Find the `HOOKS=` line. It currently reads:
+Find the `HOOKS=` line. On a fresh Arch install it reads:
 
 ```
-HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
 ```
 
-Change it to:
+**Replace that entire line with:**
 
 ```
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)
 ```
 
+> ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
+> `base systemd`; this guide needs `base udev`. Mixing them leaves you with an initramfs that
+> silently ignores the hooks you added.
+
 ### Why
 
-Add **`encrypt`** and then **`lvm2`**, both after `block`. The order is not negotiable:
+**`udev` instead of `systemd`.** Arch now ships a *systemd-based* initramfs by default, and the
+`encrypt` hook **does not work with it** — `encrypt` is the classic udev-style hook, and a
+systemd initramfs never runs it. You would get no passphrase prompt at all and an unbootable
+system. Swapping `systemd` for `udev` also means `sd-vconsole` becomes `keymap consolefont`.
+
+**`encrypt` then `lvm2`, both after `block`.** The order is not negotiable:
 
 ```
 keyboard  →  block  →  encrypt  →  lvm2  →  filesystems

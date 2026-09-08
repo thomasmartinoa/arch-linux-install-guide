@@ -52,10 +52,10 @@ lsblk
 
 ```
 NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-vda    254:0    0   500G  0 disk
-├─vda1 254:1    0     1G  0 part /mnt/boot
-├─vda2 254:2    0   491G  0 part /mnt
-└─vda3 254:3    0     8G  0 part [SWAP]
+sda    254:0    0   500G  0 disk
+├─sda1 254:1    0     1G  0 part /mnt/boot
+├─sda2 254:2    0   491G  0 part /mnt
+└─sda3 254:3    0     8G  0 part [SWAP]
 ```
 
 If you followed the Advanced guide you will also see `/mnt/home` on its own partition.
@@ -113,13 +113,13 @@ cat /mnt/etc/fstab
 ```
 
 ```
-# /dev/vda2
+# /dev/sda2
 UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /       ext4  rw,relatime  0 1
 
-# /dev/vda1
+# /dev/sda1
 UUID=XXXX-XXXX                             /boot   vfat  rw,relatime  0 2
 
-# /dev/vda3
+# /dev/sda3
 UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  none    swap  defaults     0 0
 ```
 
@@ -365,20 +365,35 @@ pacman -S mesa
 The initramfs is a small system that runs before your real root filesystem is available. Its one
 job is to make root reachable, then hand over.
 
-On this path it needs no changes at all — the default configuration already does everything
-required.
-
 ```bash
-grep '^HOOKS' /etc/mkinitcpio.conf
+vim /etc/mkinitcpio.conf
 ```
 
-Confirm it matches:
+Find the `HOOKS=` line. On a fresh Arch install it reads:
+
+```
+HOOKS=(base systemd autodetect microcode modconf kms keyboard sd-vconsole block filesystems fsck)
+```
+
+**Replace that entire line with:**
 
 ```
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 ```
 
+> ⚠️ **Replace the whole line — do not just add words to it.** The shipped default starts with
+> `base systemd`; this guide needs `base udev`. Mixing them leaves you with an initramfs that
+> silently ignores the hooks you added.
 
+### Why
+
+Arch now ships a *systemd-based* initramfs by default. This guide uses the classic udev-based
+one across every path, so that all six flows share the same initramfs configuration and the same
+troubleshooting steps. Swapping `systemd` for `udev` also means `sd-vconsole` is replaced by its
+two udev equivalents, `keymap` and `consolefont`.
+
+Nothing else on this path needs a special hook — the standard `filesystems` hook mounts your
+root filesystem on its own.
 
 ### Build it
 
@@ -453,7 +468,7 @@ pacman -S mesa vulkan-intel intel-media-driver     # or your GPU's packages
 EDITOR=vim visudo                                  # uncomment %wheel
 
 # initramfs
-# HOOKS need no changes on this path
+vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 mkinitcpio -P
 
 # Services

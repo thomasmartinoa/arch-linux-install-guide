@@ -201,7 +201,7 @@ mkinitcpio -P
 
 # If LVM, check hooks
 vim /etc/mkinitcpio.conf
-# Ensure: HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
+# Ensure: HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block lvm2 filesystems fsck)
 
 # Regenerate again
 mkinitcpio -P
@@ -277,7 +277,7 @@ arch-chroot /mnt
 vim /etc/mkinitcpio.conf
 
 # Correct order:
-HOOKS=(base udev autodetect modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt lvm2 filesystems fsck)
 
 # Regenerate
 mkinitcpio -P
