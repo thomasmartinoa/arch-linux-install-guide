@@ -1,8 +1,7 @@
 #!/bin/bash
 # PATH: LUKS + LVM
 # MIRRORS: docs/02-partitioning/lvm-encryption.md
-#          docs/03-base-installation/base-install-common.md   (LUKS + LVM row)
-#          docs/03-base-installation/deltas/luks-lvm.md
+#          docs/03-base-installation/base-install-encrypted.md
 #          docs/03-base-installation/bootloader-encrypted.md
 set -euo pipefail
 

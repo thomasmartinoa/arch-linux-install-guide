@@ -1,9 +1,8 @@
 #!/bin/bash
 # PATH: Btrfs
 # MIRRORS: docs/02-partitioning/btrfs-setup.md
-#          docs/03-base-installation/base-install-common.md   (Btrfs row)
-#          docs/03-base-installation/deltas/btrfs.md
-#          docs/03-base-installation/bootloader-standard.md
+#          docs/03-base-installation/base-install-btrfs.md
+#          docs/03-base-installation/bootloader-btrfs.md
 set -euo pipefail
 
 # archiso runs script= from the tty1 autologin shell, so stdout would never reach the

@@ -1,6 +1,6 @@
-# Base Installation — Standard (ext4)
+# Base Installation — Btrfs
 
-> For the **Basic** or **Advanced** ext4 partition layouts.
+> For **Btrfs with subvolumes** (no encryption).
 
 This guide is complete on its own. Follow it top to bottom — every command here applies to
 your setup, and there is nothing to pick or skip.
@@ -25,8 +25,8 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[Basic Partitioning](../02-partitioning/basic-partitioning.md)**
-(or [Advanced Partitioning](../02-partitioning/advanced-partitioning.md) if you made a separate `/home`).
+You should have just finished **[Btrfs Setup](../02-partitioning/btrfs-setup.md)**
+.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -45,21 +45,25 @@ Everything below needs to download packages.
 ## Step 1: Verify Your Mounts
 
 ```bash
-lsblk
+lsblk -f
 ```
 
 **You should see something like this:**
 
 ```
-NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-vda    254:0    0   500G  0 disk
-├─vda1 254:1    0     1G  0 part /mnt/boot
-├─vda2 254:2    0   491G  0 part /mnt
-└─vda3 254:3    0     8G  0 part [SWAP]
+NAME   FSTYPE LABEL MOUNTPOINTS
+vda
+├─vda1 vfat         /mnt/boot
+└─vda2 btrfs  arch  /mnt/swap
+                    /mnt/var/cache
+                    /mnt/var/log
+                    /mnt/.snapshots
+                    /mnt/home
+                    /mnt
 ```
 
-If you followed the Advanced guide you will also see `/mnt/home` on its own partition.
-That is fine — `genfstab` picks it up automatically in Step 3.
+One partition carrying many mount points is exactly right — those are your subvolumes.
+Use `lsblk -f` (with `-f`) to see this view.
 
 > ⚠️ **Do not continue until this looks right.** Every step below writes into `/mnt`. A wrong
 > mount here means reinstalling later, and it is far cheaper to fix now.
@@ -113,17 +117,23 @@ cat /mnt/etc/fstab
 ```
 
 ```
-# /dev/vda2
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /       ext4  rw,relatime  0 1
+# /dev/vda2 LABEL=arch
+UUID=xxxx  /            btrfs  rw,noatime,compress=zstd,subvol=/@           0 0
+UUID=xxxx  /home        btrfs  rw,noatime,compress=zstd,subvol=/@home       0 0
+UUID=xxxx  /.snapshots  btrfs  rw,noatime,compress=zstd,subvol=/@snapshots  0 0
+UUID=xxxx  /var/log     btrfs  rw,noatime,compress=zstd,subvol=/@var_log    0 0
+UUID=xxxx  /var/cache   btrfs  rw,noatime,compress=zstd,subvol=/@var_cache  0 0
+UUID=xxxx  /swap        btrfs  rw,noatime,subvol=/@swap                     0 0
 
 # /dev/vda1
-UUID=XXXX-XXXX                             /boot   vfat  rw,relatime  0 2
+UUID=XXXX-XXXX  /boot   vfat   rw,relatime  0 2
 
-# /dev/vda3
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  none    swap  defaults     0 0
+# swap file
+/swap/swapfile  none    swap   defaults     0 0
 ```
 
-
+> Every Btrfs line must carry a `subvol=` option, and `/swap` must **not** have `compress`.
+> If either is wrong, fix it now — this file is what mounts your system at every boot.
 
 If a filesystem is missing, mount it and re-run `genfstab` — but delete the duplicate lines
 afterwards.
@@ -264,7 +274,22 @@ pacman -S base-devel grub efibootmgr dosfstools mtools \
 | `sudo` | Run single commands as root |
 | `os-prober` | Detects other operating systems for dual boot |
 
-### 6.2 Enable sudo
+### 6.2 Packages this setup requires
+
+```bash
+pacman -S btrfs-progs
+```
+
+| Package | Why you need it |
+|---------|-----------------|
+| `btrfs-progs` | Btrfs tools — `mkfs`, `scrub`, `subvolume`, and the fsck helper the boot process calls |
+
+> ### 🔴 `btrfs-progs` is mandatory
+>
+> Your root filesystem **is** Btrfs. Without these tools the installed system cannot check or
+> mount its own root. Nothing warns you at install time — it simply fails to boot.
+
+### 6.3 Enable sudo
 
 ```bash
 EDITOR=vim visudo
@@ -378,7 +403,9 @@ Confirm it matches:
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 ```
 
-
+> **Why no Btrfs hook?** Unlike LVM or LUKS, Btrfs needs no special hook. The standard
+> `filesystems` hook loads the Btrfs driver on its own — as long as `btrfs-progs` is installed,
+> which you did in Step 6.
 
 ### Build it
 
@@ -446,7 +473,7 @@ passwd username
 
 # Packages
 pacman -S base-devel grub efibootmgr dosfstools mtools networkmanager openssh sudo os-prober
-# (no extra packages needed on this path)
+pacman -S btrfs-progs
 pacman -S linux-headers linux-lts linux-lts-headers
 pacman -S intel-ucode                              # or amd-ucode
 pacman -S mesa vulkan-intel intel-media-driver     # or your GPU's packages
@@ -468,12 +495,12 @@ systemctl enable sshd
 Your system is installed but cannot boot yet — nothing knows how to start it. That is the
 bootloader's job, and it is the last step before you reboot.
 
-→ **[GRUB Bootloader](bootloader-standard.md)**
+→ **[GRUB Bootloader for Btrfs](bootloader-btrfs.md)**
 
 ---
 
 <div align="center">
 
-[← Basic Partitioning](../02-partitioning/basic-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader →](bootloader-standard.md)
+[← Btrfs Setup](../02-partitioning/btrfs-setup.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader for Btrfs →](bootloader-btrfs.md)
 
 </div>

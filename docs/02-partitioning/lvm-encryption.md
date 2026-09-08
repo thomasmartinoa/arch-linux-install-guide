@@ -8,7 +8,7 @@
 - [Understanding Encryption](#understanding-encryption)
 - [Partition Layout](#partition-layout)
 - [Step-by-Step Setup](#step-by-step-setup)
-- [Important Configuration](#important-configuration)
+- [What Comes Next](#what-comes-next-important)
 - [Mount Partitions](#mount-partitions)
 - [Verification](#verification)
 
@@ -382,7 +382,7 @@ are covered in detail on the path notes page — this is just so you know they a
 | HOOKS `... block `**`encrypt lvm2`**` filesystems fsck` | `encrypt` unlocks the container; `lvm2` then activates the volume group *inside* it. That order is not negotiable |
 | `GRUB_CMDLINE_LINUX="cryptdevice=UUID=<luks-uuid>:cryptlvm"` | Tells the initramfs which device to unlock |
 
-→ **[Path Notes: LUKS + LVM](../03-base-installation/deltas/luks-lvm.md)**
+These are covered in [Base Installation — LUKS + LVM](../03-base-installation/base-install-encrypted.md).
 
 ---
 
@@ -485,32 +485,63 @@ cryptsetup luksDump /dev/nvme0n1p3
 
 ---
 
+## Back up your LUKS header
+
+The header holds the encrypted master key. If it is corrupted, **every byte on the disk is
+permanently unrecoverable** — your passphrase alone cannot rebuild it.
+
+```bash
+cryptsetup luksHeaderBackup /dev/nvme0n1p3 --header-backup-file luks-header.img
+```
+
+Store it somewhere off the machine. Treat the file as equivalent to the disk itself: anyone
+holding it and your passphrase has your data.
+
+Add a second passphrase, so a typo in one does not lock you out permanently:
+
+```bash
+cryptsetup luksAddKey /dev/nvme0n1p3
+```
+
+---
+
+## Hibernation (optional)
+
+Suspending to disk writes RAM into swap, so the initramfs has to unlock the disk *and* find the
+swap volume before the kernel can resume. Add the `resume` hook after `lvm2`:
+
+```
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt lvm2 resume filesystems fsck)
+```
+
+and point the kernel at the swap volume:
+
+```bash
+GRUB_CMDLINE_LINUX="cryptdevice=UUID=<luks-uuid>:cryptlvm resume=/dev/volgroup0/lv_swap"
+```
+
+```bash
+mkinitcpio -P && grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+Your swap volume must be at least as large as your RAM. Without both the hook and the parameter
+hibernation fails silently — the machine powers off and boots fresh, losing your session.
+
+---
+
 ## Next Steps
 
-→ **[Base System Installation](../03-base-installation/base-install-common.md)**
+Your disk is ready. Next you install Arch onto it.
 
-At its two branch points, use the **LUKS + LVM** row:
+→ **[Base Installation — LUKS + LVM](../03-base-installation/base-install-encrypted.md)**
 
-| Branch | Answer |
-|--------|--------|
-| Step 6.2 — extra packages | `lvm2 cryptsetup` |
-| Step 9 — HOOKS | `... block `**`encrypt lvm2`**` filesystems fsck` |
-
-Details: **[Path Notes: LUKS + LVM](../03-base-installation/deltas/luks-lvm.md)**
-
-Then: **[GRUB — Encrypted](../03-base-installation/bootloader-encrypted.md)**
-
-> 🔴 **Do not skip `cryptsetup`.** Leaving it out is the single most common way to finish this
-> path with a machine that never boots again.
-
-> **Simpler alternative:** if you want encryption *and* snapshots, consider
-> [Btrfs with Encryption](btrfs-encryption.md) — Btrfs subvolumes replace LVM here, so it is
-> two partitions instead of three and one initramfs hook instead of two.
+That guide is written specifically for the **LUKS + LVM** layout you just created — follow it
+straight through, there is nothing to pick or choose.
 
 ---
 
 <div align="center">
 
-[← LVM Setup](lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
+[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation — LUKS + LVM →](../03-base-installation/base-install-encrypted.md)
 
 </div>

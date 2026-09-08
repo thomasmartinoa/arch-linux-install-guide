@@ -330,23 +330,17 @@ sda4   swap   SWAP    8G [SWAP]
 
 ## Next Steps
 
-→ **[Base System Installation](../03-base-installation/base-install-common.md)**
+Your disk is ready. Next you install Arch onto it.
 
-At its two branch points, use the **Standard (ext4)** row:
+→ **[Base Installation — Standard](../03-base-installation/base-install-standard.md)**
 
-| Branch | Answer |
-|--------|--------|
-| Step 6.2 — extra packages | *(none)* |
-| Step 9 — HOOKS | Arch default, unchanged |
-
-Details: **[Path Notes: Standard (ext4)](../03-base-installation/deltas/standard.md)**
-
-Then: [GRUB](../03-base-installation/bootloader-standard.md) or [systemd-boot](../03-base-installation/bootloader-systemd.md)
+That guide is written specifically for the **Standard (ext4)** layout you just created — follow it
+straight through, there is nothing to pick or choose.
 
 ---
 
 <div align="center">
 
-[← Basic Partitioning](basic-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
+[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation — Standard →](../03-base-installation/base-install-standard.md)
 
 </div>

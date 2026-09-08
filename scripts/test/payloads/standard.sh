@@ -1,8 +1,7 @@
 #!/bin/bash
 # PATH: Standard (ext4)
 # MIRRORS: docs/02-partitioning/basic-partitioning.md
-#          docs/03-base-installation/base-install-common.md   (Standard row)
-#          docs/03-base-installation/deltas/standard.md
+#          docs/03-base-installation/base-install-standard.md
 #          docs/03-base-installation/bootloader-standard.md
 set -euo pipefail
 

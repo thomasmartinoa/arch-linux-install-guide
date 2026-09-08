@@ -476,6 +476,6 @@ After bootloader setup:
 
 <div align="center">
 
-[← Base Installation](base-install-common.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
+[← Base Installation](README.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
 
 </div>

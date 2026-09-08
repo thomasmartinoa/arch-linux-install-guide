@@ -57,7 +57,7 @@ the firmware reports `No bootable option or device was found` on a perfectly goo
 scripts/test/
 ├── run-path.sh              orchestrator
 ├── lib/
-│   ├── common.sh            shared install steps — mirrors base-install-common.md
+│   ├── common.sh            shared install steps — mirrors the base-install-*.md guides
 │   └── boot-check.py        pass 2: serial watcher + LUKS passphrase
 └── payloads/
     ├── standard.sh          ├── btrfs.sh
@@ -73,7 +73,7 @@ naming the exact documents it reproduces:
 ```bash
 # PATH: Btrfs + LUKS
 # MIRRORS: docs/02-partitioning/btrfs-encryption.md
-#          docs/03-base-installation/base-install-common.md   (Btrfs + LUKS row)
+#          docs/03-base-installation/base-install-btrfs-luks.md
 #          ...
 ```
 

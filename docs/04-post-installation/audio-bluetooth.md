@@ -5,7 +5,7 @@
 ## Table of Contents
 
 - [Audio with PipeWire](#audio-with-pipewire)
-- [Bluetooth Setup](#bluetooth-setup)
+- [Bluetooth Setup](#-bluetooth-setup)
 - [Troubleshooting](#troubleshooting)
 
 ---

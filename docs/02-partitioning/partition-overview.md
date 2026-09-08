@@ -563,23 +563,33 @@ parted /dev/sdX
 
 ---
 
-## Next Steps
+## Next Steps — Pick Your Flow
 
-Choose your partitioning guide:
+**This is where the guide splits.** Up to now every path was identical. From here you follow one
+flow straight through to a working system, and you can ignore the other four entirely.
 
-| Guide | Description |
-|-------|-------------|
-| [Basic Partitioning](basic-partitioning.md) | Simple 2-3 partition setup |
-| [Advanced Partitioning](advanced-partitioning.md) | Separate /home partition |
-| [Btrfs Setup](btrfs-setup.md) | Modern filesystem with snapshots |
-| [LVM Setup](lvm-setup.md) | Flexible Logical Volume Manager |
-| [LVM + Encryption](lvm-encryption.md) | Full disk encryption with LVM |
-| [Btrfs + Encryption](btrfs-encryption.md) | Full disk encryption with snapshots ⭐ |
+| Your choice | Then | Then |
+|-------------|------|------|
+| **[Basic Partitioning](basic-partitioning.md)**<br>Simple ext4, easiest | [Base Installation — Standard](../03-base-installation/base-install-standard.md) | [GRUB](../03-base-installation/bootloader-standard.md) |
+| **[Advanced Partitioning](advanced-partitioning.md)**<br>ext4 with separate `/home` | [Base Installation — Standard](../03-base-installation/base-install-standard.md) | [GRUB](../03-base-installation/bootloader-standard.md) |
+| **[Btrfs Setup](btrfs-setup.md)** ⭐<br>Snapshots and compression | [Base Installation — Btrfs](../03-base-installation/base-install-btrfs.md) | [GRUB for Btrfs](../03-base-installation/bootloader-btrfs.md) |
+| **[Btrfs + Encryption](btrfs-encryption.md)** ⭐<br>Snapshots **and** encryption | [Base Installation — Btrfs + LUKS](../03-base-installation/base-install-btrfs-luks.md) | [GRUB for Btrfs + LUKS](../03-base-installation/bootloader-btrfs-luks.md) |
+| **[LVM Setup](lvm-setup.md)**<br>Resizable volumes | [Base Installation — LVM](../03-base-installation/base-install-lvm.md) | [GRUB for LVM](../03-base-installation/bootloader-lvm.md) |
+| **[LVM + Encryption](lvm-encryption.md)**<br>Encryption with LVM volumes | [Base Installation — LUKS + LVM](../03-base-installation/base-install-encrypted.md) | [GRUB for LUKS + LVM](../03-base-installation/bootloader-encrypted.md) |
+
+All six flows then rejoin at **[First Boot](../04-post-installation/first-boot.md)**.
+
+> **Still unsure?** Take **Btrfs** for a desktop, or **Btrfs + Encryption** for a laptop. The
+> snapshots will rescue you from a bad update at some point, and you do not need LVM to get them.
+> Take **Basic** if you want the shortest path and can reinstall if something goes wrong.
+
+> ⚠️ **Follow one flow only.** Each is complete on its own, and mixing steps between them is the
+> most reliable way to end up with a system that will not boot.
 
 ---
 
 <div align="center">
 
-[← Live Environment](../01-pre-installation/live-environment.md) | [Back to Main Guide](../../README.md) | [Next: Basic Partitioning →](basic-partitioning.md)
+[← Live Environment](../01-pre-installation/live-environment.md) | [Back to Main Guide](../../README.md) | [Next: pick a flow above ↑](#next-steps--pick-your-flow)
 
 </div>

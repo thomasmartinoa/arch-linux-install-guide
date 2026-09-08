@@ -8,7 +8,7 @@
 - [Intel Graphics](#intel-graphics)
 - [AMD Graphics](#amd-graphics)
 - [NVIDIA Graphics](#nvidia-graphics)
-- [Hybrid Graphics](#hybrid-graphics)
+- [Hybrid Graphics](#hybrid-graphics-laptop)
 - [Verify Installation](#verify-installation)
 
 ---

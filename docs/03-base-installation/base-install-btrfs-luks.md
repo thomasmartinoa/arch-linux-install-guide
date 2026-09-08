@@ -1,6 +1,6 @@
-# Base Installation — Standard (ext4)
+# Base Installation — Btrfs + LUKS
 
-> For the **Basic** or **Advanced** ext4 partition layouts.
+> For **Btrfs subvolumes inside a LUKS container** (no LVM).
 
 This guide is complete on its own. Follow it top to bottom — every command here applies to
 your setup, and there is nothing to pick or skip.
@@ -25,8 +25,8 @@ your setup, and there is nothing to pick or skip.
 
 ## Prerequisites
 
-You should have just finished **[Basic Partitioning](../02-partitioning/basic-partitioning.md)**
-(or [Advanced Partitioning](../02-partitioning/advanced-partitioning.md) if you made a separate `/home`).
+You should have just finished **[Btrfs with Encryption](../02-partitioning/btrfs-encryption.md)**
+.
 
 - [ ] Partitions created, formatted and mounted under `/mnt`
 - [ ] Internet connection working in the live environment
@@ -45,21 +45,28 @@ Everything below needs to download packages.
 ## Step 1: Verify Your Mounts
 
 ```bash
-lsblk
+lsblk -f
 ```
 
 **You should see something like this:**
 
 ```
-NAME   MAJ:MIN RM   SIZE RO TYPE MOUNTPOINT
-vda    254:0    0   500G  0 disk
-├─vda1 254:1    0     1G  0 part /mnt/boot
-├─vda2 254:2    0   491G  0 part /mnt
-└─vda3 254:3    0     8G  0 part [SWAP]
+NAME          FSTYPE      LABEL MOUNTPOINTS
+vda
+├─vda1        vfat              /mnt/boot
+└─vda2        crypto_LUKS                    ← the encrypted container
+  └─cryptroot btrfs       arch  /mnt/swap
+                                /mnt/var/cache
+                                /mnt/var/log
+                                /mnt/.snapshots
+                                /mnt/home
+                                /mnt
 ```
 
-If you followed the Advanced guide you will also see `/mnt/home` on its own partition.
-That is fine — `genfstab` picks it up automatically in Step 3.
+Two things must be true:
+
+- `vda2` shows `crypto_LUKS` — the container exists
+- `cryptroot` shows `btrfs` — it is unlocked and formatted, with your subvolumes mounted
 
 > ⚠️ **Do not continue until this looks right.** Every step below writes into `/mnt`. A wrong
 > mount here means reinstalling later, and it is far cheaper to fix now.
@@ -113,17 +120,23 @@ cat /mnt/etc/fstab
 ```
 
 ```
-# /dev/vda2
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /       ext4  rw,relatime  0 1
+# /dev/mapper/cryptroot LABEL=arch
+UUID=xxxx  /            btrfs  rw,noatime,compress=zstd,subvol=/@           0 0
+UUID=xxxx  /home        btrfs  rw,noatime,compress=zstd,subvol=/@home       0 0
+UUID=xxxx  /.snapshots  btrfs  rw,noatime,compress=zstd,subvol=/@snapshots  0 0
+UUID=xxxx  /var/log     btrfs  rw,noatime,compress=zstd,subvol=/@var_log    0 0
+UUID=xxxx  /var/cache   btrfs  rw,noatime,compress=zstd,subvol=/@var_cache  0 0
+UUID=xxxx  /swap        btrfs  rw,noatime,subvol=/@swap                     0 0
 
 # /dev/vda1
-UUID=XXXX-XXXX                             /boot   vfat  rw,relatime  0 2
+UUID=XXXX-XXXX  /boot   vfat   rw,relatime  0 2
 
-# /dev/vda3
-UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  none    swap  defaults     0 0
+# swap file
+/swap/swapfile  none    swap   defaults     0 0
 ```
 
-
+> 💡 The LUKS container is **not** in fstab — it is unlocked by the initramfs before fstab is
+> ever read. The UUIDs above are the *Btrfs* filesystem's, not the LUKS partition's.
 
 If a filesystem is missing, mount it and re-run `genfstab` — but delete the duplicate lines
 afterwards.
@@ -223,7 +236,7 @@ Change `us` to `uk`, `de`, `fr` and so on if needed.
 
 > **On console fonts:** you can also set `FONT=` here, but only if that font's package is
 > installed. Setting `FONT=ter-132n` without installing `terminus-font` makes every future
-> `mkinitcpio` run print a warning.
+> `mkinitcpio` run print a warning. On this path the font also affects the passphrase prompt at boot, so keep it simple unless you have a reason not to.
 
 ### 5.7 Create Your User
 
@@ -264,7 +277,29 @@ pacman -S base-devel grub efibootmgr dosfstools mtools \
 | `sudo` | Run single commands as root |
 | `os-prober` | Detects other operating systems for dual boot |
 
-### 6.2 Enable sudo
+### 6.2 Packages this setup requires
+
+```bash
+pacman -S btrfs-progs cryptsetup
+```
+
+| Package | Why you need it |
+|---------|-----------------|
+| `btrfs-progs` | Btrfs tools — without them the system cannot mount its own root |
+| `cryptsetup` | LUKS tools — **and the binary your initramfs needs to unlock the disk** |
+
+> ### 🔴 Both are mandatory, and both fail silently
+>
+> **`cryptsetup`** — the `encrypt` hook copies this binary into your initramfs. Without the
+> package, Step 9 fails with `==> ERROR: file not found: `cryptsetup'` and the resulting
+> initramfs can never unlock your disk.
+>
+> **`btrfs-progs`** — your root filesystem is Btrfs and cannot be mounted without it.
+>
+> Note there is **no `lvm2`** on this path. Btrfs subvolumes already give you flexible sizing
+> and snapshots, so LVM would be a second volume manager doing the first one's job.
+
+### 6.3 Enable sudo
 
 ```bash
 EDITOR=vim visudo
@@ -365,20 +400,36 @@ pacman -S mesa
 The initramfs is a small system that runs before your real root filesystem is available. Its one
 job is to make root reachable, then hand over.
 
-On this path it needs no changes at all — the default configuration already does everything
-required.
+On this path it has real work to do, so it needs extra hooks.
 
 ```bash
-grep '^HOOKS' /etc/mkinitcpio.conf
+vim /etc/mkinitcpio.conf
 ```
 
-Confirm it matches:
+Find the `HOOKS=` line. It currently reads:
 
 ```
 HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block filesystems fsck)
 ```
 
+Change it to:
 
+```
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
+```
+
+### Why
+
+Add **`encrypt`** after `block`. There is no `lvm2` on this path:
+
+```
+keyboard  →  block  →  encrypt  →  filesystems
+   │           │          │             │
+ you can    disks      unlock        mount the
+ type       appear     LUKS          @ subvolume
+```
+
+`keyboard` must come **before** `encrypt`, or you cannot type your passphrase at boot.
 
 ### Build it
 
@@ -402,6 +453,25 @@ That is just the `consolefont` hook noting you set no `FONT=` in Step 5.6. It sk
 
 **`WARNING` is fine. `ERROR` is not.** Any line starting with `==> ERROR:` means the initramfs
 is broken and the system will not boot. Fix it now, while you still have a working shell.
+
+### Verify the unlock tooling landed
+
+This is the single most important check on this path:
+
+```bash
+lsinitcpio /boot/initramfs-linux.img | grep -c 'bin/cryptsetup'
+```
+
+It must print **1**. If it prints `0`, the `cryptsetup` package was missing when `mkinitcpio`
+ran, and your initramfs has no way to unlock the disk:
+
+```bash
+pacman -S cryptsetup
+mkinitcpio -P
+```
+
+Then check again. Catching this here costs you thirty seconds; catching it after a reboot costs
+you a live-USB rescue session.
 
 ---
 
@@ -446,14 +516,14 @@ passwd username
 
 # Packages
 pacman -S base-devel grub efibootmgr dosfstools mtools networkmanager openssh sudo os-prober
-# (no extra packages needed on this path)
+pacman -S btrfs-progs cryptsetup
 pacman -S linux-headers linux-lts linux-lts-headers
 pacman -S intel-ucode                              # or amd-ucode
 pacman -S mesa vulkan-intel intel-media-driver     # or your GPU's packages
 EDITOR=vim visudo                                  # uncomment %wheel
 
 # initramfs
-# HOOKS need no changes on this path
+vim /etc/mkinitcpio.conf   # HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt filesystems fsck)
 mkinitcpio -P
 
 # Services
@@ -468,12 +538,12 @@ systemctl enable sshd
 Your system is installed but cannot boot yet — nothing knows how to start it. That is the
 bootloader's job, and it is the last step before you reboot.
 
-→ **[GRUB Bootloader](bootloader-standard.md)**
+→ **[GRUB Bootloader for Btrfs + LUKS](bootloader-btrfs-luks.md)**
 
 ---
 
 <div align="center">
 
-[← Basic Partitioning](../02-partitioning/basic-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader →](bootloader-standard.md)
+[← Btrfs with Encryption](../02-partitioning/btrfs-encryption.md) | [Back to Main Guide](../../README.md) | [Next: GRUB Bootloader for Btrfs + LUKS →](bootloader-btrfs-luks.md)
 
 </div>

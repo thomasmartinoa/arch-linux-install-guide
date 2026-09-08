@@ -1,7 +1,7 @@
 #!/bin/bash
 # Shared install steps for the VM smoke tests.
 #
-# MIRRORS: docs/03-base-installation/base-install-common.md
+# MIRRORS: the five docs/03-base-installation/base-install-*.md guides (shared steps)
 # Every command here must correspond to a step in that document. If you change one,
 # change the other in the same commit — a payload that drifts from the guide tests nothing.
 
@@ -23,7 +23,7 @@ wait_net() {
     die "no network in the live environment"
 }
 
-# base-install-common.md Step 2 — note the kernel and editor, which `base` does not provide.
+# base-install-*.md Step 2 — note the kernel and editor, which `base` does not provide.
 # $1 = path-specific extra packages (Step 6.2 branch), may be empty.
 install_base() {
     local extra="${1:-}"
@@ -32,14 +32,14 @@ install_base() {
         || die "pacstrap failed"
 }
 
-# base-install-common.md Step 3
+# base-install-*.md Step 3
 gen_fstab() {
     log "genfstab"
     genfstab -U /mnt >> /mnt/etc/fstab
     echo "ARCHTEST: fstab:"; cat /mnt/etc/fstab
 }
 
-# base-install-common.md Step 5 + 6.1 + 6.3 + 7 + 10, run inside the chroot.
+# base-install-*.md Step 5 + 6.1 + 6.3 + 7 + 10, run inside the chroot.
 configure_system() {
     log "configuring system in chroot"
     arch-chroot /mnt /bin/bash -euo pipefail <<CHROOT
@@ -76,7 +76,7 @@ systemctl enable sshd
 CHROOT
 }
 
-# base-install-common.md Step 9 — set HOOKS, then rebuild.
+# base-install-*.md Step 9 — set HOOKS, then rebuild.
 # $1 = the full HOOKS value for this path.
 set_hooks() {
     local hooks="$1"

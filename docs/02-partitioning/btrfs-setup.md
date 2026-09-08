@@ -9,7 +9,7 @@
 - [Step-by-Step Setup](#step-by-step-setup)
 - [Subvolume Layout](#subvolume-layout)
 - [Mount Options](#mount-options)
-- [Snapshot Setup](#snapshot-setup)
+- [Snapshots](#snapshots)
 - [Verification](#verification)
 
 ---
@@ -238,19 +238,87 @@ swapon /mnt/swap/swapfile
 
 ## Snapshots
 
-Snapper setup happens **after the first reboot**, not now. It is covered in full — including the
-`/.snapshots` conflict that trips up almost everyone — on the path notes page:
-
-→ **[Path Notes: Btrfs — Setting up Snapper](../03-base-installation/deltas/btrfs.md#setting-up-snapper-after-first-boot)**
+Snapshots are why most people choose Btrfs. You set them up **after the first reboot**, not now —
+but the subvolume layout you just created is what makes them work.
 
 The one thing you must not forget during installation is the package:
 
 ```bash
-pacman -S btrfs-progs      # in chroot, during base installation
+pacman -S btrfs-progs      # in the chroot, during base installation
 ```
 
-> 🔴 Without `btrfs-progs` the installed system cannot mount its own root filesystem. There is no
-> warning at install time — it simply fails to boot.
+> 🔴 Without `btrfs-progs` the installed system cannot mount its own root filesystem. Nothing
+> warns you — it simply fails to boot.
+
+```bash
+sudo pacman -S snapper snap-pac grub-btrfs
+```
+
+| Package | Purpose |
+|---------|---------|
+| `snapper` | Creates and manages snapshots |
+| `snap-pac` | Automatic snapshot before and after every `pacman` transaction |
+| `grub-btrfs` | Adds a "boot from snapshot" submenu to GRUB |
+
+### The `/.snapshots` conflict — read this before running `create-config`
+
+`snapper create-config` insists on creating its own `/.snapshots` subvolume, and refuses to run
+if anything is already mounted there. But your `@snapshots` **is** mounted there — `genfstab`
+captured it during install, so it mounts at every boot. Run `create-config` now and you get:
+
+```
+Creating config failed (creating btrfs subvolume .snapshots failed since it already exists).
+```
+
+That is the single most common Btrfs-on-Arch stumbling block. The fix is to get out of
+snapper's way, let it do its thing, then put your own subvolume back:
+
+```bash
+sudo umount /.snapshots                    # unmount YOUR @snapshots
+sudo rm -r /.snapshots                     # remove the now-empty mount point
+sudo snapper -c root create-config /       # snapper creates ITS own /.snapshots subvolume
+sudo btrfs subvolume delete /.snapshots    # delete snapper's — you want yours
+sudo mkdir /.snapshots                     # recreate the mount point
+sudo mount -a                              # remount YOUR @snapshots from fstab
+sudo chmod 750 /.snapshots                 # snapper expects these permissions
+```
+
+Order matters throughout. `create-config` must run while nothing is mounted at `/.snapshots`,
+and the `mount -a` at the end is what reconnects the subvolume `genfstab` recorded.
+
+### Turn on automatic snapshots
+
+```bash
+sudo systemctl enable --now snapper-timeline.timer
+sudo systemctl enable --now snapper-cleanup.timer
+sudo systemctl enable --now grub-btrfsd
+```
+
+### Tune the retention limits
+
+```bash
+sudo vim /etc/snapper/configs/root
+```
+
+```ini
+TIMELINE_MIN_AGE="1800"
+TIMELINE_LIMIT_HOURLY="5"
+TIMELINE_LIMIT_DAILY="7"
+TIMELINE_LIMIT_WEEKLY="0"
+TIMELINE_LIMIT_MONTHLY="0"
+TIMELINE_LIMIT_YEARLY="0"
+NUMBER_LIMIT="50"
+NUMBER_LIMIT_IMPORTANT="10"
+```
+
+Defaults keep far more snapshots than a desktop needs, and they are what fills your disk.
+
+### Check it works
+
+```bash
+sudo snapper -c root list      # should show snapshots
+sudo compsize /                # how much compression is actually saving you
+```
 
 ---
 
@@ -356,30 +424,17 @@ lsblk -f
 
 ## Next Steps
 
-→ **[Base System Installation](../03-base-installation/base-install-common.md)**
+Your disk is ready. Next you install Arch onto it.
 
-At its two branch points, use the **Btrfs** row:
+→ **[Base Installation — Btrfs](../03-base-installation/base-install-btrfs.md)**
 
-| Branch | Answer |
-|--------|--------|
-| Step 6.2 — extra packages | `btrfs-progs` |
-| Step 9 — HOOKS | Arch default, unchanged |
-
-Details: **[Path Notes: Btrfs](../03-base-installation/deltas/btrfs.md)**
-
-Then pick a bootloader:
-
-- [GRUB](../03-base-installation/bootloader-standard.md) — works everywhere, and `grub-btrfs`
-  gives you a boot-from-snapshot menu
-- [systemd-boot](../03-base-installation/bootloader-systemd.md) — simpler and faster, but you
-  must add `rootflags=subvol=@` to the entry by hand
-
-> **Want encryption too?** See [Btrfs with Full Disk Encryption](btrfs-encryption.md).
+That guide is written specifically for the **Btrfs** layout you just created — follow it
+straight through, there is nothing to pick or choose.
 
 ---
 
 <div align="center">
 
-[← LVM Setup](lvm-setup.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
+[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation — Btrfs →](../03-base-installation/base-install-btrfs.md)
 
 </div>

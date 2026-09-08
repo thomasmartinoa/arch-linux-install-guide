@@ -272,9 +272,38 @@ swapon /mnt/swap/swapfile
 > doing it in the wrong order silently gives you a copy-on-write swap file that corrupts under
 > memory pressure. `mkswapfile` (btrfs-progs 6.1+) does the whole thing correctly.
 
-Size it against the [swap guidelines](partition-overview.md#swap-partitionfile) — and see
-[Path Notes: Btrfs + LUKS](../03-base-installation/deltas/btrfs-luks.md#hibernation-optional)
-if you want hibernation, which needs two extra kernel parameters.
+Size it against the [swap guidelines](partition-overview.md#swap-partitionfile). For
+suspend-to-disk see [Hibernation](#hibernation-optional) below — it needs two extra kernel
+parameters.
+
+---
+
+## Hibernation (optional)
+
+Hibernating to a Btrfs swapfile needs both the physical offset of the file and the `resume` hook:
+
+```bash
+sudo btrfs inspect-internal map-swapfile -r /swap/swapfile   # prints the offset
+```
+
+```
+HOOKS=(base udev autodetect microcode modconf kms keyboard keymap consolefont block encrypt resume filesystems fsck)
+```
+
+```bash
+GRUB_CMDLINE_LINUX="cryptdevice=UUID=<luks-uuid>:cryptroot resume=UUID=<btrfs-fs-uuid> resume_offset=<offset>"
+```
+
+`resume=` takes the UUID of the **Btrfs filesystem** (`blkid /dev/mapper/cryptroot`), not the
+LUKS partition. Regenerate both afterwards:
+
+```bash
+sudo mkinitcpio -P && sudo grub-mkconfig -o /boot/grub/grub.cfg
+```
+
+> ⚠️ The offset changes if the swapfile is ever recreated, moved, or defragmented. Re-run
+> `map-swapfile` and update the parameter whenever you touch it, or hibernation will resume from
+> garbage.
 
 ---
 
@@ -317,19 +346,12 @@ Checklist:
 
 ## Next Steps
 
-→ **[Base System Installation](../03-base-installation/base-install-common.md)**
+Your disk is ready. Next you install Arch onto it.
 
-At its two branch points, use the **Btrfs + LUKS** row:
+→ **[Base Installation — Btrfs + LUKS](../03-base-installation/base-install-btrfs-luks.md)**
 
-| Branch | Answer |
-|--------|--------|
-| Step 6.2 — extra packages | `btrfs-progs cryptsetup` |
-| Step 9 — HOOKS | `... block `**`encrypt`**` filesystems fsck` |
-
-Details on both: **[Path Notes: Btrfs + LUKS](../03-base-installation/deltas/btrfs-luks.md)**
-
-> 🔴 **Do not skip `cryptsetup`.** It is what lets the initramfs unlock your disk. Without it
-> the install completes normally and the machine never boots again.
+That guide is written specifically for the **Btrfs + LUKS** layout you just created — follow it
+straight through, there is nothing to pick or choose.
 
 ---
 
@@ -371,6 +393,6 @@ If that unlocks, your passphrase and header are healthy and the problem is in th
 
 <div align="center">
 
-[← Btrfs Setup](btrfs-setup.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
+[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation — Btrfs + LUKS →](../03-base-installation/base-install-btrfs-luks.md)
 
 </div>

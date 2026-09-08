@@ -1,9 +1,8 @@
 #!/bin/bash
 # PATH: Btrfs + LUKS
 # MIRRORS: docs/02-partitioning/btrfs-encryption.md
-#          docs/03-base-installation/base-install-common.md   (Btrfs + LUKS row)
-#          docs/03-base-installation/deltas/btrfs-luks.md
-#          docs/03-base-installation/bootloader-encrypted.md
+#          docs/03-base-installation/base-install-btrfs-luks.md
+#          docs/03-base-installation/bootloader-btrfs-luks.md
 set -euo pipefail
 
 # archiso runs script= from the tty1 autologin shell, so stdout would never reach the

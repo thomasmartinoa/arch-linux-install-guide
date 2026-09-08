@@ -1,8 +1,7 @@
 #!/bin/bash
 # PATH: LVM
 # MIRRORS: docs/02-partitioning/lvm-setup.md
-#          docs/03-base-installation/base-install-common.md   (LVM row)
-#          docs/03-base-installation/deltas/lvm.md
+#          docs/03-base-installation/base-install-lvm.md
 #          docs/03-base-installation/bootloader-lvm.md
 set -euo pipefail
 

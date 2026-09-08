@@ -43,7 +43,7 @@ Login with your user account (not root).
 ## Check Sudo
 
 You already enabled sudo during installation
-([Step 6.3](../03-base-installation/base-install-common.md#63-configure-sudo)). Verify it:
+([Step 6.3](../03-base-installation/README.md)). Verify it:
 
 ```bash
 sudo pacman -Syu

@@ -1,6 +1,6 @@
-# GRUB Bootloader — LVM
+# GRUB Bootloader — Btrfs
 
-> The final step for **LVM without encryption**.
+> The final step for **Btrfs with subvolumes** (no encryption).
 
 ![GRUB Bootloader](../../images/grub-bootloader.png)
 
@@ -26,7 +26,7 @@ Power on → UEFI firmware → GRUB → Linux kernel → your system
 ## Prerequisites
 
 You should have just finished
-**[Base Installation — LVM](base-install-lvm.md)**, and still be inside the chroot.
+**[Base Installation — Btrfs](base-install-btrfs.md)**, and still be inside the chroot.
 
 ```bash
 pacman -Q grub efibootmgr
@@ -102,9 +102,10 @@ done
 > If **no** kernel images are found, `/boot` is not mounted, or Step 2 of the previous guide
 > never completed. Do not reboot — fix it now.
 
-> **No kernel parameters needed.** Unlike the encrypted paths, plain LVM needs nothing added to
-> `/etc/default/grub`. The `lvm2` hook you added in Step 9 of the previous guide finds and
-> activates the volume group by itself.
+> **Snapshots and your kernels.** With the ESP mounted at `/boot`, your kernels live on the FAT32
+> partition, outside any subvolume — so snapshots do not capture them. Rolling back a snapshot
+> restores your system files but keeps the current kernel. That is normally what you want; a bad
+> *kernel* update is what the LTS entry in your boot menu is for.
 
 ---
 
@@ -123,20 +124,20 @@ grep -cE '(intel|amd)-ucode\.img' /boot/grub/grub.cfg   # 1 or more
 # The EFI binary exists where the firmware will look
 ls /boot/EFI/GRUB/grubx64.efi
 ```
-### Confirm GRUB found your logical volume
+### Confirm GRUB knows about your subvolume
 
 ```bash
-grep -m1 'root=' /boot/grub/grub.cfg
+grep -o 'rootflags=[^ ]*' /boot/grub/grub.cfg | head -1
 ```
 
-It should name your root volume:
+It must print `rootflags=subvol=@`.
 
-```
-linux /vmlinuz-linux root=/dev/mapper/volgroup0-lv_root ...
-```
+You do **not** add this by hand — `grub-mkconfig` reads your mounted layout and writes it. If it
+is missing, your `@` subvolume was not mounted when you ran the command. Check with
+`findmnt /`, remount if needed, and run `grub-mkconfig` again.
 
-If it names a plain partition instead, `grub-mkconfig` did not detect LVM — check that your
-volumes are active (`vgchange -ay`) and re-run it.
+Without it the kernel mounts the *top level* of the filesystem instead of your root subvolume,
+and the boot ends in an emergency shell.
 ---
 
 ## Step 5: Reboot
@@ -170,10 +171,9 @@ Log in with the username and password you created in Step 5.7.
 Every fix starts the same way: boot the live USB and re-enter your system.
 
 ```bash
-vgchange -ay
-mount /dev/volgroup0/lv_root /mnt
+mount -o noatime,compress=zstd,subvol=@ /dev/vda2 /mnt
+mount -o noatime,compress=zstd,subvol=@home /dev/vda2 /mnt/home
 mount /dev/vda1 /mnt/boot
-mount /dev/volgroup0/lv_home /mnt/home
 arch-chroot /mnt
 ```
 
@@ -192,8 +192,29 @@ grub-mkconfig -o /boot/grub/grub.cfg     # if you changed /etc/default/grub
 | `error: no such device` | fstab or GRUB references a stale UUID | Re-run `grub-mkconfig`; check `blkid` matches fstab |
 | Boots to a `grub>` prompt | `grub.cfg` missing or `/boot` was not mounted | Mount `/boot`, re-run Step 3 |
 | Kernel panic, `unable to mount root` | initramfs cannot reach root | Rebuild with `mkinitcpio -P` and re-check HOOKS |
-| `Volume group not found` at boot | the `lvm2` hook is missing or sits before `block` | fix the HOOKS order, then `mkinitcpio -P` |
+| Boots to an emergency shell, root looks empty | `rootflags=subvol=@` missing from grub.cfg | mount `@` at `/mnt`, re-run `grub-mkconfig -o /boot/grub/grub.cfg` |
+| `can't find command 'btrfs'` or cannot mount root | `btrfs-progs` was never installed | `pacman -S btrfs-progs && mkinitcpio -P` |
 
+---
+
+## Alternative: systemd-boot
+
+GRUB is recommended here because it handles every layout in this guide. If you prefer something
+smaller and faster, and you are not using encryption, systemd-boot is a fine choice.
+
+→ [systemd-boot](bootloader-systemd.md)
+
+Use one or the other, not both.
+## After You Reboot: Snapshots
+
+Btrfs snapshots are what make this path worth the extra steps, but Snapper is set up **after**
+the first boot, not now.
+
+→ [Setting up Snapper](../02-partitioning/btrfs-setup.md#snapshots)
+
+> The one thing that trips everyone up: `snapper create-config` refuses to run while anything is
+> mounted at `/.snapshots` — and yours is, from fstab. The linked section covers the exact order
+> to work around it.
 ---
 
 ## Next Step
@@ -206,6 +227,6 @@ You have a booting Arch system. Now make it usable — users, networking, mirror
 
 <div align="center">
 
-[← Base Installation — LVM](base-install-lvm.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
+[← Base Installation — Btrfs](base-install-btrfs.md) | [Back to Main Guide](../../README.md) | [Next: First Boot →](../04-post-installation/first-boot.md)
 
 </div>

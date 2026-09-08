@@ -462,23 +462,17 @@ lvcreate -L 10G -s -n root_snapshot /dev/volgroup0/lv_root
 
 ## Next Steps
 
-→ **[Base System Installation](../03-base-installation/base-install-common.md)**
+Your disk is ready. Next you install Arch onto it.
 
-At its two branch points, use the **LVM** row:
+→ **[Base Installation — LVM](../03-base-installation/base-install-lvm.md)**
 
-| Branch | Answer |
-|--------|--------|
-| Step 6.2 — extra packages | `lvm2` |
-| Step 9 — HOOKS | `... block `**`lvm2`**` filesystems fsck` |
-
-Details: **[Path Notes: LVM](../03-base-installation/deltas/lvm.md)**
-
-Then: [GRUB — LVM](../03-base-installation/bootloader-lvm.md)
+That guide is written specifically for the **LVM** layout you just created — follow it
+straight through, there is nothing to pick or choose.
 
 ---
 
 <div align="center">
 
-[← Advanced Partitioning](advanced-partitioning.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation →](../03-base-installation/base-install-common.md)
+[← Partition Overview](partition-overview.md) | [Back to Main Guide](../../README.md) | [Next: Base Installation — LVM →](../03-base-installation/base-install-lvm.md)
 
 </div>
