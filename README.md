@@ -152,7 +152,9 @@ Once you have a login prompt, all flows rejoin:
 3. [Audio & Bluetooth](docs/04-post-installation/audio-bluetooth.md)
 4. [Choose a Desktop Environment](docs/05-desktop-environments/de-overview.md)
 5. [Essential Software](docs/06-essential-software/essential-packages.md) · [AUR Helpers](docs/06-essential-software/aur-helpers.md)
-6. Optional: [Security](docs/07-optimization/security.md) · [Performance](docs/07-optimization/performance-tweaks.md) · [Maintenance](docs/07-optimization/maintenance.md)
+6. Optional: [Security](docs/07-optimization/security.md) · [Performance](docs/07-optimization/performance-tweaks.md) ·
+   [Hibernation](docs/07-optimization/hibernation.md) · [TPM Auto-Unlock](docs/07-optimization/tpm-luks-autounlock.md) ·
+   [Maintenance](docs/07-optimization/maintenance.md)
 
 ---
 
@@ -228,6 +230,8 @@ alternative for the unencrypted Basic, Advanced and Btrfs flows.
 |-------|-------------|
 | [Security Hardening](docs/07-optimization/security.md) | Firewall, SSH, Fail2ban, AppArmor |
 | [Performance Tweaks](docs/07-optimization/performance-tweaks.md) | SSD, swap, kernel optimization |
+| [Hibernation Setup](docs/07-optimization/hibernation.md) | Suspend-to-disk for every flow, encrypted or not |
+| [TPM2 Auto-Unlock](docs/07-optimization/tpm-luks-autounlock.md) | Link a second encrypted disk, skip the passphrase with a TPM2 chip |
 | [System Maintenance](docs/07-optimization/maintenance.md) | Updates, cleaning, backups |
 
 ---
