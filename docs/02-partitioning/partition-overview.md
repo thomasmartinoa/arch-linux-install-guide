@@ -293,32 +293,7 @@ mkfs.fat -F32 /dev/sdX1
 
 ---
 
-### Scheme 4: Advanced (Separate Boot)
-
-```
-┌───────────────────────────────────────────────────────────────────────┐
-│                              DISK                                     │
-├─────────┬─────────┬───────────┬───────────────────────────┬───────────┤
-│   EFI   │  BOOT   │   ROOT    │          HOME             │   SWAP    │
-│   1GB   │   1GB   │   50GB    │       (remaining)         │   8GB     │
-│  FAT32  │  ext4   │   ext4    │          ext4             │   swap    │
-└─────────┴─────────┴───────────┴───────────────────────────┴───────────┘
-```
-
-| Partition | Size | Type | Mount |
-|-----------|------|------|-------|
-| ESP | 1GB | FAT32 | /boot/efi |
-| Boot | 1GB | ext4 | /boot |
-| Root | 50-100GB | ext4 | / |
-| Home | Remaining - 8GB | ext4 | /home |
-| Swap | 8GB | swap | [SWAP] |
-
-**Pros:** Required for encryption, flexible
-**Cons:** More complex
-
----
-
-### Scheme 5: Btrfs with Subvolumes (Modern) ⭐
+### Scheme 4: Btrfs with Subvolumes (Modern) ⭐
 
 ```
 ┌───────────────────────────────────────────────────────────────┐
@@ -353,7 +328,7 @@ mkfs.fat -F32 /dev/sdX1
 
 ---
 
-### Scheme 6: LVM (Flexible)
+### Scheme 5: LVM (Flexible)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -376,7 +351,7 @@ mkfs.fat -F32 /dev/sdX1
 
 ---
 
-### Scheme 7: LVM + Encryption (Most Secure)
+### Scheme 6: LVM + Encryption (Most Secure)
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────┐
@@ -401,7 +376,7 @@ mkfs.fat -F32 /dev/sdX1
 
 ---
 
-### Scheme 8: Btrfs + LUKS (Encrypted, with Snapshots) ⭐
+### Scheme 7: Btrfs + LUKS (Encrypted, with Snapshots) ⭐
 
 ```
 ┌─────────┬───────────────────────────────────────────────────────┐

@@ -292,10 +292,10 @@ reboot
 vim /etc/default/grub
 
 # Ensure cryptdevice is correct
-GRUB_CMDLINE_LINUX="cryptdevice=/dev/nvme0n1p3:lvm"
+GRUB_CMDLINE_LINUX="cryptdevice=/dev/nvme0n1p3:cryptlvm"
 
 # Or use UUID (more reliable)
-GRUB_CMDLINE_LINUX="cryptdevice=UUID=your-uuid-here:lvm"
+GRUB_CMDLINE_LINUX="cryptdevice=UUID=your-uuid-here:cryptlvm"
 
 # Regenerate
 grub-mkconfig -o /boot/grub/grub.cfg
