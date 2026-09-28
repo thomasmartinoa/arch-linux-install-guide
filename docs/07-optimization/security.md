@@ -383,16 +383,44 @@ sbctl status
 # Create and enroll keys
 sudo sbctl create-keys
 sudo sbctl enroll-keys --microsoft
+```
 
-# Sign bootloader and kernel
-sudo sbctl sign -s /boot/EFI/BOOT/BOOTX64.EFI
+**Sign the right `.efi` file — it depends on your bootloader, not `/boot/EFI/BOOT/BOOTX64.EFI`
+by default.** That removable path only exists if GRUB was installed with `--removable`, which
+this guide's [bootloader guides](../03-base-installation/bootloader-standard.md) do not use.
+
+| Flow | Sign this |
+|------|-----------|
+| GRUB, ESP mounted at `/boot` (Standard, Advanced, Btrfs, Btrfs + Encryption, LVM) | `/boot/EFI/GRUB/grubx64.efi` |
+| GRUB, ESP mounted at `/efi` (LUKS + LVM) | `/efi/EFI/GRUB/grubx64.efi` |
+| [systemd-boot](../03-base-installation/bootloader-systemd.md) | `/boot/EFI/BOOT/BOOTX64.EFI` |
+
+```bash
+# GRUB example (adjust the path per the table above)
+sudo sbctl sign -s /boot/EFI/GRUB/grubx64.efi
 sudo sbctl sign -s /boot/vmlinuz-linux
+sudo sbctl sign -s /boot/vmlinuz-linux-lts   # if you installed the LTS kernel too
 
 # Verify
 sudo sbctl verify
 ```
 
+Every kernel update replaces `vmlinuz-linux` with an unsigned file, so `sbctl verify` will show it
+as unsigned again after your next `pacman -Syu`. Re-sign everything already tracked in one go:
+
+```bash
+sudo sbctl sign-all
+```
+
+`sbctl` also installs a pacman hook that runs `sign-all` automatically after kernel upgrades —
+`sbctl verify` right after an update is just the way to confirm it actually ran.
+
 Then enable Secure Boot in BIOS.
+
+> 💡 **Combining this with [TPM2 auto-unlock](tpm-luks-autounlock.md)?** A properly signed and
+> enrolled Secure Boot setup is what makes binding the TPM to PCR 7 meaningful — it means the
+> disk only auto-unlocks when your signed bootloader and kernel are what's actually running, not
+> just whichever binary happens to sit in the ESP.
 
 ---
 

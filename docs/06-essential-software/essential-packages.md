@@ -34,7 +34,6 @@ sudo pacman -S rsync         # File synchronization
 
 ```bash
 sudo pacman -S ntfs-3g       # NTFS read/write support
-sudo pacman -S exfat-utils   # exFAT filesystem support
 sudo pacman -S exfatprogs    # exFAT tools (kernel has the driver built in)
 sudo pacman -S dosfstools    # FAT32 tools
 ```
