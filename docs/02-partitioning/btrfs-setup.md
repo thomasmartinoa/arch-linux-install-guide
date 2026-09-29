@@ -251,7 +251,7 @@ pacman -S btrfs-progs      # in the chroot, during base installation
 > warns you — it simply fails to boot.
 
 ```bash
-sudo pacman -S snapper snap-pac grub-btrfs
+sudo pacman -S snapper snap-pac grub-btrfs inotify-tools
 ```
 
 | Package | Purpose |
@@ -259,6 +259,13 @@ sudo pacman -S snapper snap-pac grub-btrfs
 | `snapper` | Creates and manages snapshots |
 | `snap-pac` | Automatic snapshot before and after every `pacman` transaction |
 | `grub-btrfs` | Adds a "boot from snapshot" submenu to GRUB |
+| `inotify-tools` | Lets `grub-btrfsd` (below) watch for new/deleted snapshots and regenerate the menu automatically |
+
+> 🔴 **`inotify-tools` is an optional dependency of `grub-btrfs`, so `pacman` will not pull it in
+> for you.** Without it, `grub-btrfsd` fails immediately with
+> `inotifywait was not found, exiting. Is inotify-tools installed?` — the service looks enabled
+> and running, but no snapshot ever appears in the GRUB menu. This is the most common reason
+> "grub-btrfs isn't working."
 
 ### The `/.snapshots` conflict — read this before running `create-config`
 
@@ -293,6 +300,16 @@ sudo systemctl enable --now snapper-timeline.timer
 sudo systemctl enable --now snapper-cleanup.timer
 sudo systemctl enable --now grub-btrfsd
 ```
+
+**Verify it's actually running**, not just enabled:
+
+```bash
+sudo systemctl status grub-btrfsd
+```
+
+If it shows `inotifywait was not found`, go back and install `inotify-tools` — `pacman -S
+inotify-tools`, then `sudo systemctl restart grub-btrfsd`. Take a snapshot and check
+`/boot/grub/grub.cfg` for a new submenu entry to confirm it worked.
 
 ### Tune the retention limits
 
